@@ -13,7 +13,8 @@ export function FacebookSignInButton({
   onClick, 
   disabled = false, 
   isLoading = false,
-  className = ""
+  className = "",
+  text = "Facebook"
 }: FacebookSignInButtonProps) {
   return (
     <Button 
@@ -29,6 +30,7 @@ export function FacebookSignInButton({
         height={20}
         className="flex-shrink-0"
       />
+      <span className="text-sm font-medium">{text}</span>
     </Button>
   );
 }

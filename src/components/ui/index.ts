@@ -3,6 +3,7 @@ export { Input } from './Input';
 export { Button } from './Button';
 export { PasswordInput } from './PasswordInput';
 export { default as LanguageSwitcher } from './LanguageSwitcher';
+export { PageLoader } from './PageLoader';
 
 // Auth-specific Components
 export { GoogleSignInButton } from './GoogleSignInButton';

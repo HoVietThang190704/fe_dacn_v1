@@ -15,4 +15,4 @@ export const config = {
     '/(vi|en)/:path*',
     '/((?!api|_next|_vercel|.*\\..*).*)'
   ]
-};
+};  

@@ -8,7 +8,7 @@ interface AuthLinkProps {
 export function AuthLink({ href, text, linkText, className = "" }: AuthLinkProps) {
   return (
     <div className={`text-center text-sm text-[var(--muted-foreground)] ${className}`}>
-      {text} <a href={href} className="text-[var(--primary)] font-semibold hover:underline">{linkText}</a>
+      {text} <a href={href} className="text-[var(--shadow-color)]  hover:underline">{linkText}</a>
     </div>
   );
 }
