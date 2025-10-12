@@ -1,0 +1,61 @@
+{
+  "auth": {
+    "login": {
+      "title": "Login",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign In",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create new"
+    },
+    "register": {
+      "title": "Create Account",
+      "fullName": "Full Name",
+      "email": "Email", 
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Create Account",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in"
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email format",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 6 characters",
+      "fullNameRequired": "Full name is required",
+      "fullNameMinLength": "Full name must be at least 2 characters",
+      "confirmPasswordRequired": "Confirm password is required",
+      "passwordMismatch": "Passwords do not match"
+    },
+    "social": {
+      "orLoginWith": "Or login with",
+      "google": "Google",
+      "facebook": "Facebook"
+    }
+  },
+  "main": {
+    "welcome": "Welcome",
+    "logout": "Logout",
+    "products": "Products",
+    "manageProducts": "Manage Products",
+    "orders": "Orders",
+    "manageOrders": "Manage Orders", 
+    "profile": "Profile",
+    "manageProfile": "Manage Profile",
+    "welcomeTitle": "Welcome to Fresh Food Platform",
+    "welcomeDescription": "Farm-to-table fresh food management system",
+    "totalProducts": "Total Products",
+    "totalOrders": "Total Orders",
+    "totalRevenue": "Total Revenue"
+  },
+  "navbar": {
+    "searchPlaceholder": "Search for Grocery, Stores, Vegetable or Meat...",
+    "deliveryPromise": "Order now and get it within 15 mins!",
+    "profile": "Profile",
+    "orders": "My Orders", 
+    "settings": "Settings",
+    "logout": "Logout"
+  }
+}

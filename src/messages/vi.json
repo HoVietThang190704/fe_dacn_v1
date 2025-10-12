@@ -1,0 +1,61 @@
+{
+  "auth": {
+    "login": {
+      "title": "Đăng nhập",
+      "email": "Email",
+      "password": "Mật khẩu",
+      "submit": "Đăng nhập",
+      "forgotPassword": "Quên mật khẩu?",
+      "noAccount": "Chưa có tài khoản?",
+      "createAccount": "Tạo mới"
+    },
+    "register": {
+      "title": "Tạo tài khoản",
+      "fullName": "Họ và tên",
+      "email": "Email",
+      "password": "Mật khẩu", 
+      "confirmPassword": "Xác nhận mật khẩu",
+      "submit": "Tạo tài khoản",
+      "hasAccount": "Đã có tài khoản?",
+      "signIn": "Đăng nhập"
+    },
+    "validation": {
+      "emailRequired": "Email là bắt buộc",
+      "emailInvalid": "Email không hợp lệ",
+      "passwordRequired": "Mật khẩu là bắt buộc",
+      "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự",
+      "fullNameRequired": "Họ tên là bắt buộc",
+      "fullNameMinLength": "Họ tên phải có ít nhất 2 ký tự",
+      "confirmPasswordRequired": "Xác nhận mật khẩu là bắt buộc",
+      "passwordMismatch": "Mật khẩu không khớp"
+    },
+    "social": {
+      "orLoginWith": "Hoặc đăng nhập với",
+      "google": "Google",
+      "facebook": "Facebook"
+    }
+  },
+  "main": {
+    "welcome": "Chào mừng",
+    "logout": "Đăng xuất",
+    "products": "Sản phẩm",
+    "manageProducts": "Quản lý sản phẩm",
+    "orders": "Đơn hàng", 
+    "manageOrders": "Quản lý đơn hàng",
+    "profile": "Hồ sơ",
+    "manageProfile": "Quản lý hồ sơ",
+    "welcomeTitle": "Chào mừng đến với Fresh Food Platform",
+    "welcomeDescription": "Hệ thống quản lý thực phẩm tươi sạch từ nông trại đến bàn ăn",
+    "totalProducts": "Tổng sản phẩm",
+    "totalOrders": "Tổng đơn hàng", 
+    "totalRevenue": "Tổng doanh thu"
+  },
+  "navbar": {
+    "searchPlaceholder": "Tìm kiếm rau, trái cây, thịt hoặc thực phẩm...",
+    "deliveryPromise": "Đặt hàng ngay và nhận trong 15 phút!",
+    "profile": "Hồ sơ cá nhân",
+    "orders": "Đơn hàng của tôi",
+    "settings": "Cài đặt",
+    "logout": "Đăng xuất"
+  }
+}
