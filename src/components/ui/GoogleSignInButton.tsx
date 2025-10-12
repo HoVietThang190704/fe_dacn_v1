@@ -13,7 +13,8 @@ export function GoogleSignInButton({
   onClick, 
   disabled = false, 
   isLoading = false,
-  className = ""
+  className = "",
+  text = "Google"
 }: GoogleSignInButtonProps) {
   return (
     <Button 
@@ -29,6 +30,7 @@ export function GoogleSignInButton({
         height={20}
         className="flex-shrink-0"
       />
+      <span className="text-sm font-medium">{text}</span>
     </Button>
   );
 }
