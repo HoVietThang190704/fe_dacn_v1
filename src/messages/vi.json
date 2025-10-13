@@ -78,5 +78,11 @@
     "settings": "Cài đặt",
     "brandName": "Nông Trại Tươi",
     "brandSlogan": "Tươi ngon mỗi ngày"
+  },
+  "heroSide": {
+    "title": "Thực phẩm tươi sạch từ nông trại đến bàn ăn",
+    "description": "Cung cấp thực phẩm tươi ngon, an toàn và chất lượng cao trực tiếp từ nông trại đến tay bạn.",
+    "shopNow": "Mua ngay",
+    "learnMore": "Tìm hiểu thêm"
   }
 }

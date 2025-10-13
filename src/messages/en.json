@@ -78,5 +78,10 @@
     "settings": "Settings",
     "brandName": "Fresh Farm",
     "brandSlogan": "Fresh every day"
+  },
+  "heroSide": {
+    "title": "We bring the store to your door",
+    "description": "Get organic produce and sustainably sourced groceries delivery at up to 4% off grocery.",
+    "shopNow": "Shop now"
   }
 }

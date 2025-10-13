@@ -2,11 +2,25 @@
 
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { HeroBanner } from '@/components/ui';
 import Link from 'next/link';
 
 export default function MainPage() {
   const t = useTranslations('main');
   const { isAuthenticated, isLoading } = useAuth();
+
+  const handleShopNowClick = () => {
+    if (isAuthenticated) {
+      // Scroll xuống phần dashboard hoặc products
+      const dashboardSection = document.getElementById('dashboard');
+      if (dashboardSection) {
+        dashboardSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      // Redirect đến trang đăng nhập
+      window.location.href = '/auth/login';
+    }
+  };
 
   if (isLoading) {
     return (
@@ -43,12 +57,18 @@ export default function MainPage() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {!isAuthenticated ? (
-        <GuestContent />
-      ) : (
-        <>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="min-h-screen bg-gray-50">
+      <section className="mb-8">
+        <HeroBanner onShopNowClick={handleShopNowClick} />
+      </section>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" id="dashboard">
+        {!isAuthenticated ? (
+          <GuestContent />
+        ) : (
+          <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
@@ -127,6 +147,7 @@ export default function MainPage() {
         </div>
         </>
       )}
+      </div>
     </div>
   );
 }

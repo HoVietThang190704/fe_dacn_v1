@@ -1,73 +1,65 @@
-// 'use client';
+'use client';
 
-// import Image from 'next/image';
-// import { Button } from './Button';
+import Image from "next/image";
+import { Button } from "@/components/ui";
+import { useTranslations } from "next-intl";
 
-// interface HeroBannerProps {
-//   title: string;
-//   subtitle: string;
-//   buttonText: string;
-//   onButtonClick?: () => void;
-//   backgroundImage?: string;
-// }
+interface HeroBannerProps {
+    onShopNowClick: () => void;
+}
 
-// export function HeroBanner({
-//   title,
-//   subtitle,
-//   buttonText,
-//   onButtonClick,
-//   backgroundImage
-// }: HeroBannerProps) {
-//   return (
-//     <div className="relative w-full min-h-[500px] overflow-hidden rounded-2xl">
-//       {/* Background với gradient */}
-//       <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-700">
-//         {backgroundImage && (
-//           <Image
-//             src={backgroundImage}
-//             alt="Hero background"
-//             fill
-//             className="object-cover mix-blend-overlay opacity-20"
-//           />
-//         )}
-//       </div>
-      
-//       {/* Nội dung chính */}
-//       <div className="relative z-10 h-full flex items-center">
-//         <div className="container mx-auto px-4">
-//           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-//             {/* Text content */}
-//             <div className="text-white space-y-6">
-//               <h1 className="text-4xl md:text-6xl font-bold">
-//                 {title}
-//               </h1>
-//               <p className="text-xl text-emerald-100">
-//                 {subtitle}
-//               </p>
-//               <Button
-//                 onClick={onButtonClick}
-//                 className="bg-lime-400 text-emerald-900 hover:bg-lime-300 px-8 py-4 rounded-full"
-//               >
-//                 {buttonText}
-//               </Button>
-//             </div>
-            
-//             {/* Illustration */}
-//             <div className="flex justify-center">
-//               <div className="w-80 h-80 relative">
-//                 {/* Shopping bag icon hoặc hình ảnh */}
-//                 <div className="w-full h-full bg-lime-400 rounded-3xl flex items-center justify-center text-8xl">
-//                   🛒
-//                 </div>
-//                 {/* Floating elements */}
-//                 <div className="absolute top-8 right-8 w-16 h-16 bg-orange-400 rounded-full flex items-center justify-center animate-bounce">
-//                   🥕
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
+export function HeroBanner ({onShopNowClick}: HeroBannerProps) {
+    const t = useTranslations('heroSide');
+    return (
+        <div className="relative w-full min-h-[300px] md:min-h-[400px] overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700">
+            <div className="relative z-10 h-full flex items-center min-h-[300px] md:min-h-[400px]">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                        <div className="text-white pb-10 md:pb-14">
+                            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+                                {t('title')}
+                            </h1>
+                            <p className="text-lg md:text-xl text-white/90 mb-6 leading-relaxed">
+                                {t('description')}
+                            </p>
+                            <Button
+                                variant="primary"
+                                size="lg"
+                                onClick={onShopNowClick}
+                                className="bg-lime-400 hover:bg-lime-300 text-emerald-900 transition-all duration-300 transform hover:scale-105"
+                            >
+                                {t('shopNow')}
+                            </Button>
+                        </div>
+                        
+                        <div className="flex justify-center lg:justify-end">
+                            <div className="relative w-[280px] h-[200px] md:w-[350px] md:h-[250px] lg:w-[400px] lg:h-[280px]">
+                                <Image
+                                    src="/img/HeroBanner.png"
+                                    alt="Fresh groceries basket"
+                                    fill
+                                    className="object-contain"
+                                    priority
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-20 pointer-events-none">
+                <svg
+                    className="relative block w-full h-20"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 1200 120"
+                    preserveAspectRatio="none"
+                >
+                    <path
+                        d="M0,0 C300,60 900,60 1200,0 V120 H0 Z"
+                        className="fill-white"
+                    ></path>
+                </svg>
+            </div>
+        </div>
+    );
+}

@@ -31,7 +31,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar onMenuToggle={handleMenuToggle} />
-      <div className="flex">
+      <div className="flex ">
         <Sidebar 
           isOpen={isSidebarOpen} 
           isMobile={isMobile}

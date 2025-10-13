@@ -13,4 +13,4 @@ export { FacebookSignInButton } from './FacebookSignInButton';
 export { AuthDivider } from './AuthDivider';
 export { AuthLink } from './AuthLink';
 
-// export { HeroBanner } from './HeroBanner';
+export { HeroBanner } from './HeroBanner';
