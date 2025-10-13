@@ -61,7 +61,11 @@
     "profile": "Hồ sơ cá nhân",
     "orders": "Đơn hàng của tôi",
     "settings": "Cài đặt",
-    "logout": "Đăng xuất"
+    "logout": "Đăng xuất",
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "welcome": "Chào mừng!",
+    "pleaseSignIn": "Vui lòng đăng nhập để tiếp tục"
   },
   "sidebar": {
     "home": "Trang chủ",

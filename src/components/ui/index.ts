@@ -5,6 +5,7 @@ export { PasswordInput } from './PasswordInput';
 export { default as LanguageSwitcher } from './LanguageSwitcher';
 export { PageLoader } from './PageLoader';
 export { MenuButton } from './MenuButton';
+export { UserDropdown } from './UserDropdown';
 
 // Auth-specific Components
 export { GoogleSignInButton } from './GoogleSignInButton';
