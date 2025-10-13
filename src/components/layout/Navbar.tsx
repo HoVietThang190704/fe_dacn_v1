@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/shared/hooks/useAuth';
-import { MenuButton } from '@/components/ui';
+import { MenuButton, UserDropdown } from '@/components/ui';
 import { Sidebar } from './Sidebar';
 import Image from 'next/image';
 const SearchBar = () => {
@@ -49,65 +49,7 @@ const CartIcon = () => {
   );
 };
 
-const UserAvatar = () => {
-  const [showDropdown, setShowDropdown] = useState(false);
-  const { user, logout } = useAuth();
-  const t = useTranslations('navbar');
 
-  return (
-    <div className="relative">
-      <button
-        onClick={() => setShowDropdown(!showDropdown)}
-        className="flex items-center space-x-2 text-navbar-foreground hover:text-navbar-foreground/80 transition-colors p-1"
-      >
-        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-card rounded-full flex items-center justify-center">
-          <span className="text-primary font-semibold text-xs sm:text-sm">
-            {user?.userName?.charAt(0).toUpperCase() || 'U'}
-          </span>
-        </div>
-      </button>
-
-      {showDropdown && (
-        <div className="absolute right-0 mt-2 w-48 bg-popover rounded-md shadow-lg py-1 z-50 border border-border">
-          <div className="px-4 py-2 text-sm text-popover-foreground border-b border-border">
-            <div className="font-semibold">{user?.userName || 'User'}</div>
-            <div className="text-muted-foreground">{user?.email}</div>
-          </div>
-          <Link 
-            href="/profile" 
-            className="block px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground"
-            onClick={() => setShowDropdown(false)}
-          >
-            {t('profile')}
-          </Link>
-          <Link 
-            href="/orders" 
-            className="block px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground"
-            onClick={() => setShowDropdown(false)}
-          >
-            {t('orders')}
-          </Link>
-          <Link 
-            href="/settings" 
-            className="block px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground"
-            onClick={() => setShowDropdown(false)}
-          >
-            {t('settings')}
-          </Link>
-          <button
-            onClick={() => {
-              logout();
-              setShowDropdown(false);
-            }}
-            className="block w-full text-left px-4 py-2 text-sm text-destructive hover:bg-accent"
-          >
-            {t('logout')}
-          </button>
-        </div>
-      )}
-    </div>
-  );
-};
 
 interface NavbarProps {
   onMenuToggle?: (isOpen: boolean) => void;
@@ -148,7 +90,7 @@ export default function Navbar({ onMenuToggle }: NavbarProps) {
               <span className="font-medium">{t('deliveryPromise')}</span>
             </div>
             <CartIcon />
-            <UserAvatar />
+            <UserDropdown />
           </div>
         </div>
       </div>

@@ -61,7 +61,11 @@
     "profile": "Profile",
     "orders": "My Orders", 
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "login": "Sign In",
+    "register": "Sign Up",
+    "welcome": "Welcome!",
+    "pleaseSignIn": "Please sign in to continue"
   },
   "sidebar": {
     "home": "Home",
