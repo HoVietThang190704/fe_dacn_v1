@@ -33,7 +33,8 @@
       "orLoginWith": "Or login with",
       "google": "Google",
       "facebook": "Facebook"
-    }
+    },
+    "backToHome": "Home"
   },
   "main": {
     "welcome": "Welcome",
@@ -48,7 +49,11 @@
     "welcomeDescription": "Farm-to-table fresh food management system",
     "totalProducts": "Total Products",
     "totalOrders": "Total Orders",
-    "totalRevenue": "Total Revenue"
+    "totalRevenue": "Total Revenue",
+    "guestWelcome": "Welcome to Fresh Food Platform",
+    "guestDescription": "Login to access full management features",
+    "loginButton": "Login",
+    "registerButton": "Register"
   },
   "navbar": {
     "searchPlaceholder": "Search for Grocery, Stores, Vegetable or Meat...",
@@ -57,5 +62,17 @@
     "orders": "My Orders", 
     "settings": "Settings",
     "logout": "Logout"
+  },
+  "sidebar": {
+    "home": "Home",
+    "products": "Products",
+    "livestream": "Livestream",
+    "orders": "Orders",
+    "favorites": "Favorites",
+    "community": "Community",
+    "support": "Support",
+    "settings": "Settings",
+    "brandName": "Fresh Farm",
+    "brandSlogan": "Fresh every day"
   }
 }

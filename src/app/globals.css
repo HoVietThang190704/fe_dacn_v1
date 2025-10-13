@@ -33,6 +33,9 @@
   --sidebar-accent-foreground: #374151;
   --sidebar-border: #e5e7eb;
   --sidebar-ring: #22c55e;
+  --navbar: #0d9488;
+  --navbar-foreground: #ffffff;
+  --navbar-hover: #0f766e;
   --font-sans: DM Sans, sans-serif;
   --font-serif: Lora, serif;
   --font-mono: IBM Plex Mono, monospace;
@@ -88,6 +91,9 @@
   --sidebar-accent-foreground: #a1a1aa;
   --sidebar-border: #4b5563;
   --sidebar-ring: #34d399;
+  --navbar: #1e293b;
+  --navbar-foreground: #d1d5db;
+  --navbar-hover: #334155;
   --font-sans: DM Sans, sans-serif;
   --font-serif: Lora, serif;
   --font-mono: IBM Plex Mono, monospace;
@@ -141,6 +147,9 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-navbar: var(--navbar);
+  --color-navbar-foreground: var(--navbar-foreground);
+  --color-navbar-hover: var(--navbar-hover);
 
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
