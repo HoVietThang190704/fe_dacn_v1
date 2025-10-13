@@ -33,7 +33,8 @@
       "orLoginWith": "Hoặc đăng nhập với",
       "google": "Google",
       "facebook": "Facebook"
-    }
+    },
+    "backToHome": "Trang chủ"
   },
   "main": {
     "welcome": "Chào mừng",
@@ -48,7 +49,11 @@
     "welcomeDescription": "Hệ thống quản lý thực phẩm tươi sạch từ nông trại đến bàn ăn",
     "totalProducts": "Tổng sản phẩm",
     "totalOrders": "Tổng đơn hàng", 
-    "totalRevenue": "Tổng doanh thu"
+    "totalRevenue": "Tổng doanh thu",
+    "guestWelcome": "Chào mừng đến với Fresh Food Platform",
+    "guestDescription": "Đăng nhập để truy cập đầy đủ tính năng quản lý",
+    "loginButton": "Đăng nhập",
+    "registerButton": "Đăng ký"
   },
   "navbar": {
     "searchPlaceholder": "Tìm kiếm rau, trái cây, thịt hoặc thực phẩm...",
@@ -57,5 +62,17 @@
     "orders": "Đơn hàng của tôi",
     "settings": "Cài đặt",
     "logout": "Đăng xuất"
+  },
+  "sidebar": {
+    "home": "Trang chủ",
+    "products": "Sản phẩm",
+    "livestream": "Livestream",
+    "orders": "Đơn hàng",
+    "favorites": "Yêu thích",
+    "community": "Cộng đồng",
+    "support": "Hỗ trợ",
+    "settings": "Cài đặt",
+    "brandName": "Nông Trại Tươi",
+    "brandSlogan": "Tươi ngon mỗi ngày"
   }
 }

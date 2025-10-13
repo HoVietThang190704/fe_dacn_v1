@@ -20,23 +20,23 @@ export default function MainPage() {
   const GuestContent = () => (
     <div className="text-center py-12">
       <h2 className="text-2xl font-bold text-gray-900 mb-4">
-        Chào mừng đến với Fresh Food Platform
+        {t('guestWelcome')}
       </h2>
       <p className="text-gray-600 mb-6">
-        Đăng nhập để truy cập đầy đủ tính năng quản lý
+        {t('guestDescription')}
       </p>
       <div className="space-x-4">
         <Link 
           href="/auth/login"
           className="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors"
         >
-          Đăng nhập
+          {t('loginButton')}
         </Link>
         <Link 
           href="/auth/register"
           className="border border-teal-600 text-teal-600 px-6 py-3 rounded-lg hover:bg-teal-50 transition-colors"
         >
-          Đăng ký
+          {t('registerButton')}
         </Link>
       </div>
     </div>

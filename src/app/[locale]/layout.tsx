@@ -11,7 +11,7 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <LanguageSwitcher />
+      {/* <LanguageSwitcher /> */}
       {children}
     </NextIntlClientProvider>
   );
