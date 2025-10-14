@@ -16,7 +16,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      setIsSidebarOpen(!mobile);
+      if (!mobile) {
+        setIsSidebarOpen(true);
+      }
     };
 
     checkMobile();
@@ -30,14 +32,14 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar onMenuToggle={handleMenuToggle} />
-      <div className="flex ">
+      <Navbar onMenuToggle={handleMenuToggle} isSidebarOpen={isSidebarOpen} />
+      <div className="flex">
         <Sidebar 
-          isOpen={isSidebarOpen} 
+          isOpen={isSidebarOpen}
           isMobile={isMobile}
           onClose={() => setIsSidebarOpen(false)} 
         />
-        <main className={`flex-1 transition-all duration-300 ${isSidebarOpen && !isMobile ? 'ml-0' : 'ml-0'}`}>
+        <main className="flex-1 transition-all duration-300">
           {children}
         </main>
       </div>
