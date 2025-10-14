@@ -4,24 +4,17 @@ import { useState, useEffect } from 'react';
 
 interface MenuButtonProps {
   onToggle?: (isOpen: boolean) => void;
+  isOpen?: boolean;
 }
 
-export function MenuButton({ onToggle }: MenuButtonProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function MenuButton({ onToggle, isOpen: isOpenProp }: MenuButtonProps) {
   const [isMobile, setIsMobile] = useState(false);
+  const isOpen = isOpenProp ?? false;
 
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768; 
       setIsMobile(mobile);
-      if (!mobile && !isOpen) {
-        setIsOpen(true);
-        onToggle?.(true);
-      }
-      if (mobile && isOpen) {
-        setIsOpen(false);
-        onToggle?.(false);
-      }
     };
     checkMobile();
 
@@ -31,7 +24,6 @@ export function MenuButton({ onToggle }: MenuButtonProps) {
 
   const handleToggle = () => {
     const newState = !isOpen;
-    setIsOpen(newState);
     onToggle?.(newState);
   };
 

@@ -114,18 +114,18 @@ export function Sidebar({ isOpen, isMobile = false, onClose }: SidebarProps) {
     <>
       {isMobile && isOpen && (
         <div
-          className="fixed top-14 sm:top-16 left-0 right-0 bottom-0 bg-background/80 backdrop-blur-sm z-30 md:hidden transition-opacity duration-300"
+          className="fixed top-14 sm:top-16 left-0 right-0 bottom-0 bg-background/80 backdrop-blur-sm z-20 md:hidden transition-opacity duration-300"
           onClick={handleOverlayClick}
           aria-hidden="true"
         />
       )}
       <aside
         className={`
-          ${isMobile ? 'fixed top-14 sm:top-16' : 'relative top-0'} left-0 
+          ${isMobile ? 'fixed top-14 sm:top-16' : 'sticky top-14 sm:top-16'} left-0 
           ${isMobile ? 'h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)]' : 'h-[calc(100vh-4rem)]'}
           bg-sidebar border-r border-sidebar-border shadow-lg md:shadow-none
-          z-40 transition-all duration-300 ease-in-out flex-shrink-0
-          ${isOpen ? 'translate-x-0 w-64' : isMobile ? '-translate-x-full w-64' : 'w-0 border-0'}
+          z-30 transition-all duration-300 ease-in-out flex-shrink-0
+          ${isOpen ? 'translate-x-0 w-64' : isMobile ? '-translate-x-full w-64' : 'w-0 -translate-x-full'}
           overflow-hidden
         `}
       >
