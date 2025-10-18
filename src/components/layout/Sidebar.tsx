@@ -39,7 +39,7 @@ export function Sidebar({ isOpen, isMobile = false, onClose }: SidebarProps) {
         </svg>
       ),
       label: t('products') || 'Sản phẩm',
-      href: '/products',
+      href: '/main/products',
     },
     {
       icon: (
@@ -48,7 +48,7 @@ export function Sidebar({ isOpen, isMobile = false, onClose }: SidebarProps) {
         </svg>
       ),
       label: t('livestream') || 'Livestream',
-      href: '/livestream',
+      href: '/main/livestream',
       badge: 3,
     },
     {
@@ -58,7 +58,7 @@ export function Sidebar({ isOpen, isMobile = false, onClose }: SidebarProps) {
         </svg>
       ),
       label: t('orders') || 'Đơn hàng',
-      href: '/orders',
+      href: '/main/orders',
     },
     {
       icon: (
@@ -67,7 +67,7 @@ export function Sidebar({ isOpen, isMobile = false, onClose }: SidebarProps) {
         </svg>
       ),
       label: t('favorites') || 'Yêu thích',
-      href: '/favorites',
+      href: '/main/favorites',
     },
     {
       icon: (
@@ -76,7 +76,7 @@ export function Sidebar({ isOpen, isMobile = false, onClose }: SidebarProps) {
         </svg>
       ),
       label: t('community') || 'Cộng đồng',
-      href: '/community',
+      href: '/main/community',
     },
     {
       icon: (
@@ -85,7 +85,7 @@ export function Sidebar({ isOpen, isMobile = false, onClose }: SidebarProps) {
         </svg>
       ),
       label: t('support') || 'Hỗ trợ',
-      href: '/support',
+      href: '/main/support',
     },
     {
       icon: (
@@ -95,12 +95,20 @@ export function Sidebar({ isOpen, isMobile = false, onClose }: SidebarProps) {
         </svg>
       ),
       label: t('settings') || 'Cài đặt',
-      href: '/settings',
+      href: '/main/settings',
     },
   ];
+   const normalizePath = (p?: string) => {
+    if (!p) return '/';
+    return p.replace(/^\/(en|vi)(?=$|\/)/, '') || '/';
+  };
 
   const isActive = (href: string) => {
-    return pathname?.includes(href);
+    const p = normalizePath(pathname);
+    if (href === '/main') {
+      return p === '/main' || p === '/';
+    }
+   return p === href || p.startsWith(href + '/');
   };
 
   // Handle overlay click on mobile

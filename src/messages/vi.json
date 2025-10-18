@@ -17,7 +17,9 @@
       "confirmPassword": "Xác nhận mật khẩu",
       "submit": "Tạo tài khoản",
       "hasAccount": "Đã có tài khoản?",
-      "signIn": "Đăng nhập"
+      "signIn": "Đăng nhập",
+      "success": "Tạo tài khoản thành công!",
+      "redirectingToLogin": "Đang chuyển đến trang đăng nhập..."
     },
     "validation": {
       "emailRequired": "Email là bắt buộc",
@@ -84,5 +86,160 @@
     "description": "Cung cấp thực phẩm tươi ngon, an toàn và chất lượng cao trực tiếp từ nông trại đến tay bạn.",
     "shopNow": "Mua ngay",
     "learnMore": "Tìm hiểu thêm"
+  }
+  ,
+  "products": {
+    "title": "Tất Cả Sản Phẩm",
+    "found": "Tìm thấy {count} sản phẩm",
+    "sort": "Giá",
+    "sortLowHigh": "Giá: Thấp đến Cao",
+    "sortHighLow": "Giá: Cao đến Thấp",
+    "popular": "Phổ biến",
+    "newest": "Mới nhất",
+    "bestSellers": "Bán chạy"
+    ,
+    "sold": "Đã bán",
+    "loading": "Đang tải sản phẩm...",
+    "emptyTitle": "Không tìm thấy sản phẩm",
+    "emptyDesc": "Thử thay đổi bộ lọc hoặc tìm kiếm khác"
+  }
+  ,
+  "home": {
+    "heroTitle": "Fresh Market - Nông Sản Tươi Sạch",
+    "heroSubtitle": "Giao hàng nhanh - Giá tốt mỗi ngày",
+    "heroCta": "Mua Ngay",
+    "flashSale": "FLASH SALE",
+    "suggestions": "Gợi ý cho bạn",
+    "seeAll": "Xem tất cả →"
+  },
+  "orders": {
+    "title": "Đơn Mua",
+    "filter": {
+      "all": "Tất cả",
+      "pending": "Chờ xác nhận",
+      "shipping": "Đang giao",
+      "delivered": "Đã giao",
+      "cancelled": "Đã hủy"
+    },
+    "total": "Tổng",
+    "noOrders": "Không có đơn hàng",
+    "startShopping": "Bắt đầu mua sắm",
+    "amountLabel": "Thành tiền",
+    "actions": {
+      "review": "Đánh giá",
+      "buyAgain": "Mua lại",
+      "contactSeller": "Liên hệ người bán",
+      "confirmReceived": "Đã nhận hàng",
+      "cancel": "Hủy đơn",
+      "details": "Xem chi tiết"
+    }
+  },
+  "favorites": {
+    "title": "Đã Thích ({count})",
+    "addToCart": "Thêm vào giỏ",
+    "outOfStock": "Hết hàng",
+    "discover": "Khám phá sản phẩm"
+  },
+  "livestream": {
+    "title": "Livestream",
+    "subtitle": "Xem livestream và mua sắm trực tiếp",
+    "create": "Tạo Livestream",
+    "history": "Lịch sử",
+    "liveTab": "Đang live ({count})",
+    "scheduledTab": "Sắp diễn ra ({count})",
+    "noLive": "Hiện không có livestream nào đang diễn ra",
+    "noScheduled": "Không có livestream đã lên lịch",
+    "liveBadge": "LIVE",
+    "upcomingBadge": "SẮP DIỄN RA",
+    "viewer": "người xem"
+  },
+  "community": {
+    "title": "Cộng đồng",
+    "placeholder": "Bạn đang nghĩ gì?",
+    "photo": "Ảnh",
+    "video": "Video",
+    "noPosts": "Chưa có bài viết nào",
+    "likes": "lượt thích",
+    "comments": "bình luận",
+    "shares": "chia sẻ",
+    "like": "Thích",
+    "comment": "Bình luận",
+    "share": "Chia sẻ"
+  },
+  "support": {
+    "title": "Hỗ Trợ Khách Hàng",
+    "subtitle": "Chúng tôi luôn sẵn sàng hỗ trợ bạn 24/7",
+    "hotline": "Hotline",
+    "email": "Email",
+    "chat": "Chat",
+    "faqsTab": "FAQs",
+    "ticketsTab": "Yêu cầu ({count})",
+    "createTicket": "Tạo yêu cầu",
+    "noTickets": "Chưa có yêu cầu hỗ trợ",
+    "helpfulQuestion": "Câu trả lời này có hữu ích không?",
+    "yes": "Có",
+    "no": "Không",
+    "viewDetails": "Xem chi tiết →"
+  },
+  "settings": {
+    "title": "Cài Đặt Tài Khoản",
+    "profile": "Thông tin cá nhân",
+    "security": "Bảo mật",
+    "notifications": "Thông báo",
+    "preferences": "Tùy chọn",
+    "changeAvatar": "Thay đổi ảnh",
+    "saveChanges": "Lưu thay đổi",
+    "cancel": "Hủy",
+    "deleteAccount": "Xóa tài khoản",
+    "current": "Hiện tại"
+    ,
+    "changePasswordTitle": "Đổi mật khẩu",
+    "currentPassword": "Mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "confirmNewPassword": "Xác nhận mật khẩu mới",
+    "updatePassword": "Cập nhật mật khẩu",
+    "twoFactorTitle": "Xác thực hai yếu tố",
+    "twoFactorDesc": "Bảo vệ tài khoản bằng bước xác thực bổ sung",
+    "twoFactorToggle": "Bật xác thực hai yếu tố",
+    "devicesTitle": "Thiết bị đã đăng nhập",
+    "now": "Hiện tại",
+    "hoursAgo": "{hours} giờ trước",
+    "notificationsTitle": "Thông báo",
+    "notif_order": "Thông báo đơn hàng",
+    "notif_order_desc": "Nhận cập nhật về trạng thái đơn hàng",
+    "notif_promo": "Khuyến mãi & ưu đãi",
+    "notif_promo_desc": "Nhận cập nhật về các chương trình khuyến mãi",
+    "notif_new_product": "Sản phẩm mới",
+    "notif_new_product_desc": "Nhận thông báo khi có sản phẩm mới",
+    "notif_livestream": "Livestream",
+    "notif_livestream_desc": "Nhận thông báo khi có livestream",
+    "notif_community": "Cộng đồng",
+    "notif_community_desc": "Nhận thông báo từ cộng đồng",
+    "languageAndRegion": "Ngôn ngữ & Vùng",
+    "pref_language": "Ngôn ngữ",
+    "pref_timezone": "Múi giờ",
+    "lang_vietnamese": "Tiếng Việt",
+    "lang_english": "English",
+    "timezone_gmt7": "(GMT+7) Bangkok, Hanoi, Jakarta",
+    "theme": "Giao diện",
+    "darkMode": "Chế độ tối",
+    "darkModeDesc": "Sử dụng giao diện tối cho ứng dụng",
+    "dangerous_zone": "Vùng nguy hiểm",
+    "dangerous_desc": "Các hành động dưới đây không thể hoàn tác"
+  }
+  ,
+  "profile": {
+    "title": "Hồ sơ",
+    "subtitle": "Quản lý tài khoản và thông tin cá nhân",
+    "edit": "Chỉnh sửa",
+    "settings": "Cài đặt",
+    "message": "Gửi tin nhắn",
+    "about": "Giới thiệu",
+    "name": "Họ và tên",
+    "email": "Email",
+    "phone": "Số điện thoại",
+    "role": "Vai trò",
+    "preferences": "Tùy chọn",
+    "preferencesHelp": "Quản lý ngôn ngữ, thông báo và các tùy chọn tài khoản khác trong Cài đặt."
   }
 }

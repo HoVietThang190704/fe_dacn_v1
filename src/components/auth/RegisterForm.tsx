@@ -23,6 +23,7 @@ export default function RegisterForm() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+    const [registrationSuccess, setRegistrationSuccess] = useState(false);
     const { register, loginWithGoogle, isLoading, error } = useAuth();
     const [fullName, setFullName] = useState('');
     const t = useTranslations('auth');
@@ -74,7 +75,18 @@ export default function RegisterForm() {
     });
 
     if (success) {
-
+        setRegistrationSuccess(true);
+        // Clear form data
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+        setFullName('');
+        setValidationErrors({});
+        
+        // Show success message for 2 seconds before redirect
+        setTimeout(() => {
+            setRegistrationSuccess(false);
+        }, 2000);
     }
     };
 
@@ -117,6 +129,13 @@ export default function RegisterForm() {
                     {t('register.title')}
                 </h1>
                 
+                {registrationSuccess && (
+                    <div className="text-green-600 mb-4 text-center text-sm bg-green-50 p-3 rounded border border-green-200">
+                        <div className="font-medium">{t('register.success')}</div>
+                        <div className="text-xs mt-1">{t('register.redirectingToLogin')}</div>
+                    </div>
+                )}
+                
                 {error && (
                     <div className="text-[var(--destructive)] mb-4 text-center text-sm bg-red-50 p-3 rounded">
                         {error}
@@ -136,7 +155,7 @@ export default function RegisterForm() {
                                 }
                             }}
                             error={validationErrors.fullName}
-                            disabled={isLoading}
+                            disabled={isLoading || registrationSuccess}
                         />
                     </div>
 
@@ -152,7 +171,7 @@ export default function RegisterForm() {
                                 }
                             }}
                             error={validationErrors.email}
-                            disabled={isLoading}
+                            disabled={isLoading || registrationSuccess}
                         />
                     </div>
 
@@ -168,7 +187,7 @@ export default function RegisterForm() {
                                 }
                             }}
                             error={validationErrors.password}
-                            disabled={isLoading}
+                            disabled={isLoading || registrationSuccess}
                         />
                     </div>
 
@@ -184,7 +203,7 @@ export default function RegisterForm() {
                                 }
                             }}
                             error={validationErrors.confirmPassword}
-                            disabled={isLoading}
+                            disabled={isLoading || registrationSuccess}
                         />
                     </div>
 
@@ -192,9 +211,9 @@ export default function RegisterForm() {
                         type="submit"
                         isLoading={isLoading}
                         className="w-full"
-                        disabled={isLoading}
+                        disabled={isLoading || registrationSuccess}
                     >
-                        {t('register.submit')}
+                        {registrationSuccess ? t('register.success') : t('register.submit')}
                     </Button>
                 </form>
 
@@ -203,14 +222,14 @@ export default function RegisterForm() {
                 <div className="grid grid-cols-2 gap-3">
                     <GoogleSignInButton 
                         onClick={loginWithGoogle}
-                        disabled={isLoading}
+                        disabled={isLoading || registrationSuccess}
                         isLoading={isLoading}
                         className="w-full"
                     />
 
                     <FacebookSignInButton 
                         onClick={registerWithFacebook}
-                        disabled={isLoading}
+                        disabled={isLoading || registrationSuccess}
                         isLoading={isLoading}
                         className="w-full"
                     />

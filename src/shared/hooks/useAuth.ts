@@ -90,14 +90,9 @@ export function useAuth() {
       const result = await authAPI.register(registerData);
       
       if (result.success && result.data) {
-        if (result.data.token && result.data.user) {
-          localStorage.setItem('authToken', result.data.token);
-          localStorage.setItem('user', JSON.stringify(result.data.user));
-          setUser(result.data.user);
-          setIsAuthenticated(true);
-        }
-
-        router.push('/main');
+        // Don't auto-login after registration
+        // User needs to login manually after registration
+        router.push('/auth/login');
         return true;
       } else {
         setError(result.error || 'Registration failed');

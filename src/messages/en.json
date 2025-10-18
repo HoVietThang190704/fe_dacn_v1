@@ -17,7 +17,9 @@
       "confirmPassword": "Confirm Password",
       "submit": "Create Account",
       "hasAccount": "Already have an account?",
-      "signIn": "Sign in"
+      "signIn": "Sign in",
+      "success": "Account created successfully!",
+      "redirectingToLogin": "Redirecting to login page..."
     },
     "validation": {
       "emailRequired": "Email is required",
@@ -83,5 +85,160 @@
     "title": "We bring the store to your door",
     "description": "Get organic produce and sustainably sourced groceries delivery at up to 4% off grocery.",
     "shopNow": "Shop now"
+  }
+  ,
+  "products": {
+    "title": "All Products",
+    "found": "Found {count} products",
+    "sort": "Price",
+    "sortLowHigh": "Price: Low to High",
+    "sortHighLow": "Price: High to Low",
+    "popular": "Popular",
+    "newest": "Newest",
+    "bestSellers": "Best Sellers"
+    ,
+    "sold": "Sold",
+    "loading": "Loading products...",
+    "emptyTitle": "No products found",
+    "emptyDesc": "Try changing filters or search terms"
+  }
+  ,
+  "home": {
+    "heroTitle": "Fresh Market - Fresh Produce",
+    "heroSubtitle": "Fast delivery - Great prices every day",
+    "heroCta": "Buy Now",
+    "flashSale": "FLASH SALE",
+    "suggestions": "Suggestions for you",
+    "seeAll": "See all →"
+  },
+  "orders": {
+    "title": "Orders",
+    "filter": {
+      "all": "All",
+      "pending": "Pending",
+      "shipping": "Shipping",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "total": "Total",
+    "noOrders": "No orders found",
+    "startShopping": "Start shopping",
+    "amountLabel": "Amount",
+    "actions": {
+      "review": "Review",
+      "buyAgain": "Buy again",
+      "contactSeller": "Contact seller",
+      "confirmReceived": "Confirm received",
+      "cancel": "Cancel",
+      "details": "View details"
+    }
+  },
+  "favorites": {
+    "title": "Favorites ({count})",
+    "addToCart": "Add to cart",
+    "outOfStock": "Out of stock",
+    "discover": "Discover products"
+  },
+  "livestream": {
+    "title": "Livestream",
+    "subtitle": "Watch livestreams and shop live",
+    "create": "Create Livestream",
+    "history": "History",
+    "liveTab": "Live ({count})",
+    "scheduledTab": "Scheduled ({count})",
+    "noLive": "No livestreams are live right now",
+    "noScheduled": "No scheduled livestreams",
+    "liveBadge": "LIVE",
+    "upcomingBadge": "SCHEDULED",
+    "viewer": "viewer"
+  },
+  "community": {
+    "title": "Community",
+    "placeholder": "What's on your mind?",
+    "photo": "Photo",
+    "video": "Video",
+    "noPosts": "No posts yet",
+    "likes": "likes",
+    "comments": "comments",
+    "shares": "shares",
+    "like": "Like",
+    "comment": "Comment",
+    "share": "Share"
+  },
+  "support": {
+    "title": "Customer Support",
+    "subtitle": "We're here for you 24/7",
+    "hotline": "Hotline",
+    "email": "Email",
+    "chat": "Chat",
+    "faqsTab": "FAQs",
+    "ticketsTab": "Tickets ({count})",
+    "createTicket": "Create ticket",
+    "noTickets": "No support tickets",
+    "helpfulQuestion": "Was this answer helpful?",
+    "yes": "Yes",
+    "no": "No",
+    "viewDetails": "View details →"
+  },
+  "settings": {
+    "title": "Account Settings",
+    "profile": "Profile",
+    "security": "Security",
+    "notifications": "Notifications",
+    "preferences": "Preferences",
+    "changeAvatar": "Change avatar",
+    "saveChanges": "Save changes",
+    "cancel": "Cancel",
+    "deleteAccount": "Delete account",
+    "current": "Current"
+    ,
+    "changePasswordTitle": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmNewPassword": "Confirm new password",
+    "updatePassword": "Update password",
+    "twoFactorTitle": "Two-factor authentication",
+    "twoFactorDesc": "Protect your account with an additional verification step",
+    "twoFactorToggle": "Enable two-factor authentication",
+    "devicesTitle": "Logged in devices",
+    "now": "Now",
+    "hoursAgo": "{hours} hours ago",
+    "notificationsTitle": "Notifications",
+    "notif_order": "Order notifications",
+    "notif_order_desc": "Receive updates about your order status",
+    "notif_promo": "Promotions & deals",
+    "notif_promo_desc": "Receive updates about promotions",
+    "notif_new_product": "New products",
+    "notif_new_product_desc": "Be notified when new products are added",
+    "notif_livestream": "Livestream",
+    "notif_livestream_desc": "Get notified when a livestream starts",
+    "notif_community": "Community",
+    "notif_community_desc": "Receive community updates",
+    "languageAndRegion": "Language & Region",
+    "pref_language": "Language",
+    "pref_timezone": "Timezone",
+    "lang_vietnamese": "Tiếng Việt",
+    "lang_english": "English",
+    "timezone_gmt7": "(GMT+7) Bangkok, Hanoi, Jakarta",
+    "theme": "Theme",
+    "darkMode": "Dark mode",
+    "darkModeDesc": "Use a darker color scheme for the app",
+    "dangerous_zone": "Danger zone",
+    "dangerous_desc": "The actions below are irreversible"
+  }
+  ,
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Manage your account and personal information",
+    "edit": "Edit",
+    "settings": "Settings",
+    "message": "Send message",
+    "about": "About",
+    "name": "Full name",
+    "email": "Email",
+    "phone": "Phone",
+    "role": "Role",
+    "preferences": "Preferences",
+    "preferencesHelp": "Manage your language, notifications and other account preferences in Settings."
   }
 }
