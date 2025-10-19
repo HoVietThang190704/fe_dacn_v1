@@ -18,7 +18,6 @@ export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
 
-  // Check authentication on mount
   useEffect(() => {
     const checkAuth = () => {
       try {
@@ -80,7 +79,6 @@ export function useAuth() {
     setError('');
 
     try {
-      // Map frontend data to backend format
       const registerData: RegisterRequest = {
         email: userData.email,
         password: userData.password,
@@ -90,14 +88,7 @@ export function useAuth() {
       const result = await authAPI.register(registerData);
       
       if (result.success && result.data) {
-        if (result.data.token && result.data.user) {
-          localStorage.setItem('authToken', result.data.token);
-          localStorage.setItem('user', JSON.stringify(result.data.user));
-          setUser(result.data.user);
-          setIsAuthenticated(true);
-        }
-
-        router.push('/main');
+        router.push('/auth/login');
         return true;
       } else {
         setError(result.error || 'Registration failed');

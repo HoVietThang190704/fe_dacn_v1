@@ -23,11 +23,11 @@ export default function RegisterForm() {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+    const [registrationSuccess, setRegistrationSuccess] = useState(false);
     const { register, loginWithGoogle, isLoading, error } = useAuth();
     const [fullName, setFullName] = useState('');
     const t = useTranslations('auth');
 
-    // Temporary Facebook register handler  
     const registerWithFacebook = async () => {
         console.log('Facebook register clicked - not implemented yet');
     };
@@ -74,7 +74,15 @@ export default function RegisterForm() {
     });
 
     if (success) {
-
+        setRegistrationSuccess(true);
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+        setFullName('');
+        setValidationErrors({});
+        setTimeout(() => {
+            setRegistrationSuccess(false);
+        }, 2000);
     }
     };
 
@@ -82,7 +90,6 @@ export default function RegisterForm() {
         <>
             <PageLoader />
             <div className="min-h-screen flex items-center justify-center bg-[var(--background)] font-[var(--font-sans)] relative p-4 sm:p-6 md:p-8">
-                {/* Background Image */}
                 <div className="fixed inset-0 z-0">
                 <Image
                     src="/img/background1.png"
@@ -93,8 +100,6 @@ export default function RegisterForm() {
                 />
                 <div className="absolute inset-0 bg-black/20"></div>
             </div>
-
-            {/* Back Button */}
             <Link 
                 href="/" 
                 className="absolute top-3 left-3 sm:top-6 sm:left-6 z-30 flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 sm:px-4 sm:py-2 bg-white/40 hover:bg-white/50 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-gray-700 hover:text-gray-600 group"
@@ -110,12 +115,17 @@ export default function RegisterForm() {
                 </svg>
                 <span className="hidden sm:inline text-sm font-medium">{t('backToHome')}</span>
             </Link>
-
-            {/* Register Form Container */}
             <div className="relative z-10 bg-white/50 backdrop-blur-sm p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-[var(--shadow)] w-full max-w-[95%] sm:max-w-md max-h-[90vh] overflow-y-auto">
                 <h1 className="text-center text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-[var(--foreground)]">
                     {t('register.title')}
                 </h1>
+                
+                {registrationSuccess && (
+                    <div className="text-green-600 mb-4 text-center text-sm bg-green-50 p-3 rounded border border-green-200">
+                        <div className="font-medium">{t('register.success')}</div>
+                        <div className="text-xs mt-1">{t('register.redirectingToLogin')}</div>
+                    </div>
+                )}
                 
                 {error && (
                     <div className="text-[var(--destructive)] mb-4 text-center text-sm bg-red-50 p-3 rounded">
@@ -136,7 +146,7 @@ export default function RegisterForm() {
                                 }
                             }}
                             error={validationErrors.fullName}
-                            disabled={isLoading}
+                            disabled={isLoading || registrationSuccess}
                         />
                     </div>
 
@@ -152,7 +162,7 @@ export default function RegisterForm() {
                                 }
                             }}
                             error={validationErrors.email}
-                            disabled={isLoading}
+                            disabled={isLoading || registrationSuccess}
                         />
                     </div>
 
@@ -168,7 +178,7 @@ export default function RegisterForm() {
                                 }
                             }}
                             error={validationErrors.password}
-                            disabled={isLoading}
+                            disabled={isLoading || registrationSuccess}
                         />
                     </div>
 
@@ -184,7 +194,7 @@ export default function RegisterForm() {
                                 }
                             }}
                             error={validationErrors.confirmPassword}
-                            disabled={isLoading}
+                            disabled={isLoading || registrationSuccess}
                         />
                     </div>
 
@@ -192,9 +202,9 @@ export default function RegisterForm() {
                         type="submit"
                         isLoading={isLoading}
                         className="w-full"
-                        disabled={isLoading}
+                        disabled={isLoading || registrationSuccess}
                     >
-                        {t('register.submit')}
+                        {registrationSuccess ? t('register.success') : t('register.submit')}
                     </Button>
                 </form>
 
@@ -203,14 +213,14 @@ export default function RegisterForm() {
                 <div className="grid grid-cols-2 gap-3">
                     <GoogleSignInButton 
                         onClick={loginWithGoogle}
-                        disabled={isLoading}
+                        disabled={isLoading || registrationSuccess}
                         isLoading={isLoading}
                         className="w-full"
                     />
 
                     <FacebookSignInButton 
                         onClick={registerWithFacebook}
-                        disabled={isLoading}
+                        disabled={isLoading || registrationSuccess}
                         isLoading={isLoading}
                         className="w-full"
                     />

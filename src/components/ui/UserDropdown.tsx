@@ -47,27 +47,27 @@ export const UserDropdown = ({ className = '' }: UserDropdownProps) => {
       </div>
       
       <Link 
-        href="/profile" 
+        href="/main/profile" 
         className="block px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
         onClick={closeDropdown}
       >
-        {t('profile')}
+        {t('profile') || 'Profile'}
+      </Link>
+      
+      <Link
+        href="/main/orders"
+        className="block px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+        onClick={closeDropdown}
+      >
+        {t('orders') || 'Orders'}
       </Link>
       
       <Link 
-        href="/orders" 
+        href="/main/settings" 
         className="block px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
         onClick={closeDropdown}
       >
-        {t('orders')}
-      </Link>
-      
-      <Link 
-        href="/settings" 
-        className="block px-4 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-        onClick={closeDropdown}
-      >
-        {t('settings')}
+        {t('settings') || 'Settings'}
       </Link>
       
       <button
