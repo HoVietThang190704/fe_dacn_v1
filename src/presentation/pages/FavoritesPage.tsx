@@ -127,12 +127,9 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({ userId }) => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6">
-      {/* Header - Shopee style */}
       <div className="mb-4">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{t('title', { count: mockFavorites.length })}</h1>
       </div>
-
-      {/* Favorites Grid - Responsive Shopee style */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
         {mockFavorites.map((favorite) => (
           <FavoriteCard key={favorite.id} favorite={favorite as any} />
@@ -142,14 +139,12 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({ userId }) => {
   );
 };
 
-// Sub-components - Shopee style
 const FavoriteCard: React.FC<{ favorite: Favorite }> = ({ favorite }) => {
   const { product } = favorite;
   const t = useTranslations('favorites');
 
   return (
     <div className="bg-white hover:shadow-md transition-shadow relative cursor-pointer">
-      {/* Remove Button - Shopee style */}
       <button className="absolute top-1 right-1 z-10 w-7 h-7 bg-white rounded-full shadow flex items-center justify-center hover:bg-red-50 transition-colors">
         <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
           <path
@@ -159,8 +154,6 @@ const FavoriteCard: React.FC<{ favorite: Favorite }> = ({ favorite }) => {
           />
         </svg>
       </button>
-
-      {/* Product Image */}
       <div className="relative aspect-square">
         <img
           src={product.image}
@@ -178,8 +171,6 @@ const FavoriteCard: React.FC<{ favorite: Favorite }> = ({ favorite }) => {
           </div>
         )}
       </div>
-
-      {/* Product Info */}
       <div className="p-2">
         <h3 className="text-xs sm:text-sm mb-1 line-clamp-2 h-8 sm:h-10">{product.name}</h3>
         
@@ -193,8 +184,6 @@ const FavoriteCard: React.FC<{ favorite: Favorite }> = ({ favorite }) => {
             </span>
           )}
         </div>
-
-        {/* Add to cart button - Shopee style */}
         <button disabled={!product.stock} className={`w-full mt-2 py-1.5 text-xs rounded transition-colors ${product.stock ? 'bg-orange-500 text-white hover:bg-orange-600' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>{product.stock ? t('addToCart') : t('outOfStock')}</button>
       </div>
     </div>

@@ -1,7 +1,3 @@
-/**
- * Presentation Layer: Settings Page
- * Pure UI component for user settings
- */
 'use client';
 
 import React from 'react';
@@ -18,13 +14,11 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ userId }) => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6">
-      {/* Header - Shopee style */}
       <div className="mb-4">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{t('title')}</h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-        {/* Sidebar - Responsive */}
         <div className="lg:col-span-1">
           <div className="bg-white shadow-sm p-2 space-y-1">
             <TabButton icon="👤" label={t('profile')} active={activeTab === 'profile'} onClick={() => setActiveTab('profile')} />
@@ -33,8 +27,6 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ userId }) => {
             <TabButton icon="⚙️" label={t('preferences')} active={activeTab === 'preferences'} onClick={() => setActiveTab('preferences')} />
           </div>
         </div>
-
-        {/* Content */}
         <div className="lg:col-span-3">
           {activeTab === 'profile' && <ProfileSettings t={t} />}
           {activeTab === 'security' && <SecuritySettings t={t} />}
@@ -45,8 +37,6 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ userId }) => {
     </div>
   );
 };
-
-// Tab Button Component
 const TabButton: React.FC<{
   icon: string;
   label: string;
@@ -65,13 +55,9 @@ const TabButton: React.FC<{
     <span className="hidden sm:inline">{label}</span>
   </button>
 );
-
-// Profile Settings - Shopee responsive style
 const ProfileSettings: React.FC<{ t: ReturnType<typeof useTranslations> }> = ({ t }) => (
   <div className="bg-white shadow-sm p-4 sm:p-6 space-y-4 sm:space-y-6">
     <h2 className="text-lg sm:text-xl font-bold mb-4">{t('profile')}</h2>
-
-    {/* Avatar */}
     <div className="flex items-center gap-3 sm:gap-4">
       <div className="w-16 h-16 sm:w-20 sm:h-20 bg-orange-500 rounded-full flex items-center justify-center text-white text-xl sm:text-2xl font-bold">
         A
@@ -81,8 +67,6 @@ const ProfileSettings: React.FC<{ t: ReturnType<typeof useTranslations> }> = ({ 
         <p className="text-xs sm:text-sm text-gray-500">JPG, PNG. Max 5MB</p>
       </div>
     </div>
-
-    {/* Form */}
     <div className="space-y-4">
       <InputField label={t('profile')} value="Nguyễn Văn A" />
       <InputField label={t('email') || 'Email'} value="user@example.com" type="email" />
@@ -94,8 +78,6 @@ const ProfileSettings: React.FC<{ t: ReturnType<typeof useTranslations> }> = ({ 
         <InputField label={t('birthDate') || 'Ngày sinh'} value="01/01/1990" type="date" />
       </div>
     </div>
-
-    {/* Actions */}
     <div className="flex gap-3 pt-4 border-t">
       <button className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">{t('saveChanges')}</button>
       <button className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">{t('cancel')}</button>
@@ -103,7 +85,6 @@ const ProfileSettings: React.FC<{ t: ReturnType<typeof useTranslations> }> = ({ 
   </div>
 );
 
-// Security Settings
 const SecuritySettings: React.FC<{ t: ReturnType<typeof useTranslations> }> = ({ t }) => (
   <div className="space-y-4">
     <div className="bg-white rounded-lg shadow-sm p-6">
@@ -145,7 +126,6 @@ const SecuritySettings: React.FC<{ t: ReturnType<typeof useTranslations> }> = ({
   </div>
 );
 
-// Notification Settings
 const NotificationSettings: React.FC<{ t: ReturnType<typeof useTranslations> }> = ({ t }) => (
   <div className="bg-white rounded-lg shadow-sm p-6">
     <h2 className="text-xl font-bold mb-4">{t('notificationsTitle')}</h2>
@@ -179,7 +159,6 @@ const NotificationSettings: React.FC<{ t: ReturnType<typeof useTranslations> }> 
   </div>
 );
 
-// Preference Settings
 const PreferenceSettings: React.FC<{ t: ReturnType<typeof useTranslations> }> = ({ t }) => {
   const router = useRouter();
   const pathname = usePathname();

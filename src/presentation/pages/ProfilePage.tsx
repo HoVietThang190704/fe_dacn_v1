@@ -1,7 +1,3 @@
-/**
- * Presentation: Profile Page
- * Pure UI: receives user profile props and renders them.
- */
 "use client";
 
 import React from "react";

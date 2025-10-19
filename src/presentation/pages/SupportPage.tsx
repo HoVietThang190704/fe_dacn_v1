@@ -1,7 +1,3 @@
-/**
- * Presentation Layer: Support Page
- * Pure UI component for support and help
- */
 'use client';
 
 import React from 'react';
@@ -50,29 +46,21 @@ export const SupportPage: React.FC<SupportPageProps> = ({ userId }) => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6">
-      {/* Header - Shopee style */}
       <div className="mb-4">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{t('title')}</h1>
         <p className="text-sm text-gray-600 mt-1">{t('subtitle')}</p>
       </div>
-
-      {/* Quick Actions - Responsive grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
         <QuickActionCard icon="📞" title={t('hotline')} description="1800-1234" color="bg-blue-500" />
         <QuickActionCard icon="✉️" title={t('email')} description="support@freshmarket.vn" color="bg-orange-500" />
         <QuickActionCard icon="💬" title={t('chat')} description="Trò chuyện trực tiếp" color="bg-green-500" />
       </div>
-
-      {/* Tabs - Shopee style */}
       <div className="bg-white shadow-sm p-2 mb-3 flex gap-2">
         <button onClick={() => setActiveTab('faqs')} className={`flex-1 sm:flex-initial px-4 py-2 rounded text-sm font-medium transition-colors ${activeTab === 'faqs' ? 'bg-orange-500 text-white' : 'bg-transparent text-gray-700 hover:bg-gray-100'}`}>❓ {t('faqsTab')}</button>
         <button onClick={() => setActiveTab('tickets')} className={`flex-1 sm:flex-initial px-4 py-2 rounded text-sm font-medium transition-colors ${activeTab === 'tickets' ? 'bg-orange-500 text-white' : 'bg-transparent text-gray-700 hover:bg-gray-100'}`}>🎫 {t('ticketsTab', { count: mockTickets.length })}</button>
       </div>
-
-      {/* Content */}
       {activeTab === 'faqs' ? (
         <div className="space-y-3">
-          {/* Create Ticket Button */}
           <div className="bg-orange-50 border border-orange-200 rounded p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
             <div>
               <h3 className="font-semibold text-orange-900 text-sm sm:text-base mb-1">{t('createTicket')}</h3>
@@ -80,21 +68,17 @@ export const SupportPage: React.FC<SupportPageProps> = ({ userId }) => {
             </div>
             <button className="w-full sm:w-auto px-4 py-2 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors">{t('createTicket')}</button>
           </div>
-
-          {/* FAQs List */}
           {mockFAQs.map((faq) => (
             <FAQCard key={faq.id} faq={faq as any} />
           ))}
         </div>
       ) : (
         <div>
-          {/* Create Ticket Button */}
           <button className="w-full sm:w-auto px-6 py-3 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors mb-4 flex items-center justify-center gap-2 text-sm">
             <span>+</span>
             Tạo yêu cầu mới
           </button>
 
-          {/* Empty Tickets */}
           <div className="text-center py-12 bg-white shadow-sm rounded">
             <div className="text-gray-400 text-4xl sm:text-6xl mb-4">🎫</div>
             <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">

@@ -1,7 +1,3 @@
-/**
- * Domain Entity: Livestream
- * Pure business logic, no framework dependencies
- */
 export enum LivestreamStatus {
   LIVE = 'LIVE',
   SCHEDULED = 'SCHEDULED',

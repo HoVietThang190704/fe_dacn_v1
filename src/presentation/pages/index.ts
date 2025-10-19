@@ -1,7 +1,4 @@
-/**
- * Presentation Pages Index
- * Central export point for all page components
- */
+
 export { HomePage } from './HomePage';
 export { ProductsListPage } from './ProductsListPage';
 export { OrdersPage } from './OrdersPage';

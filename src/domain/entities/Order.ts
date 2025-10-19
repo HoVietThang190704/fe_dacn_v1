@@ -1,7 +1,3 @@
-/**
- * Domain Entity: Order
- * Pure business logic, no framework dependencies
- */
 export enum OrderStatus {
   PENDING = 'PENDING',
   CONFIRMED = 'CONFIRMED',

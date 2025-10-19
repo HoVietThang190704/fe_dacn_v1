@@ -1,7 +1,3 @@
-/**
- * Data Source: Favorite API
- * Handles HTTP requests to favorite endpoints
- */
 import { Favorite } from '@/domain/entities/Favorite';
 
 export class FavoriteApiDataSource {

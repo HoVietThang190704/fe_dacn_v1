@@ -1,7 +1,3 @@
-/**
- * Use Case: Get Community Posts
- * Business logic for fetching community posts
- */
 import { ICommunityRepository, PostsResponse } from '../repositories/ICommunityRepository';
 
 export class GetCommunityPostsUseCase {

@@ -1,7 +1,3 @@
-/**
- * View Model: Livestreams Page
- * Manages state and business logic for livestreams page
- */
 'use client';
 
 import { useState, useEffect } from 'react';

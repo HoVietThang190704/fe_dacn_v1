@@ -1,7 +1,3 @@
-/**
- * Data Source: Support API
- * Handles HTTP requests to support endpoints
- */
 import { SupportTicket, FAQ, TicketStatus } from '@/domain/entities/Support';
 import { CreateTicketDto } from '@/domain/repositories/ISupportRepository';
 

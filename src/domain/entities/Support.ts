@@ -1,7 +1,3 @@
-/**
- * Domain Entity: Support
- * Pure business logic, no framework dependencies
- */
 export enum TicketStatus {
   OPEN = 'OPEN',
   IN_PROGRESS = 'IN_PROGRESS',

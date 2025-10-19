@@ -1,7 +1,3 @@
-/**
- * Data Source: Banner API
- * Handles HTTP requests to banner and promotion endpoints
- */
 import { Banner, Promotion } from '@/domain/entities/Banner';
 
 export class BannerApiDataSource {

@@ -1,7 +1,3 @@
-/**
- * View Model: Products Page
- * Manages state and business logic for products listing
- */
 'use client';
 
 import { useState, useEffect } from 'react';

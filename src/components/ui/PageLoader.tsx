@@ -33,7 +33,6 @@ export function PageLoader() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 backdrop-blur-sm">
-      {/* Animated background pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-10 left-10 w-32 h-32 bg-green-500 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-10 right-10 w-40 h-40 bg-emerald-500 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
@@ -41,15 +40,9 @@ export function PageLoader() {
       </div>
 
       <div className="relative flex flex-col items-center gap-6 p-8 bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl border border-green-100">
-        {/* Animated Farm Icon */}
         <div className="relative">
-          {/* Outer rotating circle */}
           <div className="w-24 h-24 border-4 border-transparent border-t-green-500 border-r-emerald-400 rounded-full animate-spin"></div>
-          
-          {/* Middle rotating circle (opposite direction) */}
           <div className="absolute inset-2 border-4 border-transparent border-b-green-400 border-l-teal-500 rounded-full animate-spin" style={{animationDirection: 'reverse', animationDuration: '1.5s'}}></div>
-          
-          {/* Farm/Leaf Icon */}
           <div className="absolute inset-0 flex items-center justify-center">
             <svg 
               className="w-10 h-10 text-green-600 animate-pulse" 
@@ -60,8 +53,6 @@ export function PageLoader() {
             </svg>
           </div>
         </div>
-        
-        {/* Loading Text with Animation */}
         <div className="flex flex-col items-center gap-3">
           <div className="flex items-center gap-2">
             <span className="text-gray-700 font-semibold text-lg">Đang tải</span>
@@ -71,8 +62,6 @@ export function PageLoader() {
               <span className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></span>
             </div>
           </div>
-          
-          {/* Progress Bar */}
           <div className="w-48 h-2 bg-gray-200 rounded-full overflow-hidden">
             <div 
               className="h-full bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 rounded-full transition-all duration-300 ease-out"

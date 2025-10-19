@@ -1,8 +1,3 @@
-/**
- * ViewModel: Profile Page
- * - Accepts an optional GetUserProfileUseCase to fetch up-to-date profile from domain layer
- * - Falls back to the client-side `useAuth` user when use case is not provided
- */
 'use client';
 
 import { useState, useEffect } from 'react';

@@ -1,7 +1,3 @@
-/**
- * Domain Repository Interface
- * Defines contract for data access without implementation details
- */
 import { Product, ProductCategory } from '../entities/Product';
 
 export interface IProductRepository {

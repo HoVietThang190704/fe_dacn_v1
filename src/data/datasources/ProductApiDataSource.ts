@@ -1,7 +1,3 @@
-/**
- * Data Source: Product API
- * Handles HTTP requests to product endpoints
- */
 import { Product, ProductCategory } from '@/domain/entities/Product';
 import { GetProductsParams, ProductsResponse } from '@/domain/repositories/IProductRepository';
 

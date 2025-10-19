@@ -1,7 +1,3 @@
-/**
- * Repository Implementation: Banner
- * Implements domain repository interface using data sources
- */
 import { IBannerRepository } from '@/domain/repositories/IBannerRepository';
 import { Banner, Promotion } from '@/domain/entities/Banner';
 import { BannerApiDataSource } from '../datasources/BannerApiDataSource';

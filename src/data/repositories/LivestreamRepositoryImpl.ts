@@ -1,7 +1,3 @@
-/**
- * Repository Implementation: Livestream
- * Implements domain repository interface using data sources
- */
 import { ILivestreamRepository } from '@/domain/repositories/ILivestreamRepository';
 import { Livestream, LivestreamStatus } from '@/domain/entities/Livestream';
 import { LivestreamApiDataSource } from '../datasources/LivestreamApiDataSource';

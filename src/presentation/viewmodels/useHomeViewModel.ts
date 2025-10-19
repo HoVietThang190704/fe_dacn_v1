@@ -1,7 +1,3 @@
-/**
- * View Model: Home Page
- * Manages state and business logic for home page
- */
 'use client';
 
 import { useState, useEffect } from 'react';

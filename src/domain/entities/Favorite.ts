@@ -1,7 +1,3 @@
-/**
- * Domain Entity: Favorite
- * Pure business logic, no framework dependencies
- */
 import { Product } from './Product';
 
 export interface Favorite {

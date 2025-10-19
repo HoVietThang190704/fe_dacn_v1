@@ -63,14 +63,12 @@ const mockLivestreams = [
     }
   ];
 
-  // UI state for tab
   const [activeTab, setActiveTab] = React.useState<'live' | 'scheduled'>('live');
   const activeLivestreams = mockLivestreams.filter(l => l.status === LivestreamStatus.LIVE);
   const scheduledLivestreams = mockLivestreams.filter(l => l.status === LivestreamStatus.SCHEDULED);
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-green-50 to-white p-6">
-      {/* Header */}
       <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
         <div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">{t('title')}</h1>
@@ -81,8 +79,6 @@ const mockLivestreams = [
           <button className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold shadow hover:bg-green-700 transition-colors">{t('history')}</button>
         </div>
       </div>
-
-      {/* Tabs activeTab === 'live' này kia phải thêm viewModel  */}
       <div className="bg-white rounded-lg shadow-sm p-2 mb-6 inline-flex gap-2">
         <button
           onClick={() => setActiveTab('live')}
@@ -106,7 +102,6 @@ const mockLivestreams = [
         </button>
       </div>
 
-      {/* Livestreams Grid */}
       <div className="bg-white rounded-xl shadow p-6">
         {activeTab === 'live' ? (
           activeLivestreams.length > 0 ? (
@@ -131,8 +126,6 @@ const mockLivestreams = [
     </section>
   );
 };
-
-// Sub-components
 const LivestreamCard: React.FC<{ livestream: Livestream }> = ({ livestream }) => {
   const isLive = livestream.status === LivestreamStatus.LIVE;
 

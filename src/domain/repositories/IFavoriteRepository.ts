@@ -1,7 +1,3 @@
-/**
- * Domain Repository Interface
- * Defines contract for favorite data access
- */
 import { Favorite } from '../entities/Favorite';
 
 export interface IFavoriteRepository {

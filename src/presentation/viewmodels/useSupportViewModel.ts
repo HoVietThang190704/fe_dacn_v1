@@ -1,7 +1,3 @@
-/**
- * View Model: Support Page
- * Manages state and business logic for support page
- */
 'use client';
 
 import { useState, useEffect } from 'react';

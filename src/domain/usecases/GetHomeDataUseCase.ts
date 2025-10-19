@@ -1,7 +1,3 @@
-/**
- * Use Case: Get Home Page Data
- * Orchestrates multiple repository calls for home page
- */
 import { IProductRepository } from '../repositories/IProductRepository';
 import { IBannerRepository } from '../repositories/IBannerRepository';
 import { Product, ProductCategory } from '../entities/Product';

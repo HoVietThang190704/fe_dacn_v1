@@ -1,7 +1,3 @@
-/**
- * Domain Repository Interface
- * Defines contract for support data access
- */
 import { SupportTicket, FAQ, TicketStatus } from '../entities/Support';
 
 export interface ISupportRepository {

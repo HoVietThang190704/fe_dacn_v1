@@ -1,7 +1,3 @@
-/**
- * Use Case: Get Products
- * Business logic layer - orchestrates data flow
- */
 import { IProductRepository, GetProductsParams, ProductsResponse } from '../repositories/IProductRepository';
 
 export class GetProductsUseCase {

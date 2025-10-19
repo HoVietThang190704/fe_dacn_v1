@@ -102,10 +102,7 @@ export const HomePage: React.FC<HomePageProps> = ({ locale }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Reusable Hero Banner Component */}
       <HeroBanner onShopNowClick={() => window.location.href = '/main/products'} />
-
-      {/* Categories Section - Horizontal scroll Shopee style */}
       <div className="bg-white shadow-sm p-3 mb-3">
         <div className="flex gap-4 overflow-x-auto scrollbar-hide">
           {data.categories.map((category) => (
@@ -121,8 +118,6 @@ export const HomePage: React.FC<HomePageProps> = ({ locale }) => {
           ))}
         </div>
       </div>
-
-      {/* Flash Sale - Shopee style */}
       <div className="bg-white shadow-sm p-4 mb-3">
         <div className="flex items-center gap-2 mb-3">
           <h2 className="text-lg font-bold text-orange-500">⚡ {t('flashSale')}</h2>
@@ -140,8 +135,6 @@ export const HomePage: React.FC<HomePageProps> = ({ locale }) => {
           ))}
         </div>
       </div>
-
-      {/* Best Selling Products - Shopee style */}
       <div className="bg-white shadow-sm p-4 mb-3">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-bold text-gray-800">{t('suggestions')}</h2>
@@ -156,8 +149,6 @@ export const HomePage: React.FC<HomePageProps> = ({ locale }) => {
     </div>
   );
 };
-
-// Sub-components for better organization
 const HeroBannerSection: React.FC<{ banners: Banner[] }> = ({ banners }) => {
   if (!banners.length) return null;
 
@@ -250,7 +241,6 @@ const ProductSection: React.FC<{ title: string; products: Product[] }> = ({
 const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   return (
     <div className="bg-white hover:shadow-md transition-shadow cursor-pointer border border-gray-100">
-      {/* Product Image */}
       <div className="relative aspect-square">
         <img
           src={product.image}
@@ -258,8 +248,6 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
           className="w-full h-full object-cover"
         />
       </div>
-
-      {/* Product Info */}
       <div className="p-2">
         <h3 className="text-xs sm:text-sm mb-1 line-clamp-2 h-8">{product.name}</h3>
         

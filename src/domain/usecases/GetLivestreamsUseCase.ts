@@ -1,7 +1,3 @@
-/**
- * Use Case: Get Livestreams
- * Business logic for fetching livestreams
- */
 import { ILivestreamRepository } from '../repositories/ILivestreamRepository';
 import { Livestream } from '../entities/Livestream';
 

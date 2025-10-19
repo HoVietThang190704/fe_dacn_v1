@@ -1,7 +1,3 @@
-/**
- * Domain Repository Interface
- * Defines contract for livestream data access
- */
 import { Livestream, LivestreamStatus } from '../entities/Livestream';
 
 export interface ILivestreamRepository {

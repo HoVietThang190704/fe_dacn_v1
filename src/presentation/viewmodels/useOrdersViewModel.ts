@@ -1,7 +1,3 @@
-/**
- * View Model: Orders Page
- * Manages state and business logic for orders page
- */
 'use client';
 
 import { useState, useEffect } from 'react';

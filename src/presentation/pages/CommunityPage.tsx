@@ -1,7 +1,3 @@
-/**
- * Presentation Layer: Community Page
- * Pure UI component for community posts and interactions
- */
 'use client';
 
 import React from 'react';
@@ -71,20 +67,15 @@ export const CommunityPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6">
-      {/* Header - Shopee style */}
       <div className="mb-4">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{t('title')}</h1>
       </div>
-
-      {/* Create Post Card - Shopee/Facebook style */}
       <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 mb-3">
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">A</div>
           <button className="flex-1 text-left px-3 py-2 bg-gray-100 rounded-full text-sm text-gray-500 hover:bg-gray-200 transition-colors">{t('placeholder')}</button>
         </div>
       </div>
-
-      {/* Posts Feed - Mobile responsive */}
       <div className="space-y-3">
         {mockPosts.map((post) => (
           <PostCard key={post.id} post={post as any} />
@@ -93,12 +84,9 @@ export const CommunityPage: React.FC = () => {
     </div>
   );
 };
-
-// Sub-components - Shopee/Facebook style
 const PostCard: React.FC<{ post: CommunityPost }> = ({ post }) => {
   return (
     <div className="bg-white shadow-sm hover:shadow-md transition-shadow">
-      {/* Post Header */}
       <div className="p-3 sm:p-4 flex items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-3">
           <img
@@ -120,13 +108,9 @@ const PostCard: React.FC<{ post: CommunityPost }> = ({ post }) => {
           <span className="text-gray-500">...</span>
         </button>
       </div>
-
-      {/* Post Content */}
       <div className="px-3 sm:px-4 pb-2">
         <p className="text-sm sm:text-base text-gray-800">{post.content}</p>
       </div>
-
-      {/* Post Images */}
       {post.images && post.images.length > 0 && (
         <div className={`grid gap-0.5 ${post.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
           {post.images.map((image, index) => (
@@ -139,8 +123,6 @@ const PostCard: React.FC<{ post: CommunityPost }> = ({ post }) => {
           ))}
         </div>
       )}
-
-      {/* Post Stats */}
       <div className="px-3 sm:px-4 py-2 flex items-center justify-between text-xs sm:text-sm text-gray-500 border-t">
         <div className="flex items-center gap-1">
           <span className="text-red-500">❤️</span>
@@ -151,8 +133,6 @@ const PostCard: React.FC<{ post: CommunityPost }> = ({ post }) => {
           <span>{post.shares.toLocaleString()} chia sẻ</span>
         </div>
       </div>
-
-      {/* Post Actions */}
       <div className="px-4 pb-3 flex gap-2 border-t pt-2">
         <button
           className={`flex-1 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${

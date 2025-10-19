@@ -1,7 +1,3 @@
-/**
- * Repository Implementation: Product
- * Implements domain repository interface using data sources
- */
 import { IProductRepository, GetProductsParams, ProductsResponse } from '@/domain/repositories/IProductRepository';
 import { Product, ProductCategory } from '@/domain/entities/Product';
 import { ProductApiDataSource } from '../datasources/ProductApiDataSource';

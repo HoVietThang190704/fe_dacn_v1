@@ -1,7 +1,3 @@
-/**
- * Domain Entity: Banner
- * Pure business logic, no framework dependencies
- */
 export interface Banner {
   id: string;
   title: string;

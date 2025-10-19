@@ -1,7 +1,3 @@
-/**
- * Presentation Layer: Orders Page
- * Pure UI component for orders management
- */
 'use client';
 
 import React from 'react';
@@ -25,7 +21,6 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ userId }) => {
   //   return <ErrorState error={viewModel.error} onRetry={viewModel.refresh} />;
   // }
 
-  // Mock orders data for UI preview - Shopee style
   const mockOrders = [
     {
       id: 'ODR12345678',
@@ -121,12 +116,9 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ userId }) => {
 
   return (
     <section className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6">
-      {/* Header - Shopee style */}
       <div className="mb-4">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{t('title')}</h1>
       </div>
-
-      {/* Filter Tabs - Shopee style */}
       <div className="bg-white shadow-sm lg:text-3xl mb-3 sticky top-0 z-10">
         <div className="flex overflow-x-auto scrollbar-hide gap-2 sm:gap-4 px-2 sm:px-0">
           <FilterButton label={t('filter.all')} active={filterStatus === 'ALL'} onClick={() => setFilterStatus('ALL')} />
@@ -136,8 +128,6 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ userId }) => {
           <FilterButton label={t('filter.cancelled')} active={filterStatus === OrderStatus.CANCELLED} onClick={() => setFilterStatus(OrderStatus.CANCELLED)} />
         </div>
       </div>
-
-      {/* Orders List - Shopee card style */}
       <div className="space-y-3">
         {filteredOrders.length > 0 ? (
           filteredOrders.map((order) => (
@@ -151,7 +141,6 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ userId }) => {
   );
 };
 
-// Sub-components - Shopee style
 const FilterButton: React.FC<{ label: string; active: boolean; onClick: () => void }> = ({
   label,
   active,
@@ -190,7 +179,6 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
 
   return (
     <div className="bg-white shadow-sm hover:shadow-md transition-shadow">
-      {/* Header with shop name and status - Shopee style */}
       <div className="flex items-center justify-between px-4 py-3 border-b">
         <div className="flex items-center gap-2">
           <svg className="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
@@ -204,8 +192,6 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
           </span>
         </div>
       </div>
-
-      {/* Order Items */}
       <div className="p-4">
         {order.items.map((item, index) => (
           <div key={index} className={`flex gap-3 ${index > 0 ? 'mt-3 pt-3 border-t' : ''}`}>
@@ -230,7 +216,6 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
         ))}
       </div>
 
-      {/* Footer with total and actions */}
       <div className="px-4 py-3 border-t bg-gray-50">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm text-gray-600">{t('amountLabel')}</span>

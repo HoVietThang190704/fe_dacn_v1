@@ -1,7 +1,3 @@
-/**
- * Use Case: Get Orders
- * Business logic for fetching user orders
- */
 import { IOrderRepository } from '../repositories/IOrderRepository';
 import { Order } from '../entities/Order';
 

@@ -18,7 +18,6 @@ export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const router = useRouter();
 
-  // Check authentication on mount
   useEffect(() => {
     const checkAuth = () => {
       try {
@@ -80,7 +79,6 @@ export function useAuth() {
     setError('');
 
     try {
-      // Map frontend data to backend format
       const registerData: RegisterRequest = {
         email: userData.email,
         password: userData.password,
@@ -90,8 +88,6 @@ export function useAuth() {
       const result = await authAPI.register(registerData);
       
       if (result.success && result.data) {
-        // Don't auto-login after registration
-        // User needs to login manually after registration
         router.push('/auth/login');
         return true;
       } else {

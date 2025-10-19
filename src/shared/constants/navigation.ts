@@ -1,10 +1,6 @@
-/**
- * Navigation Constants
- * Centralized navigation menu configuration
- */
 export interface NavigationItem {
   id: string;
-  labelKey: string; // i18n key
+  labelKey: string; 
   icon: string;
   path: string;
   badge?: number;

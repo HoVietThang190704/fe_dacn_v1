@@ -1,7 +1,3 @@
-/**
- * Domain Repository Interface
- * Defines contract for order data access
- */
 import { Order, OrderStatus } from '../entities/Order';
 
 export interface IOrderRepository {

@@ -60,7 +60,6 @@ export default function LoginForm() {
     <>
       <PageLoader />
       <div className="min-h-screen flex items-center justify-center bg-[var(--background)] font-[var(--font-sans)] relative p-4 sm:p-6 md:p-8">
-        {/* Background Image */}
         <div className="fixed inset-0 z-0">
         <Image
           src="/img/Background1.PNG"
@@ -71,8 +70,6 @@ export default function LoginForm() {
         />
         <div className="absolute inset-0 bg-black/20"></div>
       </div>
-
-      {/* Back Button */}
       <Link 
         href="/" 
         className="absolute top-3 left-3 sm:top-6 sm:left-6 z-30 flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 sm:px-4 sm:py-2 bg-white/40 hover:bg-white/50 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-gray-700 hover:text-gray-600 group"
@@ -88,8 +85,6 @@ export default function LoginForm() {
         </svg>
         <span className="hidden sm:inline text-sm font-medium">{t('backToHome')}</span>
       </Link>
-
-      {/* Login Form Container */}
       <div className="relative z-10 bg-white/40 backdrop-blur-sm p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-[var(--shadow)] w-full max-w-[95%] sm:max-w-md">
         <h1 className="text-center text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-[var(--foreground)]">
           {t('login.title')}

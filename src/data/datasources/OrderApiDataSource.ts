@@ -1,7 +1,3 @@
-/**
- * Data Source: Order API
- * Handles HTTP requests to order endpoints
- */
 import { Order, OrderStatus } from '@/domain/entities/Order';
 import { CreateOrderDto } from '@/domain/repositories/IOrderRepository';
 

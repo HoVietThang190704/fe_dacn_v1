@@ -1,7 +1,3 @@
-/**
- * Use Case: Get Favorites
- * Business logic for fetching user favorites
- */
 import { IFavoriteRepository } from '../repositories/IFavoriteRepository';
 import { Favorite } from '../entities/Favorite';
 

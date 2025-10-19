@@ -1,7 +1,3 @@
-/**
- * View Model: Favorites Page
- * Manages state and business logic for favorites page
- */
 'use client';
 
 import { useState, useEffect } from 'react';

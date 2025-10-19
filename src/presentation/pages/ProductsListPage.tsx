@@ -116,33 +116,10 @@ export const ProductsListPage: React.FC<ProductsListPageProps> = ({ categories }
 
   return (
     <div className="  bg-gray-50 p-3 sm:p-4 md:p-4">
-      {/* Header - Shopee style */}
       <div className="mb-4">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{t('title')}</h1>
         <p className="text-sm text-gray-600 mt-1">{t('found', { count: filteredProducts.length })}</p>
       </div>
-
-      {/* Categories Filter - Shopee horizontal scroll */}
-      <div className="bg-white shadow-sm mb-3 sticky top-0 z-10">
-        <div className="flex overflow-x-auto scrollbar-hide px-2 py-3 gap-2">
-
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                selectedCategory === category.id
-                  ? 'bg-orange-500 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {category.name}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Sort Bar -     style */}
       <div className="bg-white shadow-sm p-3 mb-3 flex items-center justify-between text-sm">
         <div className="flex gap-2">
           <button className="px-3 py-1.5 bg-orange-500 text-white rounded hover:bg-orange-600">
@@ -165,8 +142,6 @@ export const ProductsListPage: React.FC<ProductsListPageProps> = ({ categories }
           />
         </div>
       </div>
-
-      {/* Products Grid - Responsive Shopee style */}
       {displayedProducts.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 overflow-hidden">
           {displayedProducts.map((product) => (
@@ -180,11 +155,9 @@ export const ProductsListPage: React.FC<ProductsListPageProps> = ({ categories }
   );
 };
 
-// Sub-components - Shopee style
 const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   return (
     <div className="bg-white hover:shadow-md transition-shadow cursor-pointer">
-      {/* Product Image */}
       <div className="relative aspect-square">
         <img
           src={product.image}
@@ -198,7 +171,7 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
         )}
       </div>
 
-      {/* Product Info */}
+
       <div className="p-2">
         <h3 className="text-xs sm:text-sm mb-1 line-clamp-2 h-8 sm:h-10">{product.name}</h3>
         
@@ -208,12 +181,10 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
           </span>
           {product.originalPrice && (
             <span className="text-gray-400 text-xs line-through">
-              ₫{product.originalPrice.toLocaleString('vi-VN')}
+              {product.originalPrice.toLocaleString('vi-VN')}
             </span>
           )}
-        </div>``
-
-        {/* Sold count - Shopee feature */}
+        </div>
         <div className="text-xs text-gray-500">
           Đã bán {(product as any).sold || 0}
         </div>

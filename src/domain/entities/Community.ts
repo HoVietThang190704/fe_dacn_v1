@@ -1,7 +1,3 @@
-/**
- * Domain Entity: Community
- * Pure business logic, no framework dependencies
- */
 export interface CommunityPost {
   id: string;
   userId: string;

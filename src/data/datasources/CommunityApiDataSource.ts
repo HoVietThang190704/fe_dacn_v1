@@ -1,7 +1,3 @@
-/**
- * Data Source: Community API
- * Handles HTTP requests to community endpoints
- */
 import { CommunityPost, Comment } from '@/domain/entities/Community';
 import { PostsResponse, CreatePostDto } from '@/domain/repositories/ICommunityRepository';
 

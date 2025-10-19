@@ -1,7 +1,3 @@
-/**
- * Domain Repository Interface
- * Defines contract for community data access
- */
 import { CommunityPost, Comment } from '../entities/Community';
 
 export interface ICommunityRepository {

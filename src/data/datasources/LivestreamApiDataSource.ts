@@ -1,7 +1,3 @@
-/**
- * Data Source: Livestream API
- * Handles HTTP requests to livestream endpoints
- */
 import { Livestream, LivestreamStatus } from '@/domain/entities/Livestream';
 
 export class LivestreamApiDataSource {

@@ -1,7 +1,3 @@
-/**
- * Repository Implementation: Favorite
- * Implements domain repository interface using data sources
- */
 import { IFavoriteRepository } from '@/domain/repositories/IFavoriteRepository';
 import { Favorite } from '@/domain/entities/Favorite';
 import { FavoriteApiDataSource } from '../datasources/FavoriteApiDataSource';

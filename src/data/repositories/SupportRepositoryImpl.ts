@@ -1,7 +1,3 @@
-/**
- * Repository Implementation: Support
- * Implements domain repository interface using data sources
- */
 import { ISupportRepository, CreateTicketDto } from '@/domain/repositories/ISupportRepository';
 import { SupportTicket, FAQ, TicketStatus } from '@/domain/entities/Support';
 import { SupportApiDataSource } from '../datasources/SupportApiDataSource';

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ReactNode } from 'react';
-
+import   {PageLoader}  from '../ui';
 interface SidebarProps {
   isOpen: boolean;
   isMobile?: boolean;
@@ -111,7 +111,6 @@ export function Sidebar({ isOpen, isMobile = false, onClose }: SidebarProps) {
    return p === href || p.startsWith(href + '/');
   };
 
-  // Handle overlay click on mobile
   const handleOverlayClick = () => {
     if (isMobile && onClose) {
       onClose();

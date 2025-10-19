@@ -1,7 +1,3 @@
-/**
- * Use Case: Get Support Tickets
- * Business logic for fetching support tickets
- */
 import { ISupportRepository } from '../repositories/ISupportRepository';
 import { SupportTicket, FAQ } from '../entities/Support';
 

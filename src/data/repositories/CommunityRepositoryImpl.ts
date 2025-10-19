@@ -1,7 +1,3 @@
-/**
- * Repository Implementation: Community
- * Implements domain repository interface using data sources
- */
 import { ICommunityRepository, PostsResponse, CreatePostDto } from '@/domain/repositories/ICommunityRepository';
 import { CommunityPost, Comment } from '@/domain/entities/Community';
 import { CommunityApiDataSource } from '../datasources/CommunityApiDataSource';
