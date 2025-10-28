@@ -7,6 +7,7 @@ import { useAuth } from '@/shared/hooks/useAuth';
 import { MenuButton, UserDropdown } from '@/components/ui';
 import { Sidebar } from './Sidebar';
 import Image from 'next/image';
+import { ICONS } from '@/shared/constants/images';
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const t = useTranslations('navbar');
@@ -32,14 +33,18 @@ const SearchBar = () => {
 };
 
 const CartIcon = () => {
-  const [cartItems] = useState(3); 
+  const [cartItems] = useState(3);
   const t = useTranslations('navbar');
 
   return (
     <Link href="/main/orders" className="relative p-1.5 sm:p-2 text-navbar-foreground hover:text-navbar-foreground/80 transition-colors">
-      <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.3 4.7H20M7 13v6a2 2 0 002 2h8a2 2 0 002-2v-6" />
-      </svg>
+      <Image
+        src={ICONS.SHOPPING_CART}
+        alt="cart"
+        width={16}
+        height={16}
+        className="w-4 h-4 xl:w-6 xl:h-6"
+      />
       {cartItems > 0 && (
         <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-destructive text-destructive-foreground text-[10px] sm:text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center font-bold">
           {cartItems}
@@ -58,11 +63,11 @@ interface NavbarProps {
 
 export default function Navbar({ onMenuToggle, isSidebarOpen }: NavbarProps) {
   const t = useTranslations('navbar');
-  
+
   const handleMenuToggle = (isOpen: boolean) => {
     onMenuToggle?.(isOpen);
   };
-  
+
   return (
     <nav className="bg-navbar text-navbar-foreground shadow-md sticky top-0 z-40">
       <div className="container mx-auto px-2 sm:px-4 lg:px-8">
@@ -70,12 +75,12 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }: NavbarProps) {
           <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 min-w-fit">
             <MenuButton onToggle={handleMenuToggle} isOpen={isSidebarOpen} />
             <Link href="/main" className="flex items-center space-x-1 sm:space-x-2">
-              <Image 
-                src="/img/logo.png" 
-                alt="Logo" 
-                width={80} 
-                height={50} 
-                className="object-contain w-16 h-24 sm:w-18 sm:h-26 md:w-20 md:h-[80px]" 
+              <Image
+                src="/img/logo.png"
+                alt="Logo"
+                width={80}
+                height={50}
+                className="object-contain w-16 h-24 sm:w-18 sm:h-26 md:w-20 md:h-[80px]"
               />
               <span className="text-sm sm:text-base md:text-lg lg:text-xl font-bold whitespace-nowrap hidden sm:inline">
                 Fresh Market
@@ -85,9 +90,13 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }: NavbarProps) {
           <SearchBar />
           <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 min-w-fit">
             <div className="hidden lg:flex items-center space-x-2 bg-orange-500 px-3 xl:px-4 py-1.5 xl:py-2 rounded-full text-xs xl:text-sm whitespace-nowrap">
-              <svg className="w-3.5 h-3.5 xl:w-4 xl:h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-              </svg>
+              <Image
+                src={ICONS.THUNDER}
+                alt="thunder"
+                width={16}
+                height={16}
+                className="w-3 h-3 xl:w-4 xl:h-4"
+              />
               <span className="font-medium">{t('deliveryPromise')}</span>
             </div>
             <CartIcon />

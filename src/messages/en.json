@@ -101,8 +101,26 @@
     "loading": "Loading products...",
     "emptyTitle": "No products found",
     "emptyDesc": "Try changing filters or search terms"
-  }
-  ,
+  },
+  "product": {
+    "home": "Home",
+    "reviews": "reviews",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "quantity": "Quantity",
+    "addToCart": "Add to cart",
+    "buyNow": "Buy now",
+    "productDetails": "Product details",
+    "category": "Category",
+    "unit": "Unit",
+    "brand": "Brand",
+    "origin": "Origin",
+    "description": "Description",
+    "noReviewsYet": "No reviews yet",
+    "backToProducts": "Back to Products",
+    "notFound": "Product Not Found",
+    "notFoundMessage": "The product you're looking for might have been removed or doesn't exist."
+  },
   "home": {
     "heroTitle": "Fresh Market - Fresh Produce",
     "heroSubtitle": "Fast delivery - Great prices every day",
@@ -137,7 +155,12 @@
     "title": "Favorites ({count})",
     "addToCart": "Add to cart",
     "outOfStock": "Out of stock",
-    "discover": "Discover products"
+    "discover": "Discover products",
+    "loading": "Loading favorites...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "emptyTitle": "No favorite products yet",
+    "emptyDesc": "Add favorite products for easier shopping later!"
   },
   "livestream": {
     "title": "Livestream",
@@ -150,20 +173,43 @@
     "noScheduled": "No scheduled livestreams",
     "liveBadge": "LIVE",
     "upcomingBadge": "SCHEDULED",
-    "viewer": "viewer"
+    "viewer": "viewer",
+    "viewers": "viewers",
+    "live": "Live now",
+    "scheduled": "Starts at",
+    "products": "products",
+    "pleaseComeBack": "Please come back later!",
+    "loading": "Loading livestreams...",
+    "following": "Following",
+    "follow": "Follow",
+    "shopNow": "Shop Now",
+    "writeComment": "Write a comment...",
+    "comments": "comments"
   },
   "community": {
     "title": "Community",
     "placeholder": "What's on your mind?",
+    "postPlaceholder": "What would you like to share today?",
+    "createPost": "Create Post",
     "photo": "Photo",
     "video": "Video",
+    "addImages": "Add Images",
+    "maxImages": "Maximum 4 images allowed",
+    "emptyPost": "Please enter content or select images",
+    "post": "Post",
+    "cancel": "Cancel",
     "noPosts": "No posts yet",
     "likes": "likes",
     "comments": "comments",
     "shares": "shares",
     "like": "Like",
     "comment": "Comment",
-    "share": "Share"
+    "share": "Share",
+    "loading": "Loading posts...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "emptyTitle": "No posts yet",
+    "emptyDesc": "Be the first to share!"
   },
   "support": {
     "title": "Customer Support",
@@ -178,10 +224,16 @@
     "helpfulQuestion": "Was this answer helpful?",
     "yes": "Yes",
     "no": "No",
-    "viewDetails": "View details →"
+    "viewDetails": "View details →",
+    "createNewTicket": "Create new ticket",
+    "noTicketsDesc": "All your requests will appear here",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry"
   },
   "settings": {
     "title": "Account Settings",
+    "settingsDesc": "Manage your account and customize your shopping experience safely and easily",
     "profile": "Profile",
     "security": "Security",
     "notifications": "Notifications",
@@ -190,8 +242,7 @@
     "saveChanges": "Save changes",
     "cancel": "Cancel",
     "deleteAccount": "Delete account",
-    "current": "Current"
-    ,
+    "current": "Current",
     "changePasswordTitle": "Change password",
     "currentPassword": "Current password",
     "newPassword": "New password",
@@ -224,7 +275,24 @@
     "darkMode": "Dark mode",
     "darkModeDesc": "Use a darker color scheme for the app",
     "dangerous_zone": "Danger zone",
-    "dangerous_desc": "The actions below are irreversible"
+    "dangerous_desc": "The actions below are irreversible",
+    "personalInfo": "Personal Information",
+    "shippingAddress": "Shipping Address",
+    "avatar": "Avatar",
+    "avatarDesc": "Upload your photo to personalize your account",
+    "personalInfoDesc": "Update your personal information",
+    "shippingAddressDesc": "This address will be used for delivery",
+    "securityDesc": "Manage your account security",
+    "notificationsDesc": "Choose which notifications you want to receive",
+    "preferencesDesc": "Customize your experience",
+    "manageDevices": "Manage logged in devices",
+    "logout": "Logout",
+    "male": "Male",
+    "female": "Female",
+    "other": "Other",
+    "profileUpdated": "Profile updated successfully",
+    "updateError": "Failed to update profile",
+    "profileCompletion": "Profile completion"
   }
   ,
   "profile": {
@@ -240,5 +308,28 @@
     "role": "Role",
     "preferences": "Preferences",
     "preferencesHelp": "Manage your language, notifications and other account preferences in Settings."
+  },
+  "order": {
+    "orderDetails": "Order Details",
+    "orderNumber": "Order Number",
+    "orderDate": "Order Date",
+    "status": "Status",
+    "shippingAddress": "Shipping Address",
+    "totalAmount": "Total Amount",
+    "items": "Items",
+    "quantity": "Quantity",
+    "price": "Price",
+    "subtotal": "Subtotal",
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "shipping": "Shipping",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "backToOrders": "Back to Orders",
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "notFound": "Order Not Found",
+    "notFoundMessage": "The order you're looking for may have been deleted or doesn't exist."
   }
 }

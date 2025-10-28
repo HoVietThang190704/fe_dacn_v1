@@ -6,17 +6,13 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { useHomeViewModel } from '../viewmodels/useHomeViewModel';
-import { container } from '../di/container';
-import { Banner, Promotion } from '@/domain/entities/Banner';
+import Image from 'next/image';
+import { ICONS } from '@/shared/constants/images';
 import { HeroBanner } from '@/components/ui/HeroBanner';
-import { Product, ProductCategory } from '@/domain/entities/Product';
+import CategoriesCarousel from '@/components/home/CategoriesCarousel';
+import ProductCard from '../components/ProductCard';
 
-interface HomePageProps {
-  locale: string;
-}
-
-export const HomePage: React.FC<HomePageProps> = ({ locale }) => {
+export const HomePage: React.FC = () => {
   const t = useTranslations('home');
   // Mock data for UI preview
   const data = {
@@ -103,24 +99,13 @@ export const HomePage: React.FC<HomePageProps> = ({ locale }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       <HeroBanner onShopNowClick={() => window.location.href = '/main/products'} />
-      <div className="bg-white shadow-sm p-3 mb-3">
-        <div className="flex gap-4 overflow-x-auto scrollbar-hide">
-          {data.categories.map((category) => (
-            <div
-              key={category.id}
-              className="flex flex-col items-center min-w-[70px] cursor-pointer"
-            >
-              <div className="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center mb-1">
-                <span className="text-2xl">🥬</span>
-              </div>
-              <span className="text-xs text-center">{category.name}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <CategoriesCarousel categories={data.categories} />
       <div className="bg-white shadow-sm p-4 mb-3">
         <div className="flex items-center gap-2 mb-3">
-          <h2 className="text-lg font-bold text-orange-500">⚡ {t('flashSale')}</h2>
+          <h2 className="text-lg font-bold text-orange-500 flex items-center gap-2">
+            <Image src={ICONS.GOODS} alt="flash" width={18} height={18} className="w-4 h-4" />
+            <span>{t('flashSale')}</span>
+          </h2>
           <div className="flex gap-1 text-sm">
             <span className="bg-black text-white px-2 py-1 rounded">12</span>
             <span>:</span>
@@ -131,7 +116,7 @@ export const HomePage: React.FC<HomePageProps> = ({ locale }) => {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
           {data.bestSellingProducts.slice(0, 6).map((product) => (
-            <ProductCard key={product.id} product={product as any} />
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </div>
@@ -142,124 +127,8 @@ export const HomePage: React.FC<HomePageProps> = ({ locale }) => {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
           {[...data.bestSellingProducts, ...data.newProducts].map((product) => (
-            <ProductCard key={product.id} product={product as any} />
+            <ProductCard key={product.id} product={product} />
           ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-const HeroBannerSection: React.FC<{ banners: Banner[] }> = ({ banners }) => {
-  if (!banners.length) return null;
-
-  const mainBanner = banners[0];
-
-  return (
-    <section className="bg-green-700 text-white p-8 rounded-lg mb-8">
-      <div className="flex items-center justify-between">
-        <div className="max-w-xl">
-          <h1 className="text-4xl font-bold mb-4">{mainBanner.title}</h1>
-          <p className="text-lg mb-6">{mainBanner.description}</p>
-          <button className="px-6 py-3 bg-lime-400 text-green-900 font-semibold rounded-lg hover:bg-lime-300">
-            {mainBanner.ctaText}
-          </button>
-        </div>
-        <div className="w-96 h-64">
-          <img
-            src={mainBanner.image}
-            alt={mainBanner.title}
-            className="w-full h-full object-contain"
-          />
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const CategoriesSection: React.FC<{ categories: ProductCategory[] }> = ({ categories }) => {
-  return (
-    <section className="mb-8">
-      <div className="flex gap-4 overflow-x-auto pb-4">
-        {categories.map((category) => (
-          <div
-            key={category.id}
-            className="flex flex-col items-center min-w-[100px] cursor-pointer hover:opacity-80"
-          >
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-2 shadow-md">
-              <img src={category.icon} alt={category.name} className="w-10 h-10" />
-            </div>
-            <span className="text-sm text-gray-700">{category.name}</span>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-};
-
-const PromotionsSection: React.FC<{ promotions: Promotion[] }> = ({ promotions }) => {
-  if (!promotions.length) return null;
-
-  return (
-    <section className="grid grid-cols-4 gap-4 mb-8">
-      {promotions.map((promo) => (
-        <div
-          key={promo.id}
-          className="p-4 rounded-lg text-white"
-          style={{ backgroundColor: promo.backgroundColor }}
-        >
-          <div className="text-2xl font-bold mb-1">
-            Save {promo.discount}%
-          </div>
-          <div className="text-sm">{promo.description}</div>
-        </div>
-      ))}
-    </section>
-  );
-};
-
-const ProductSection: React.FC<{ title: string; products: Product[] }> = ({
-  title,
-  products,
-}) => {
-  return (
-    <section className="mb-8">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold">{title}</h2>
-        <a href="#" className="text-green-600 hover:underline">
-          See more →
-        </a>
-      </div>
-      <div className="grid grid-cols-5 gap-4">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
-    </section>
-  );
-};
-
-const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
-  return (
-    <div className="bg-white hover:shadow-md transition-shadow cursor-pointer border border-gray-100">
-      <div className="relative aspect-square">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-full object-cover"
-        />
-      </div>
-      <div className="p-2">
-        <h3 className="text-xs sm:text-sm mb-1 line-clamp-2 h-8">{product.name}</h3>
-        
-        <div className="flex items-center gap-1">
-          <span className="text-orange-500 text-sm font-medium">
-            ₫{(product.price * 20000).toLocaleString('vi-VN')}
-          </span>
-          {product.originalPrice && (
-            <span className="text-gray-400 text-xs line-through">
-              ₫{(product.originalPrice * 20000).toLocaleString('vi-VN')}
-            </span>
-          )}
         </div>
       </div>
     </div>

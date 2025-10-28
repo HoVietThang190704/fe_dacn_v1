@@ -7,31 +7,39 @@ export const API_CONFIG = {
 } as const;
 
 export const API_ENDPOINTS = {
-  LOGIN: '/auth/login',
-  REGISTER: '/auth/register',
-  LOGOUT: '/auth/logout',
-  REFRESH_TOKEN: '/auth/refresh',
+  // Authentication
+  LOGIN: '/api/auth/login',
+  REGISTER: '/api/auth/register',
+  LOGOUT: '/api/auth/logout',
+  REFRESH_TOKEN: '/api/auth/refresh',
+  AUTH_PROFILE: '/api/auth/profile',
   
-  PRODUCTS: '/products',
-  PRODUCT_DETAIL: (id: string) => `/products/${id}`,
-  PRODUCT_CATEGORIES: '/categories',
-  PRODUCT_SEARCH: '/products/search',
-  BEST_SELLING: '/products/best-selling',
-  NEW_PRODUCTS: '/products/new',
+  // Products
+  PRODUCTS: '/api/products',
+  PRODUCT_DETAIL: (id: string) => `/api/products/${id}`,
+  PRODUCT_CATEGORIES: '/api/categories',
+  PRODUCT_SEARCH: '/api/products/search',
+  BEST_SELLING: '/api/products/best-selling',
+  NEW_PRODUCTS: '/api/products/new',
   
-  ORDERS: '/orders',
-  ORDER_DETAIL: (id: string) => `/orders/${id}`,
-  CREATE_ORDER: '/orders',
-  UPDATE_ORDER_STATUS: (id: string) => `/orders/${id}/status`,
-  CANCEL_ORDER: (id: string) => `/orders/${id}/cancel`,
+  // Orders (user-specific endpoints under /api/users/me/... as per docs)
+  ORDERS: '/api/users/me/orders',
+  ORDER_STATISTICS: '/api/users/me/orders/statistics',
+  ORDER_DETAIL: (id: string) => `/api/users/me/orders/${id}`,
+  CREATE_ORDER: '/api/orders',
+  UPDATE_ORDER_STATUS: (id: string) => `/api/orders/${id}/status`,
+  CANCEL_ORDER: (id: string) => `/api/users/me/orders/${id}/cancel`,
   
-  BANNERS: '/banners/active',
-  PROMOTIONS: '/promotions/active',
+  BANNERS: '/api/banners/active',
+  PROMOTIONS: '/api/promotions/active',
   
-  USER_PROFILE: '/users/profile',
-  UPDATE_PROFILE: '/users/profile',
+  // User endpoints (current user)
+  USER_PROFILE: '/api/users/me/profile',
+  UPDATE_PROFILE: '/api/users/me/profile',
+  USER_ADDRESSES: '/api/users/me/addresses',
+  USER_ADDRESS_DETAIL: (id: string) => `/api/users/me/addresses/${id}`,
   
-  FAVORITES: '/favorites',
-  ADD_FAVORITE: '/favorites',
-  REMOVE_FAVORITE: (id: string) => `/favorites/${id}`,
+  FAVORITES: '/api/favorites',
+  ADD_FAVORITE: '/api/favorites',
+  REMOVE_FAVORITE: (id: string) => `/api/favorites/${id}`,
 } as const;

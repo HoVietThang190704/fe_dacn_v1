@@ -1,15 +1,17 @@
-/**
- * Presentation Layer: Products List Page
- * Pure UI component for products listing
- */
+
 'use client';
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import SortDropdown from '../components/SortDropdown';
-import { useProductsListViewModel } from '../viewmodels/useProductsListViewModel';
-import { container } from '../di/container';
+import ProductListCard from '../components/ProductListCard';
+import EmptyState from '../components/EmptyState';
 import { Product, ProductCategory } from '@/domain/entities/Product';
+
+interface MockProduct extends Omit<Product, 'rating' | 'reviewCount' | 'description' | 'additionalImages' | 'brand' | 'origin'> {
+  sold?: number;
+}
 
 interface ProductsListPageProps {
   categories: ProductCategory[];
@@ -17,6 +19,7 @@ interface ProductsListPageProps {
 
 export const ProductsListPage: React.FC<ProductsListPageProps> = ({ categories }) => {
   const t = useTranslations('products');
+  const router = useRouter();
   // Comment out API calls - using mock data for UI preview
   // const viewModel = useProductsListViewModel(container.getProductsUseCase, categories);
   // if (viewModel.isLoading) {
@@ -29,7 +32,7 @@ export const ProductsListPage: React.FC<ProductsListPageProps> = ({ categories }
   // Mock data for UI preview - Shopee style
   const [selectedCategory, setSelectedCategory] = React.useState('');
   const [sortBy, setSortBy] = React.useState<'none' | 'low-high' | 'high-low'>('none');
-  const mockProducts = [
+  const mockProducts: MockProduct[] = [
     {
       id: 'p1',
       name: 'Táo Envy New Zealand cao cấp - Hộp 1kg',
@@ -138,90 +141,19 @@ export const ProductsListPage: React.FC<ProductsListPageProps> = ({ categories }
               { value: 'high-low', label: t('sortHighLow') },
             ]}
             align="right"
-            onChange={(v) => setSortBy(v as any)}
+            onChange={(v) => setSortBy(v as 'none' | 'low-high' | 'high-low')}
           />
         </div>
       </div>
       {displayedProducts.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 overflow-hidden">
           {displayedProducts.map((product) => (
-            <ProductCard key={product.id} product={product as any} />
+            <ProductListCard key={product.id} product={product} router={router} t={t} />
           ))}
         </div>
       ) : (
-        <EmptyState />
+        <EmptyState t={t} />
       )}
     </div>
   );
 };
-
-const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
-  return (
-    <div className="bg-white hover:shadow-md transition-shadow cursor-pointer">
-      <div className="relative aspect-square">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-full object-cover"
-        />
-        {product.discount && (
-          <div className="absolute top-0 right-0 bg-yellow-400 text-xs font-bold px-1.5 py-0.5">
-            {product.discount}% GIẢM
-          </div>
-        )}
-      </div>
-
-
-      <div className="p-2">
-        <h3 className="text-xs sm:text-sm mb-1 line-clamp-2 h-8 sm:h-10">{product.name}</h3>
-        
-        <div className="flex items-center gap-1 mb-1">
-          <span className="text-orange-500 text-sm sm:text-base font-medium">
-            ₫{product.price.toLocaleString('vi-VN')}
-          </span>
-          {product.originalPrice && (
-            <span className="text-gray-400 text-xs line-through">
-              {product.originalPrice.toLocaleString('vi-VN')}
-            </span>
-          )}
-        </div>
-        <div className="text-xs text-gray-500">
-          Đã bán {(product as any).sold || 0}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const LoadingState = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="text-center">
-      <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-gray-600">Đang tải sản phẩm...</p>
-    </div>
-  </div>
-);
-
-const ErrorState: React.FC<{ error: string; onRetry: () => void }> = ({ error, onRetry }) => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="text-center">
-      <div className="text-red-500 text-5xl mb-4">⚠️</div>
-      <h2 className="text-xl font-semibold mb-2">Có lỗi xảy ra</h2>
-      <p className="text-gray-600 mb-4">{error}</p>
-      <button
-        onClick={onRetry}
-        className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-      >
-        Thử lại
-      </button>
-    </div>
-  </div>
-);
-
-const EmptyState = () => (
-  <div className="text-center py-12">
-    <div className="text-gray-400 text-6xl mb-4">📦</div>
-    <h3 className="text-xl font-semibold text-gray-700 mb-2">Không tìm thấy sản phẩm</h3>
-    <p className="text-gray-500">Thử thay đổi bộ lọc hoặc tìm kiếm khác</p>
-  </div>
-);

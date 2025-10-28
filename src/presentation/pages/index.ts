@@ -1,7 +1,8 @@
-
 export { HomePage } from './HomePage';
 export { ProductsListPage } from './ProductsListPage';
+export { ProductDetailPage } from './ProductDetailPage';
 export { OrdersPage } from './OrdersPage';
+export { OrderDetailPage } from './OrderDetailPage';
 export { FavoritesPage } from './FavoritesPage';
 export { LivestreamsPage } from './LivestreamsPage';
 export { CommunityPage } from './CommunityPage';

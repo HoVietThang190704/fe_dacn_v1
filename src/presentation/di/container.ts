@@ -6,6 +6,7 @@ import { OrderApiDataSource } from '@/data/datasources/OrderApiDataSource';
 import { FavoriteApiDataSource } from '@/data/datasources/FavoriteApiDataSource';
 import { LivestreamApiDataSource } from '@/data/datasources/LivestreamApiDataSource';
 import { CommunityApiDataSource } from '@/data/datasources/CommunityApiDataSource';
+import { UserApiDataSource } from '@/data/datasources/UserApiDataSource';
 import { SupportApiDataSource } from '@/data/datasources/SupportApiDataSource';
 
 import { ProductRepositoryImpl } from '@/data/repositories/ProductRepositoryImpl';
@@ -14,6 +15,7 @@ import { OrderRepositoryImpl } from '@/data/repositories/OrderRepositoryImpl';
 import { FavoriteRepositoryImpl } from '@/data/repositories/FavoriteRepositoryImpl';
 import { LivestreamRepositoryImpl } from '@/data/repositories/LivestreamRepositoryImpl';
 import { CommunityRepositoryImpl } from '@/data/repositories/CommunityRepositoryImpl';
+import { UserRepositoryImpl } from '@/data/repositories/UserRepositoryImpl';
 import { SupportRepositoryImpl } from '@/data/repositories/SupportRepositoryImpl';
 
 import { GetProductsUseCase } from '@/domain/usecases/GetProductsUseCase';
@@ -22,6 +24,10 @@ import { GetOrdersUseCase } from '@/domain/usecases/GetOrdersUseCase';
 import { GetFavoritesUseCase } from '@/domain/usecases/GetFavoritesUseCase';
 import { GetLivestreamsUseCase } from '@/domain/usecases/GetLivestreamsUseCase';
 import { GetCommunityPostsUseCase } from '@/domain/usecases/GetCommunityPostsUseCase';
+import { CreateCommunityPostUseCase } from '@/domain/usecases/CreateCommunityPostUseCase';
+import { GetProductByIdUseCase } from '@/domain/usecases/GetProductByIdUseCase';
+import { UpdateUserProfileUseCase } from '@/domain/usecases/UpdateUserProfileUseCase';
+import { GetOrderByIdUseCase } from '@/domain/usecases/GetOrderByIdUseCase';
 import { GetSupportDataUseCase } from '@/domain/usecases/GetSupportTicketsUseCase';
 
 class DIContainer {
@@ -33,6 +39,7 @@ class DIContainer {
   private _favoriteApiDataSource?: FavoriteApiDataSource;
   private _livestreamApiDataSource?: LivestreamApiDataSource;
   private _communityApiDataSource?: CommunityApiDataSource;
+  private _userApiDataSource?: UserApiDataSource;
   private _supportApiDataSource?: SupportApiDataSource;
 
   private _productRepository?: ProductRepositoryImpl;
@@ -41,6 +48,7 @@ class DIContainer {
   private _favoriteRepository?: FavoriteRepositoryImpl;
   private _livestreamRepository?: LivestreamRepositoryImpl;
   private _communityRepository?: CommunityRepositoryImpl;
+  private _userRepository?: UserRepositoryImpl;
   private _supportRepository?: SupportRepositoryImpl;
 
   private _getProductsUseCase?: GetProductsUseCase;
@@ -49,6 +57,10 @@ class DIContainer {
   private _getFavoritesUseCase?: GetFavoritesUseCase;
   private _getLivestreamsUseCase?: GetLivestreamsUseCase;
   private _getCommunityPostsUseCase?: GetCommunityPostsUseCase;
+  private _createCommunityPostUseCase?: CreateCommunityPostUseCase;
+  private _getProductByIdUseCase?: GetProductByIdUseCase;
+  private _updateUserProfileUseCase?: UpdateUserProfileUseCase;
+  private _getOrderByIdUseCase?: GetOrderByIdUseCase;
   private _getSupportDataUseCase?: GetSupportDataUseCase;
 
   private constructor() {}
@@ -102,6 +114,13 @@ class DIContainer {
     return this._communityApiDataSource;
   }
 
+  get userApiDataSource(): UserApiDataSource {
+    if (!this._userApiDataSource) {
+      this._userApiDataSource = new UserApiDataSource(API_CONFIG.BASE_URL);
+    }
+    return this._userApiDataSource;
+  }
+
   get supportApiDataSource(): SupportApiDataSource {
     if (!this._supportApiDataSource) {
       this._supportApiDataSource = new SupportApiDataSource(API_CONFIG.BASE_URL);
@@ -149,6 +168,13 @@ class DIContainer {
       this._communityRepository = new CommunityRepositoryImpl(this.communityApiDataSource);
     }
     return this._communityRepository;
+  }
+
+  get userRepository(): UserRepositoryImpl {
+    if (!this._userRepository) {
+      this._userRepository = new UserRepositoryImpl(this.userApiDataSource);
+    }
+    return this._userRepository;
   }
 
   get supportRepository(): SupportRepositoryImpl {
@@ -201,6 +227,34 @@ class DIContainer {
       this._getCommunityPostsUseCase = new GetCommunityPostsUseCase(this.communityRepository);
     }
     return this._getCommunityPostsUseCase;
+  }
+
+  get createCommunityPostUseCase(): CreateCommunityPostUseCase {
+    if (!this._createCommunityPostUseCase) {
+      this._createCommunityPostUseCase = new CreateCommunityPostUseCase(this.communityRepository);
+    }
+    return this._createCommunityPostUseCase;
+  }
+
+  get getProductByIdUseCase(): GetProductByIdUseCase {
+    if (!this._getProductByIdUseCase) {
+      this._getProductByIdUseCase = new GetProductByIdUseCase(this.productRepository);
+    }
+    return this._getProductByIdUseCase;
+  }
+
+  get updateUserProfileUseCase(): UpdateUserProfileUseCase {
+    if (!this._updateUserProfileUseCase) {
+      this._updateUserProfileUseCase = new UpdateUserProfileUseCase(this.userRepository);
+    }
+    return this._updateUserProfileUseCase;
+  }
+
+  get getOrderByIdUseCase(): GetOrderByIdUseCase {
+    if (!this._getOrderByIdUseCase) {
+      this._getOrderByIdUseCase = new GetOrderByIdUseCase(this.orderRepository);
+    }
+    return this._getOrderByIdUseCase;
   }
 
   get getSupportDataUseCase(): GetSupportDataUseCase {

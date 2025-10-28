@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useOrdersViewModel } from '../viewmodels/useOrdersViewModel';
 import { container } from '../di/container';
 import { Order, OrderStatus } from '@/domain/entities/Order';
@@ -12,6 +14,7 @@ interface OrdersPageProps {
 
 export const OrdersPage: React.FC<OrdersPageProps> = ({ userId }) => {
   const t = useTranslations('orders');
+  const router = useRouter();
   // Comment out API calls - using mock data for UI preview
   // const viewModel = useOrdersViewModel(container.getOrdersUseCase, userId);
   // if (viewModel.isLoading) {
@@ -159,7 +162,8 @@ const FilterButton: React.FC<{ label: string; active: boolean; onClick: () => vo
 );
 
 const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
-  const t = require('next-intl').useTranslations('orders');
+  const t = useTranslations('orders');
+  const router = useRouter();
 
   const statusColors = {
     [OrderStatus.PENDING]: 'text-orange-500',
@@ -195,9 +199,11 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
       <div className="p-4">
         {order.items.map((item, index) => (
           <div key={index} className={`flex gap-3 ${index > 0 ? 'mt-3 pt-3 border-t' : ''}`}>
-            <img
+            <Image
               src={item.image}
               alt={item.productName}
+              width={80}
+              height={80}
               className="w-20 h-20 object-cover border rounded"
             />
             <div className="flex-1 min-w-0">
@@ -242,7 +248,12 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
           {order.status === OrderStatus.PENDING && (
             <>
               <button className="px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors">{t('actions.cancel')}</button>
-              <button className="px-4 py-2 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors">{t('actions.details')}</button>
+              <button 
+                onClick={() => router.push(`/main/orders/${order.id}`)}
+                className="px-4 py-2 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors"
+              >
+                {t('actions.details')}
+              </button>
             </>
           )}
         </div>
@@ -252,7 +263,7 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
 };
 
   const LoadingState = () => {
-    const t = require('next-intl').useTranslations('orders');
+    const t = useTranslations('orders');
     return (
   <div className="flex items-center justify-center min-h-screen">
     <div className="text-center">
@@ -264,7 +275,7 @@ const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
   };
 
 const ErrorState: React.FC<{ error: string; onRetry: () => void }> = ({ error, onRetry }) => {
-  const t = require('next-intl').useTranslations('orders');
+  const t = useTranslations('orders');
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-center">
@@ -278,7 +289,7 @@ const ErrorState: React.FC<{ error: string; onRetry: () => void }> = ({ error, o
 };
 
 const EmptyState: React.FC<{ filterStatus: OrderStatus | 'ALL' }> = ({ filterStatus }) => {
-  const t = require('next-intl').useTranslations('orders');
+  const t = useTranslations('orders');
   return (
     <div className="text-center py-12 bg-white rounded-lg">
       <div className="text-gray-400 text-6xl mb-4">📦</div>

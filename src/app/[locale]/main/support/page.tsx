@@ -27,5 +27,5 @@ export default function SupportPageRoute() {
     return null;
   }
 
-  return <SupportPage userId={user.id} />;
+  return <SupportPage />;
 }
