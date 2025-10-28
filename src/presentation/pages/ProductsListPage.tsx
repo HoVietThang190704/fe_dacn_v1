@@ -4,10 +4,9 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import SortDropdown from '../components/SortDropdown';
-import { useProductsListViewModel } from '../viewmodels/useProductsListViewModel';
-import { container } from '../di/container';
+import ProductListCard from '../components/ProductListCard';
+import EmptyState from '../components/EmptyState';
 import { Product, ProductCategory } from '@/domain/entities/Product';
 
 interface MockProduct extends Omit<Product, 'rating' | 'reviewCount' | 'description' | 'additionalImages' | 'brand' | 'origin'> {
@@ -149,7 +148,7 @@ export const ProductsListPage: React.FC<ProductsListPageProps> = ({ categories }
       {displayedProducts.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 overflow-hidden">
           {displayedProducts.map((product) => (
-            <ProductCard key={product.id} product={product} router={router} t={t} />
+            <ProductListCard key={product.id} product={product} router={router} t={t} />
           ))}
         </div>
       ) : (
@@ -158,84 +157,3 @@ export const ProductsListPage: React.FC<ProductsListPageProps> = ({ categories }
     </div>
   );
 };
-
-const ProductCard: React.FC<{ 
-  product: MockProduct; 
-  router: { push: (path: string) => void };
-  t: (key: string) => string;
-}> = ({ product, router, t }) => {
-  const handleClick = () => {
-    router.push(`/main/products/${product.id}`);
-  };
-
-  return (
-    <div className="bg-white hover:shadow-md transition-shadow cursor-pointer" onClick={handleClick}>
-      <div className="relative aspect-square">
-        <Image
-          src={product.image}
-          alt={product.name}
-          width={400}
-          height={400}
-          className="w-full h-full object-cover"
-        />
-        {product.discount && (
-          <div className="absolute top-0 right-0 bg-yellow-400 text-xs font-bold px-1.5 py-0.5">
-            {product.discount}% GIẢM
-          </div>
-        )}
-      </div>
-
-
-      <div className="p-2">
-        <h3 className="text-xs sm:text-sm mb-1 line-clamp-2 h-8 sm:h-10">{product.name}</h3>
-        
-        <div className="flex items-center gap-1 mb-1">
-          <span className="text-orange-500 text-sm sm:text-base font-medium">
-            ₫{product.price.toLocaleString('vi-VN')}
-          </span>
-          {product.originalPrice && (
-            <span className="text-gray-400 text-xs line-through">
-              {product.originalPrice.toLocaleString('vi-VN')}
-            </span>
-          )}
-        </div>
-        <div className="text-xs text-gray-500">
-          {t('sold')} {product.sold || 0}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const LoadingState: React.FC<{ t: (key: string) => string }> = ({ t }) => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="text-center">
-      <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-gray-600">{t('loading')}</p>
-    </div>
-  </div>
-);
-
-const ErrorState: React.FC<{ error: string; onRetry: () => void; t: (key: string) => string }> = ({ error, onRetry, t }) => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="text-center">
-      <div className="text-red-500 text-5xl mb-4">⚠️</div>
-      <h2 className="text-xl font-semibold mb-2">{t('error')}</h2>
-      <p className="text-gray-600 mb-4">{error}</p>
-      <button
-        onClick={onRetry}
-        className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-      >
-        {t('retry')}
-      </button>
-    </div>
-  </div>
-);
-
-const EmptyState: React.FC<{ t: (key: string) => string }> = ({ t }) => (
-  <div className="text-center py-12">
-    <div className="text-gray-400 text-6xl mb-4">📦</div>
-    <h3 className="text-xl font-semibold text-gray-700 mb-2">{t('emptyTitle')}</h3>
-    <p className="text-gray-500">{t('emptyDesc')}</p>
-  </div>
-);
