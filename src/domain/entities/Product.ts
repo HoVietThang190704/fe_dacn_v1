@@ -10,6 +10,10 @@ export interface Product {
   stock: number;
   description?: string;
   rating?: number;
+  reviewCount?: number;
+  brand?: string;
+  origin?: string;
+  additionalImages?: string[];
   isBestSeller?: boolean;
   isNew?: boolean;
 }

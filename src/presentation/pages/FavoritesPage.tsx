@@ -6,9 +6,25 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { useFavoritesViewModel } from '../viewmodels/useFavoritesViewModel';
-import { container } from '../di/container';
-import { Favorite } from '@/domain/entities/Favorite';
+import Image from 'next/image';
+import Link from 'next/link';
+
+interface MockFavorite {
+  id: string;
+  userId: string;
+  productId: string;
+  addedAt: Date;
+  product: {
+    id: string;
+    name: string;
+    image: string;
+    price: number;
+    originalPrice?: number;
+    discount?: number;
+    unit: string;
+    stock: boolean;
+  };
+}
 
 interface FavoritesPageProps {
   userId: string;
@@ -132,20 +148,20 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({ userId }) => {
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3">
         {mockFavorites.map((favorite) => (
-          <FavoriteCard key={favorite.id} favorite={favorite as any} />
+          <FavoriteCard key={favorite.id} favorite={favorite} />
         ))}
       </div>
     </div>
   );
 };
 
-const FavoriteCard: React.FC<{ favorite: Favorite }> = ({ favorite }) => {
+const FavoriteCard: React.FC<{ favorite: MockFavorite }> = ({ favorite }) => {
   const { product } = favorite;
   const t = useTranslations('favorites');
 
   return (
-    <div className="bg-white hover:shadow-md transition-shadow relative cursor-pointer">
-      <button className="absolute top-1 right-1 z-10 w-7 h-7 bg-white rounded-full shadow flex items-center justify-center hover:bg-red-50 transition-colors">
+    <div className="bg-white hover:shadow-md transition-shadow relative">
+      <button className="absolute top-1 right-1 z-10 w-7 h-7 bg-white rounded-full shadow flex items-center justify-center hover:bg-red-50 transition-colors" onClick={(e) => { e.stopPropagation(); /* TODO: remove from favorites */ }}>
         <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
           <path
             fillRule="evenodd"
@@ -154,76 +170,81 @@ const FavoriteCard: React.FC<{ favorite: Favorite }> = ({ favorite }) => {
           />
         </svg>
       </button>
-      <div className="relative aspect-square">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-full object-cover"
-        />
-        {product.discount && (
-          <div className="absolute top-0 right-0 bg-yellow-400 text-xs font-bold px-1.5 py-0.5">
-            {product.discount}% GIẢM
-          </div>
-        )}
-        {!product.stock && (
-          <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
-            <span className="text-white text-xs font-medium">Hết hàng</span>
-          </div>
-        )}
-      </div>
-      <div className="p-2">
-        <h3 className="text-xs sm:text-sm mb-1 line-clamp-2 h-8 sm:h-10">{product.name}</h3>
-        
-        <div className="flex items-center gap-1 mb-1">
-          <span className="text-orange-500 text-sm sm:text-base font-medium">
-            ₫{product.price.toLocaleString('vi-VN')}
-          </span>
-          {product.originalPrice && (
-            <span className="text-gray-400 text-xs line-through">
-              ₫{product.originalPrice.toLocaleString('vi-VN')}
-            </span>
+      <Link href={`/main/products/${product.id}`} className="block">
+        <div className="relative aspect-square">
+          <Image
+            src={product.image}
+            alt={product.name}
+            width={400}
+            height={400}
+            className="w-full h-full object-cover"
+          />
+          {product.discount && (
+            <div className="absolute top-0 right-0 bg-yellow-400 text-xs font-bold px-1.5 py-0.5">
+              {product.discount}% GIẢM
+            </div>
+          )}
+          {!product.stock && (
+            <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+              <span className="text-white text-xs font-medium">Hết hàng</span>
+            </div>
           )}
         </div>
-        <button disabled={!product.stock} className={`w-full mt-2 py-1.5 text-xs rounded transition-colors ${product.stock ? 'bg-orange-500 text-white hover:bg-orange-600' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>{product.stock ? t('addToCart') : t('outOfStock')}</button>
+      </Link>
+      <div className="p-2">
+        <Link href={`/main/products/${product.id}`} className="block">
+          <h3 className="text-xs sm:text-sm mb-1 line-clamp-2 h-8 sm:h-10">{product.name}</h3>
+          <div className="flex items-center gap-1 mb-1">
+            <span className="text-orange-500 text-sm sm:text-base font-medium">
+              ₫{product.price.toLocaleString('vi-VN')}
+            </span>
+            {product.originalPrice && (
+              <span className="text-gray-400 text-xs line-through">
+                ₫{product.originalPrice.toLocaleString('vi-VN')}
+              </span>
+            )}
+          </div>
+        </Link>
+        <button onClick={(e) => { e.stopPropagation(); /* TODO: add to cart action */ }} disabled={!product.stock} className={`w-full mt-2 py-1.5 text-xs rounded transition-colors ${product.stock ? 'bg-orange-500 text-white hover:bg-orange-600' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>{product.stock ? t('addToCart') : t('outOfStock')}</button>
       </div>
     </div>
   );
 };
 
-const LoadingState = () => (
+const LoadingState: React.FC<{ t: (key: string) => string }> = ({ t }) => (
   <div className="flex items-center justify-center min-h-screen">
     <div className="text-center">
       <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-gray-600">Đang tải sản phẩm yêu thích...</p>
+      <p className="text-gray-600">{t('loading')}</p>
     </div>
   </div>
 );
 
-const ErrorState: React.FC<{ error: string; onRetry: () => void }> = ({ error, onRetry }) => (
+const ErrorState: React.FC<{ error: string; onRetry: () => void; t: (key: string) => string }> = ({ error, onRetry, t }) => (
   <div className="flex items-center justify-center min-h-screen">
     <div className="text-center">
       <div className="text-red-500 text-5xl mb-4">⚠️</div>
-      <h2 className="text-xl font-semibold mb-2">Có lỗi xảy ra</h2>
+      <h2 className="text-xl font-semibold mb-2">{t('error')}</h2>
       <p className="text-gray-600 mb-4">{error}</p>
       <button
         onClick={onRetry}
         className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
       >
-        Thử lại
+        {t('retry')}
       </button>
     </div>
   </div>
 );
 
-const EmptyState = () => (
+const EmptyState: React.FC<{ t: (key: string) => string }> = ({ t }) => (
   <div className="text-center py-12 bg-white rounded-lg">
     <div className="text-gray-400 text-6xl mb-4">💚</div>
-    <h3 className="text-xl font-semibold text-gray-700 mb-2">Chưa có sản phẩm yêu thích</h3>
+    <h3 className="text-xl font-semibold text-gray-700 mb-2">{t('emptyTitle')}</h3>
     <p className="text-gray-500 mb-6">
-      Hãy thêm sản phẩm yêu thích để dễ dàng mua sắm sau này!
+      {t('emptyDesc')}
     </p>
     <button className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-      Khám phá sản phẩm
+      {t('discover')}
     </button>
   </div>
 );
