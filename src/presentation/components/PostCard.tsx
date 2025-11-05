@@ -1,38 +1,155 @@
-import React from 'react';
-import Image from 'next/image';
-import { CommunityPost } from '@/domain/entities/Community';
+'use client';
 
-const PostCard: React.FC<{ post: CommunityPost; t: (key: string) => string }> = ({ post, t }) => {
+import React, { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { CommunityPost } from '@/domain/entities/Community';
+import PostDetailModal from './PostDetailModal';
+import SharePostModal from './SharePostModal';
+import { useAuth } from '@/shared/hooks/useAuth';
+
+// Options menu shown for post owner (three-dot menu with delete)
+const PostOptionsMenu: React.FC<{ onDelete: () => void | Promise<void> }> = ({ onDelete }) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      if (!ref.current) return;
+      if (!(e.target instanceof Node)) return;
+      if (!ref.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
+  }, []);
+
+  const handleDelete = async () => {
+    try {
+      await onDelete();
+    } finally {
+      setOpen(false);
+    }
+  };
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0 text-gray-600"
+        aria-label="Options"
+      >
+        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="5" cy="12" r="2" />
+          <circle cx="12" cy="12" r="2" />
+          <circle cx="19" cy="12" r="2" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-lg z-50">
+          <button
+            onClick={handleDelete}
+            className="w-full text-left px-4 py-2 hover:bg-red-50 hover:text-red-600 text-sm"
+          >
+            Xóa bài viết
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+interface PostCardProps {
+  post: CommunityPost;
+  t: (key: string) => string;
+  onLike?: () => void | Promise<void>;
+  onComment?: () => void | Promise<void>;
+  onShare?: (content?: string) => void | Promise<void>;
+  onDelete?: () => void | Promise<void>;
+}
+
+const PostCard: React.FC<PostCardProps> = ({ post, t, onLike, onComment, onShare, onDelete }) => {
+  const params = useParams();
+  const locale = params.locale as string || 'vi';
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+
+  // current logged in user (used to determine ownership for options menu)
+  const { user } = useAuth();
+
+  const handleCommentClick = () => {
+    // open detail modal focused on comments
+    setIsDetailOpen(true);
+    if (onComment) onComment();
+  };
+
+  const handleShareClick = () => {
+    setIsShareOpen(true);
+  };
+
+  const handleSharePost = async (content?: string) => {
+    if (onShare) {
+      await onShare(content);
+    }
+  };
+
+  const openDetail = () => setIsDetailOpen(true);
+  const closeDetail = () => setIsDetailOpen(false);
+
+  const formatTimeAgo = (date: Date | string) => {
+    const now = new Date();
+    const postDate = new Date(date);
+    const diffInSeconds = Math.floor((now.getTime() - postDate.getTime()) / 1000);
+
+    if (diffInSeconds < 60) {
+      return 'Vừa xong';
+    } else if (diffInSeconds < 3600) {
+      const minutes = Math.floor(diffInSeconds / 60);
+      return `${minutes} phút`;
+    } else if (diffInSeconds < 86400) {
+      const hours = Math.floor(diffInSeconds / 3600);
+      return `${hours} giờ`;
+    } else if (diffInSeconds < 604800) {
+      const days = Math.floor(diffInSeconds / 86400);
+      return `${days} ngày`;
+    } else {
+      return postDate.toLocaleDateString('vi-VN', {
+        day: 'numeric',
+        month: 'short',
+        year: postDate.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+      });
+    }
+  };
   return (
     <div className="bg-white border-b border-gray-200">
       {/* Post Header */}
       <div className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Image
-            src={post.userAvatar}
-            alt={post.userName}
-            width={40}
-            height={40}
-            className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-          />
+          {post.userAvatar ? (
+            <Image
+              src={post.userAvatar}
+              alt={post.userName}
+              width={40}
+              height={40}
+              className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+            />
+          ) : (
+            <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
+              {post.userName.charAt(0).toUpperCase()}
+            </div>
+          )}
           <div className="min-w-0 flex-1">
             <h3 className="font-semibold text-sm text-gray-900 truncate">{post.userName}</h3>
             <p className="text-xs text-gray-500">
-              {new Date(post.createdAt).toLocaleDateString('vi-VN', {
-                day: 'numeric',
-                month: 'short',
-                ...(new Date(post.createdAt).getFullYear() !== new Date().getFullYear() && {
-                  year: 'numeric'
-                })
-              })}
+              {formatTimeAgo(post.createdAt)}
             </p>
           </div>
         </div>
-        <button className="p-2 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0">
-          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-          </svg>
-        </button>
+        {/* Show three-dot menu only for post owner */}
+        {user?.id === post.userId && onDelete && <PostOptionsMenu onDelete={onDelete} />}
       </div>
 
       {/* Post Content */}
@@ -51,6 +168,7 @@ const PostCard: React.FC<{ post: CommunityPost; t: (key: string) => string }> = 
                 width={600}
                 height={400}
                 className="w-full max-h-96 object-cover cursor-pointer"
+                onClick={() => openDetail()}
               />
             </div>
           ) : post.images.length === 2 ? (
@@ -63,6 +181,7 @@ const PostCard: React.FC<{ post: CommunityPost; t: (key: string) => string }> = 
                   width={300}
                   height={200}
                   className="w-full h-48 object-cover cursor-pointer"
+                  onClick={() => openDetail()}
                 />
               ))}
             </div>
@@ -74,6 +193,7 @@ const PostCard: React.FC<{ post: CommunityPost; t: (key: string) => string }> = 
                 width={300}
                 height={400}
                 className="w-full h-96 object-cover cursor-pointer row-span-2"
+                onClick={() => openDetail()}
               />
               <Image
                 src={post.images[1]}
@@ -81,6 +201,7 @@ const PostCard: React.FC<{ post: CommunityPost; t: (key: string) => string }> = 
                 width={300}
                 height={200}
                 className="w-full h-48 object-cover cursor-pointer"
+                onClick={() => openDetail()}
               />
               <Image
                 src={post.images[2]}
@@ -88,6 +209,7 @@ const PostCard: React.FC<{ post: CommunityPost; t: (key: string) => string }> = 
                 width={300}
                 height={200}
                 className="w-full h-48 object-cover cursor-pointer"
+                onClick={() => openDetail()}
               />
             </div>
           ) : (
@@ -100,6 +222,7 @@ const PostCard: React.FC<{ post: CommunityPost; t: (key: string) => string }> = 
                     width={300}
                     height={200}
                     className="w-full h-48 object-cover cursor-pointer"
+                    onClick={() => openDetail()}
                   />
                   {index === 3 && post.images.length > 4 && (
                     <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -115,27 +238,35 @@ const PostCard: React.FC<{ post: CommunityPost; t: (key: string) => string }> = 
 
       {/* Post Stats */}
       {(post.likes > 0 || post.comments > 0 || post.shares > 0) && (
-        <div className="px-4 py-2 flex items-center justify-between text-sm text-gray-500 border-b border-gray-100">
-          <div className="flex items-center gap-4">
+        <div className="px-4 py-2 flex items-center justify-between text-xs text-gray-500 border-b border-gray-100">
+          <div className="flex items-center gap-1">
             {post.likes > 0 && (
-              <div className="flex items-center gap-1">
+              <>
                 <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
                   <span className="text-white text-xs">♥</span>
                 </div>
-                <span>{post.likes.toLocaleString()}</span>
-              </div>
+                <span className="font-medium">{post.likes.toLocaleString()}</span>
+              </>
             )}
           </div>
-          <div className="flex gap-4">
-            {post.comments > 0 && <span>{post.comments.toLocaleString()} {t('comments')}</span>}
+          <div className="flex gap-3">
+            {post.comments > 0 && (
+              <Link 
+                href={`/${locale}/main/community/${post.id}`}
+                className="hover:underline"
+              >
+                {post.comments.toLocaleString()} {t('comments')}
+              </Link>
+            )}
             {post.shares > 0 && <span>{post.shares.toLocaleString()} {t('shares')}</span>}
           </div>
         </div>
       )}
 
       {/* Action Buttons */}
-      <div className="px-2 py-1 flex gap-1">
+      <div className="px-2 py-1 flex gap-1 border-b border-gray-100">
         <button
+          onClick={onLike}
           className={`flex-1 py-2 px-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 hover:bg-gray-100 ${
             post.isLiked ? 'text-red-500' : 'text-gray-600'
           }`}
@@ -150,7 +281,10 @@ const PostCard: React.FC<{ post: CommunityPost; t: (key: string) => string }> = 
           </svg>
           <span className="text-sm">{t('like')}</span>
         </button>
-        <button className="flex-1 py-2 px-3 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
+        <button
+          onClick={handleCommentClick}
+          className="flex-1 py-2 px-3 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+        >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
@@ -161,7 +295,10 @@ const PostCard: React.FC<{ post: CommunityPost; t: (key: string) => string }> = 
           </svg>
           <span className="text-sm">{t('comment')}</span>
         </button>
-        <button className="flex-1 py-2 px-3 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
+        <button
+          onClick={handleShareClick}
+          className="flex-1 py-2 px-3 rounded-lg font-medium text-gray-600 hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
+        >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
@@ -173,6 +310,21 @@ const PostCard: React.FC<{ post: CommunityPost; t: (key: string) => string }> = 
           <span className="text-sm">{t('share')}</span>
         </button>
       </div>
+
+      {/* Comments Section (modal handles full comments) */}
+      {isDetailOpen && (
+        <PostDetailModal postId={post.id} isOpen={isDetailOpen} onClose={closeDetail} />
+      )}
+
+      {/* Share Modal */}
+      {isShareOpen && (
+        <SharePostModal
+          isOpen={isShareOpen}
+          onClose={() => setIsShareOpen(false)}
+          post={post}
+          onShare={handleSharePost}
+        />
+      )}
     </div>
   );
 };

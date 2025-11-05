@@ -1,10 +1,16 @@
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL|| ""  ,
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || "",
   TIMEOUT: 30000,
   HEADERS: {
     'Content-Type': 'application/json',
   },
 } as const;
+
+// Log API URL for debugging
+if (typeof window !== 'undefined') {
+  console.log('[API_CONFIG] NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+  console.log('[API_CONFIG] BASE_URL:', API_CONFIG.BASE_URL);
+}
 
 export const API_ENDPOINTS = {
   // Authentication
@@ -42,4 +48,36 @@ export const API_ENDPOINTS = {
   FAVORITES: '/api/favorites',
   ADD_FAVORITE: '/api/favorites',
   REMOVE_FAVORITE: (id: string) => `/api/favorites/${id}`,
+  
+  // Livestreams
+  LIVESTREAMS: '/api/livestreams',
+  LIVESTREAM_DETAIL: (id: string) => `/api/livestreams/${id}`,
+  CREATE_LIVESTREAM: '/api/livestreams',
+  UPDATE_LIVESTREAM: (id: string) => `/api/livestreams/${id}`,
+  UPDATE_LIVESTREAM_STATUS: (id: string) => `/api/livestreams/${id}/status`,
+  
+  // Agora
+  AGORA_TOKEN: '/api/agora/token',
+  
+  // Posts & Community
+  POSTS_FEED_PUBLIC: '/api/posts/feed/public',
+  POSTS_FEED_USER: '/api/posts/feed/user',
+  POSTS_USER: (userId: string) => `/api/posts/user/${userId}`,
+  POSTS_SEARCH: '/api/posts/search/query',
+  POSTS_TRENDING: '/api/posts/trending/now',
+  POST_DETAIL: (postId: string) => `/api/posts/${postId}`,
+  CREATE_POST: '/api/posts',
+  UPDATE_POST: (postId: string) => `/api/posts/${postId}`,
+  DELETE_POST: (postId: string) => `/api/posts/${postId}`,
+  TOGGLE_LIKE_POST: (postId: string) => `/api/posts/${postId}/like`,
+  SHARE_POST: (postId: string) => `/api/posts/${postId}/share`,
+  
+  // Comments
+  COMMENTS_BY_POST: (postId: string) => `/api/comments/post/${postId}`,
+  COMMENT_BY_ID: (commentId: string) => `/api/comments/${commentId}`,
+  COMMENT_REPLIES: (commentId: string) => `/api/comments/${commentId}/replies`,
+  CREATE_COMMENT: '/api/comments',
+  UPDATE_COMMENT: (commentId: string) => `/api/comments/${commentId}`,
+  DELETE_COMMENT: (commentId: string) => `/api/comments/${commentId}`,
+  TOGGLE_LIKE_COMMENT: (commentId: string) => `/api/comments/${commentId}/like`,
 } as const;

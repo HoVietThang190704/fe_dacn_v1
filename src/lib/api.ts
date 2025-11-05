@@ -35,7 +35,7 @@ class APIClient {
     private baseURL: string;
 
     constructor() {
-        this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+        this.baseURL = process.env.NEXT_PUBLIC_API_URL || '';
     }
   private buildUrl(endpoint: string) {
     // allow endpoint to be provided with or without leading slash

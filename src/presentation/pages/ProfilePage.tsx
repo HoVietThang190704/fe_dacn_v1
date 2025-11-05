@@ -1,10 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 import type { UserProfile } from "@/presentation/viewmodels/useProfileViewModel";
-import { Button } from "@/components/ui/Button";
+import { usePosts } from "@/hooks/usePosts";
+import PostCard from "../components/PostCard";
 
 interface ProfilePageProps {
   profile: UserProfile;
@@ -12,58 +14,173 @@ interface ProfilePageProps {
 
 export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
   const t = useTranslations("profile");
+  const [activeTab, setActiveTab] = useState<'posts' | 'products'>('posts');
+  
+  const {
+    posts,
+    isLoading,
+    toggleLike,
+    deletePost,
+    sharePost,
+  } = usePosts();
+
+  // Filter posts by current user
+  const userPosts = posts.filter(post => post.userId === profile.id);
+
+  const handleToggleLike = async (postId: string) => {
+    try {
+      await toggleLike(postId);
+    } catch (err) {
+      console.error('Error toggling like:', err);
+    }
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    if (!confirm('Bạn có chắc muốn xóa bài viết này?')) return;
+    
+    try {
+      await deletePost(postId);
+    } catch (err) {
+      console.error('Error deleting post:', err);
+      alert(err instanceof Error ? err.message : 'Lỗi khi xóa bài viết');
+    }
+  };
+
+  const handleSharePost = async (originalPostId: string, content?: string) => {
+    try {
+      await sharePost(originalPostId, content);
+    } catch (err) {
+      console.error('Error sharing post:', err);
+      alert(err instanceof Error ? err.message : 'Lỗi khi chia sẻ bài viết');
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-surface p-4 sm:p-6 md:p-10">
-      <div className="max-w-5xl mx-auto">
-        <header className="mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-semibold text-foreground">{t("title") || "Your profile"}</h1>
-              <p className="text-sm text-muted-foreground mt-1">{t("subtitle") || "Manage your account and personal information"}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="secondary" size="sm">{t("edit") || "Edit"}</Button>
-              <Button variant="outline" size="sm">{t("settings") || "Settings"}</Button>
+    <div className="min-h-screen bg-gray-50">
+      {/* User Info Section */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <div className="flex items-center gap-4">
+            {/* Avatar */}
+            {profile.avatar ? (
+              <Image
+                src={profile.avatar}
+                alt={profile.userName}
+                width={100}
+                height={100}
+                className="w-24 h-24 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white text-3xl font-bold">
+                {profile.userName?.charAt(0).toUpperCase() || "U"}
+              </div>
+            )}
+
+            {/* Basic Info */}
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-gray-900">{profile.userName}</h1>
+              <div className="mt-2 space-y-1">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  <span>{profile.email}</span>
+                </div>
+                {profile.phone && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                    <span>{profile.phone}</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </header>
+        </div>
+      </div>
 
-        <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <section className="lg:col-span-1 bg-card rounded-lg p-6 flex flex-col items-center text-center">
-            <div className="w-28 h-28 rounded-full bg-primary flex items-center justify-center text-white text-3xl font-bold mb-4">
-              {profile.userName?.charAt(0).toUpperCase() || "U"}
-            </div>
-            <h2 className="text-lg font-semibold text-foreground">{profile.userName}</h2>
-            <div className="text-sm text-muted-foreground mt-1">{profile.email}</div>   
-          </section>
+      {/* Tabs Section */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="flex gap-8">
+            <button
+              onClick={() => setActiveTab('posts')}
+              className={`py-4 px-2 font-medium text-sm relative ${
+                activeTab === 'posts'
+                  ? 'text-orange-500 border-b-2 border-orange-500'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Bài viết ({userPosts.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('products')}
+              className={`py-4 px-2 font-medium text-sm relative ${
+                activeTab === 'products'
+                  ? 'text-orange-500 border-b-2 border-orange-500'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Sản phẩm (0)
+            </button>
+          </div>
+        </div>
+      </div>
 
-          <section className="lg:col-span-2 bg-card rounded-lg p-6">
-            <h3 className="text-base font-medium text-foreground mb-4">{t("about") || "About"}</h3>
+      {/* Content Section */}
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        {activeTab === 'posts' && (
+          <div className="space-y-4">
+            {isLoading && userPosts.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="inline-block w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : userPosts.length > 0 ? (
+              userPosts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={{
+                    id: post.id,
+                    userId: post.userId,
+                    userName: post.user?.userName || post.user?.email || 'Unknown User',
+                    userAvatar: post.user?.avatar || '',
+                    content: post.content,
+                    images: post.images,
+                    likes: post.likesCount,
+                    comments: post.commentsCount,
+                    shares: post.sharesCount,
+                    isLiked: post.isLiked,
+                    createdAt: post.createdAt,
+                  }}
+                  t={t}
+                  onLike={() => handleToggleLike(post.id)}
+                  onDelete={() => handleDeletePost(post.id)}
+                  onShare={() => handleSharePost(post.id)}
+                />
+              ))
+            ) : (
+              <div className="text-center py-12">
+                <svg className="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <p className="text-gray-500">Chưa có bài viết nào</p>
+              </div>
+            )}
+          </div>
+        )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Detail label={t("name") || "Name"} value={profile.userName} />
-              <Detail label={t("email") || "Email"} value={profile.email} />
-              <Detail label={t("phone") || "Phone"} value={profile.phone || "-"} />
-              <Detail label={t("role") || "Role"} value={profile.role || "-"} />
-            </div>
-
-            <div className="mt-6 pt-4 border-t border-border">
-              <h4 className="text-sm font-medium text-foreground mb-2">{t("preferences") || "Preferences"}</h4>
-              <p className="text-sm text-muted-foreground">{t("preferencesHelp") || "Manage your language, notifications and other account preferences in Settings."}</p>
-            </div>
-          </section>
-        </main>
+        {activeTab === 'products' && (
+          <div className="text-center py-12">
+            <svg className="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <p className="text-gray-500">Chưa có sản phẩm nào</p>
+          </div>
+        )}
       </div>
     </div>
   );
 };
-
-const Detail: React.FC<{ label: string; value?: string }> = ({ label, value }) => (
-  <div className="bg-transparent rounded p-3">
-    <div className="text-xs text-muted-foreground">{label}</div>
-    <div className="text-sm text-foreground mt-1">{value ?? "-"}</div>
-  </div>
-);
 
 export default ProfilePage;
