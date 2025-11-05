@@ -1,4 +1,4 @@
-import { IUserRepository, UpdateUserDto } from '@/domain/repositories/IUserRepository';
+import { IUserRepository, UpdateUserDto, ChangePasswordDto } from '@/domain/repositories/IUserRepository';
 import { User } from '@/domain/entities/User';
 import { UserApiDataSource } from '../datasources/UserApiDataSource';
 
@@ -11,5 +11,13 @@ export class UserRepositoryImpl implements IUserRepository {
 
   async updateUserProfile(userId: string, updates: UpdateUserDto): Promise<User> {
     return await this.apiDataSource.updateUserProfile(userId, updates);
+  }
+
+  async uploadUserAvatar(file: File): Promise<string> {
+    return await this.apiDataSource.uploadAvatar(file);
+  }
+
+  async changePassword(data: ChangePasswordDto): Promise<void> {
+    return await this.apiDataSource.changePassword(data);
   }
 }

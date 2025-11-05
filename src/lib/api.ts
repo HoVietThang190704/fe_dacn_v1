@@ -25,6 +25,11 @@ export interface RegisterRequest {
   date_of_birth?: string;
 }
 
+export interface ChangePasswordRequest {
+  oldPassword: string;
+  newPassword: string;
+}
+
 export interface ApiResponse<T> {
   data?: T;
   error?: string;
@@ -67,7 +72,7 @@ class APIClient {
     }
   }
 
-  async post<T>(endpoint: string, data: LoginRequest | RegisterRequest, options?: { token?: string; includeCredentials?: boolean }): Promise<ApiResponse<T>> {
+  async post<T>(endpoint: string, data: LoginRequest | RegisterRequest | ChangePasswordRequest, options?: { token?: string; includeCredentials?: boolean }): Promise<ApiResponse<T>> {
     try {
       const url = this.buildUrl(endpoint);
       const headers: Record<string, string> = {};

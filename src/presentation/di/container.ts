@@ -27,6 +27,9 @@ import { GetCommunityPostsUseCase } from '@/domain/usecases/GetCommunityPostsUse
 import { CreateCommunityPostUseCase } from '@/domain/usecases/CreateCommunityPostUseCase';
 import { GetProductByIdUseCase } from '@/domain/usecases/GetProductByIdUseCase';
 import { UpdateUserProfileUseCase } from '@/domain/usecases/UpdateUserProfileUseCase';
+import { GetUserProfileUseCase } from '@/domain/usecases/GetUserProfileUseCase';
+import { UploadUserAvatarUseCase } from '@/domain/usecases/UploadUserAvatarUseCase';
+import { ChangePasswordUseCase } from '@/domain/usecases/user/ChangePasswordUseCase';
 import { GetOrderByIdUseCase } from '@/domain/usecases/GetOrderByIdUseCase';
 import { GetSupportDataUseCase } from '@/domain/usecases/GetSupportTicketsUseCase';
 import { CreateLivestreamUseCase } from '@/domain/usecases/CreateLivestreamUseCase';
@@ -64,7 +67,10 @@ class DIContainer {
   private _getCommunityPostsUseCase?: GetCommunityPostsUseCase;
   private _createCommunityPostUseCase?: CreateCommunityPostUseCase;
   private _getProductByIdUseCase?: GetProductByIdUseCase;
+  private _getUserProfileUseCase?: GetUserProfileUseCase;
   private _updateUserProfileUseCase?: UpdateUserProfileUseCase;
+  private _uploadUserAvatarUseCase?: UploadUserAvatarUseCase;
+  private _changePasswordUseCase?: ChangePasswordUseCase;
   private _getOrderByIdUseCase?: GetOrderByIdUseCase;
   private _getSupportDataUseCase?: GetSupportDataUseCase;
   private _createLivestreamUseCase?: CreateLivestreamUseCase;
@@ -126,7 +132,7 @@ class DIContainer {
 
   get userApiDataSource(): UserApiDataSource {
     if (!this._userApiDataSource) {
-      this._userApiDataSource = new UserApiDataSource(API_CONFIG.BASE_URL);
+      this._userApiDataSource = new UserApiDataSource();
     }
     return this._userApiDataSource;
   }
@@ -253,11 +259,32 @@ class DIContainer {
     return this._getProductByIdUseCase;
   }
 
+  get getUserProfileUseCase(): GetUserProfileUseCase {
+    if (!this._getUserProfileUseCase) {
+      this._getUserProfileUseCase = new GetUserProfileUseCase(this.userRepository);
+    }
+    return this._getUserProfileUseCase;
+  }
+
   get updateUserProfileUseCase(): UpdateUserProfileUseCase {
     if (!this._updateUserProfileUseCase) {
       this._updateUserProfileUseCase = new UpdateUserProfileUseCase(this.userRepository);
     }
     return this._updateUserProfileUseCase;
+  }
+
+  get uploadUserAvatarUseCase(): UploadUserAvatarUseCase {
+    if (!this._uploadUserAvatarUseCase) {
+      this._uploadUserAvatarUseCase = new UploadUserAvatarUseCase(this.userRepository);
+    }
+    return this._uploadUserAvatarUseCase;
+  }
+
+  get changePasswordUseCase(): ChangePasswordUseCase {
+    if (!this._changePasswordUseCase) {
+      this._changePasswordUseCase = new ChangePasswordUseCase(this.userRepository);
+    }
+    return this._changePasswordUseCase;
   }
 
   get getOrderByIdUseCase(): GetOrderByIdUseCase {

@@ -19,6 +19,7 @@ export const API_ENDPOINTS = {
   LOGOUT: '/api/auth/logout',
   REFRESH_TOKEN: '/api/auth/refresh',
   AUTH_PROFILE: '/api/auth/profile',
+  CHANGE_PASSWORD: '/api/auth/change-password',
   
   // Products
   PRODUCTS: '/api/products',
@@ -42,8 +43,10 @@ export const API_ENDPOINTS = {
   // User endpoints (current user)
   USER_PROFILE: '/api/users/me/profile',
   UPDATE_PROFILE: '/api/users/me/profile',
+  UPLOAD_AVATAR: '/api/users/me/avatar',
   USER_ADDRESSES: '/api/users/me/addresses',
   USER_ADDRESS_DETAIL: (id: string) => `/api/users/me/addresses/${id}`,
+  SET_DEFAULT_ADDRESS: (id: string) => `/api/users/me/addresses/${id}/default`,
   
   FAVORITES: '/api/favorites',
   ADD_FAVORITE: '/api/favorites',

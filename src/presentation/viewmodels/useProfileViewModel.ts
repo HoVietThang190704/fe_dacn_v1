@@ -7,6 +7,7 @@ export type UserProfile = {
   id: string;
   userName: string;
   email: string;
+  avatar?: string;
   phone?: string;
   role?: string;
   isVerified?: boolean;

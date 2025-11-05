@@ -1,11 +1,9 @@
 'use client';
 
 import { HomePage } from '@/presentation/pages';
-import { useParams } from 'next/navigation';
 
 export default function MainHomePage() {
-  const params = useParams();
-  const locale = params.locale as string;
-
-  return <HomePage locale={locale} />;
+  // HomePage is self-contained and reads localization via next-intl hooks.
+  // No need to pass locale as prop here.
+  return <HomePage />;
 }

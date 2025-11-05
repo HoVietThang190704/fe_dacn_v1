@@ -151,7 +151,8 @@
       "contactSeller": "Liên hệ người bán",
       "confirmReceived": "Đã nhận hàng",
       "cancel": "Hủy đơn",
-      "details": "Xem chi tiết"
+      "details": "Xem chi tiết",
+      "confirmed": "Đã xác nhận"
     }
   },
   "favorites": {
@@ -354,7 +355,39 @@
     "other": "Khác",
     "profileUpdated": "Cập nhật hồ sơ thành công",
     "updateError": "Không thể cập nhật hồ sơ",
-    "profileCompletion": "Hoàn thành hồ sơ"
+    "profileCompletion": "Hoàn thành hồ sơ",
+    "yes": "Có",
+    "no": "Không",
+    "editProfile": "Chỉnh sửa thông tin",
+  "removeAvatar": "Gỡ ảnh hiện tại",
+  "avatarHint": "Hỗ trợ định dạng JPG, PNG. Dung lượng tối đa 5MB.",
+    "profileDetails": "Thông tin chi tiết",
+    "name": "Họ và tên",
+    "username": "Tên đăng nhập",
+    "email": "Email",
+    "phone": "Số điện thoại",
+    "birthDate": "Ngày sinh",
+    "gender": "Giới tính",
+    "address": "Địa chỉ",
+  "addressDetail": "Chi tiết địa chỉ",
+  "enterAddressDetail": "Nhập địa chỉ cụ thể (số nhà, ngõ...)",
+  "street": "Đường",
+  "commune": "Phường/Xã",
+  "district": "Quận/Huyện",
+  "province": "Tỉnh/Thành phố",
+    "role": "Vai trò",
+    "verified": "Đã xác thực",
+    "createdAt": "Ngày tạo",
+    "updatedAt": "Cập nhật lần cuối",
+    "accountInfo": "Thông tin tài khoản",
+    "userNotFound": "Không tìm thấy thông tin người dùng",
+    "retry": "Thử lại",
+    "clickToChangeAvatar": "Nhấp vào để thay đổi ảnh đại diện",
+    "enterName": "Nhập họ và tên",
+    "enterPhone": "Nhập số điện thoại",
+    "enterAddress": "Nhập địa chỉ",
+    "saving": "Đang lưu...",
+    "uploadAvatarError": "Tải ảnh đại diện thất bại. Vui lòng thử lại."
   }
   ,
   "profile": {

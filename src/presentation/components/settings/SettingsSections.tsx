@@ -1,11 +1,35 @@
-import React from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { UpdateUserDto } from '@/domain/entities/User';
-import { Button, Input } from '@/components/ui';
+import Image from 'next/image';
+import { Button } from '@/components/ui';
 import { useUserProfileViewModel } from '../../viewmodels/useUserProfileViewModel';
 import { container } from '../../di/container';
+import type { User, UpdateUserDto } from '@/domain/entities/User';
+import { ProfileEditModal, EditProfileForm, AddressFormValues } from './ProfileEditModal';
+import SecuritySection from './SecuritySection';
+import NotificationsSection from './NotificationsSection';
+import PreferencesSection from './PreferencesSection';
 
 type TabKey = 'profile' | 'security' | 'notifications' | 'preferences';
+
+type ProfileViewModel = ReturnType<typeof useUserProfileViewModel>;
+type FeedbackState = { status: 'success' | 'error'; message: string };
+type ProfileField = { key: string; label: string; value: React.ReactNode };
+
+const buildAddressPayload = (address: AddressFormValues): User['address'] | null | undefined => {
+  if (!address) return undefined;
+
+  const sanitized = {
+    detail: address.detail.trim() || undefined,
+    street: address.street.trim() || undefined,
+    commune: address.commune.trim() || undefined,
+    district: address.district.trim() || undefined,
+    province: address.province.trim() || undefined,
+  } as User['address'];
+
+  const hasValue = Object.values(sanitized || {}).some(Boolean);
+  return hasValue ? sanitized : null;
+};
 
 interface Props {
   activeTab: TabKey;
@@ -14,257 +38,349 @@ interface Props {
 
 export const SettingsSections: React.FC<Props> = ({ activeTab, userId }) => {
   const t = useTranslations('settings');
-  const viewModel = useUserProfileViewModel(container.updateUserProfileUseCase, userId);
+  const viewModel = useUserProfileViewModel(
+    container.getUserProfileUseCase,
+    container.updateUserProfileUseCase,
+    container.uploadUserAvatarUseCase,
+    userId
+  );
 
   if (activeTab === 'profile') {
     return <ProfileSection t={t} viewModel={viewModel} />;
   }
 
   if (activeTab === 'security') {
-    return <SecuritySection t={t} />;
+    return <SecuritySection />;
   }
 
   if (activeTab === 'notifications') {
-    return <NotificationsSection t={t} />;
+    return <NotificationsSection />;
   }
 
-  return <PreferencesSection t={t} />;
+  return <PreferencesSection />;
 };
 
-const ProfileSection: React.FC<{ t: ReturnType<typeof useTranslations>; viewModel: ReturnType<typeof useUserProfileViewModel> }> = ({ t, viewModel }) => {
-  const [formData, setFormData] = React.useState<UpdateUserDto>({
-    name: '',
-    phone: '',
-    address: '',
-    gender: 'male',
-    birthDate: undefined,
-  });
+const ProfileSection: React.FC<{ t: ReturnType<typeof useTranslations>; viewModel: ProfileViewModel }> = ({ t, viewModel }) => {
+  const { user, isLoading, error, isUpdating, updateProfile, uploadAvatar, refresh } = viewModel;
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [feedback, setFeedback] = useState<FeedbackState | null>(null);
 
-  // sync form with loaded user
-  React.useEffect(() => {
-    if (viewModel.user) {
-      setFormData({
-        name: viewModel.user.name || viewModel.user.userName || '',
-        phone: viewModel.user.phone || '',
-        address: viewModel.user.address || '',
-        gender: viewModel.user.gender || 'male',
-        birthDate: viewModel.user.birthDate,
-      });
-    }
-  }, [viewModel.user]);
+  useEffect(() => {
+    if (!feedback) return;
+    const timer = window.setTimeout(() => setFeedback(null), 4000);
+    return () => window.clearTimeout(timer);
+  }, [feedback]);
 
-  // safe label helper: tries to get translation, falls back when missing or returns key-like string
-  const label = (key: string, fallback: string) => {
+  const label = useCallback((key: string, fallback: string) => {
     try {
-      const v = t(key as never) as string;
-      if (!v || typeof v !== 'string' || v.includes('.')) return fallback;
-      return v;
+      const value = t(key as never) as string;
+      if (!value || value.includes('.')) return fallback;
+      return value;
     } catch {
       return fallback;
     }
-  };
+  }, [t]);
 
-  const handleInputChange = (field: keyof UpdateUserDto, value: string | Date | undefined) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleFormSubmit = async (values: EditProfileForm) => {
     try {
-      await viewModel.updateProfile(formData);
-      alert(t('profileUpdated') || 'Profile updated');
-    } catch {
-      alert(t('updateError') || 'Update failed');
+      const updates: UpdateUserDto = {
+        userName: values.userName,
+        phone: values.phone,
+        dateOfBirth: values.dateOfBirth || undefined,
+      };
+
+      const addressPayload = buildAddressPayload(values.address);
+      if (addressPayload !== undefined) {
+        updates.address = addressPayload;
+      }
+
+      if (values.removeAvatar) {
+        updates.avatar = null;
+      } else if (values.avatarFile) {
+        try {
+          const avatarUrl = await uploadAvatar(values.avatarFile);
+          updates.avatar = avatarUrl;
+        } catch (uploadError) {
+          const message = uploadError instanceof Error
+            ? uploadError.message
+            : t('uploadAvatarError') || 'Tải ảnh đại diện thất bại. Vui lòng thử lại.';
+          setFeedback({ status: 'error', message });
+          throw uploadError;
+        }
+      }
+
+      await updateProfile(updates);
+
+      setFeedback({
+        status: 'success',
+        message: t('profileUpdated') || 'Cập nhật hồ sơ thành công',
+      });
+      setIsEditOpen(false);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : t('updateError') || 'Không thể cập nhật hồ sơ';
+      setFeedback({ status: 'error', message });
+      throw err;
     }
   };
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input label={label('name', 'Họ và tên')} value={formData.name || ''} onChange={(e) => handleInputChange('name', e.target.value)} />
-        <Input label={label('phone', 'Số điện thoại')} value={formData.phone || ''} onChange={(e) => handleInputChange('phone', e.target.value)} />
 
-        <Input label={label('username', 'Tên đăng nhập')} value={viewModel.user?.userName || ''} disabled />
+  const fields = useMemo<ProfileField[]>(() => {
+    if (!user) return [];
+    const yesText = t('yes') || 'Có';
+    const noText = t('no') || 'Không';
 
-        <Input label={label('email', 'Email')} value={viewModel.user?.email || ''} disabled />
-        <Input label={label('birthDate', 'Ngày sinh')} type="date" value={formData.birthDate ? formData.birthDate.toISOString().split('T')[0] : ''} onChange={(e) => handleInputChange('birthDate', new Date(e.target.value))} />
+    return [
+      {
+        key: 'userName',
+        label: label('name', 'Họ và tên'),
+        value: user.userName || '–',
+      },
+      {
+        key: 'email',
+        label: label('email', 'Email'),
+        value: user.email || '–',
+      },
+      {
+        key: 'phone',
+        label: label('phone', 'Số điện thoại'),
+        value: user.phone || '–',
+      },
+      {
+        key: 'dateOfBirth',
+        label: label('birthDate', 'Ngày sinh'),
+        value: formatDateOnly(user.dateOfBirth) || '–',
+      },
+      {
+        key: 'address',
+        label: label('address', 'Địa chỉ'),
+        value: formatAddress(user.address) || '–',
+      },
+      {
+        key: 'role',
+        label: label('role', 'Vai trò'),
+        value: formatRole(user.role),
+      },
+      {
+        key: 'isVerified',
+        label: label('verified', 'Đã xác thực'),
+        value:
+          user.isVerified === undefined
+            ? '–'
+            : (
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
+                    user.isVerified ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
+                  }`}
+                >
+                  {user.isVerified ? yesText : noText}
+                </span>
+              ),
+      },
+      {
+        key: 'createdAt',
+        label: label('createdAt', 'Ngày tạo'),
+        value: formatDateTime(user.createdAt) || '–',
+      },
+      {
+        key: 'updatedAt',
+        label: label('updatedAt', 'Cập nhật'),
+        value: formatDateTime(user.updatedAt) || '–',
+      },
+    ];
+  }, [label, t, user]);
 
-        <Input label={label('address', 'Địa chỉ')} className="md:col-span-2" value={formData.address || ''} onChange={(e) => handleInputChange('address', e.target.value)} />
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">{label('gender', 'Giới tính')}</label>
-          <select value={formData.gender} onChange={(e) => handleInputChange('gender', e.target.value)} className="w-full px-4 py-3 border border-gray-200 rounded-xl">
-            <option value="male">{label('male', 'Nam')}</option>
-            <option value="female">{label('female', 'Nữ')}</option>
-            <option value="other">{label('other', 'Khác')}</option>
-          </select>
+  let body: React.ReactNode;
+
+  if (isLoading) {
+    body = <ProfileSkeleton />;
+  } else if (error) {
+    body = (
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-6">
+        <h3 className="text-lg font-semibold text-red-700">
+          {t('updateError') || 'Không thể cập nhật hồ sơ'}
+        </h3>
+        <p className="mt-2 text-sm text-red-600">{error}</p>
+        <div className="mt-4">
+          <Button type="button" variant="primary" onClick={refresh}>
+            {t('retry') || 'Thử lại'}
+          </Button>
         </div>
+      </div>
+    );
+  } else if (!user) {
+    body = (
+      <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-600">
+        {t('userNotFound') || 'Không tìm thấy thông tin người dùng'}
+      </div>
+    );
+  } else {
+    body = (
+      <div className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-4">
+            <AvatarPreview user={user} />
+            <div>
+              <h2 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900">{user.userName || user.email}</h2>
+              <p className="text-xs sm:text-sm text-gray-500">{user.email}</p>
+              {user.role && (
+                <span className="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs sm:text-sm font-semibold text-emerald-700">
+                  {formatRole(user.role)}
+                </span>
+              )}
+            </div>
+          </div>
 
-        {/* backend-only metadata row */}
-        <div className="md:col-span-2 bg-gray-50 p-3 rounded-xl border border-gray-100">
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="text-sm text-gray-600">{label('role', 'Vai trò')}: <span className="font-medium text-gray-800">{viewModel.user?.role || '-'}</span></div>
-            <div className="text-sm text-gray-600">{label('verified', 'Đã xác thực')}: <span className={`font-medium ${viewModel.user?.isVerified ? 'text-green-600' : 'text-red-600'}`}>{viewModel.user?.isVerified ? 'Yes' : 'No'}</span></div>
-            <div className="text-sm text-gray-600">{label('createdAt', 'Ngày tạo')}: <span className="font-medium text-gray-800">{viewModel.user?.createdAt ? new Date(viewModel.user.createdAt).toLocaleString() : '-'}</span></div>
+          <div className="w-full md:w-auto">
+            <Button variant="primary" onClick={() => setIsEditOpen(true)} className="w-full md:w-auto">
+              {t('editProfile') || 'Chỉnh sửa thông tin'}
+            </Button>
           </div>
         </div>
-      </div>
 
-      <div className="flex gap-3">
-        <Button type="submit" variant="primary">{label('saveChanges', 'Lưu')}</Button>
-        <Button type="button" variant="outline" onClick={() => {
-          setFormData({
-            name: viewModel.user?.name || '',
-            phone: viewModel.user?.phone || '',
-            address: viewModel.user?.address || '',
-            gender: viewModel.user?.gender || 'male',
-            birthDate: viewModel.user?.birthDate,
-          });
-        }}>{label('cancel', 'Hủy')}</Button>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {fields.map((field) => (
+            <InfoField key={field.key} label={field.label} value={field.value} />
+          ))}
+        </div>
       </div>
-    </form>
+    );
+  }
+
+  return (
+    <div className="space-y-4 max-w-4xl mx-auto px-2 sm:px-4 lg:px-6">
+          {feedback && (
+            <div
+              className={`flex items-center justify-between rounded-xl border px-4 py-3 text-sm ${
+                feedback.status === 'success'
+                  ? 'border-green-200 bg-green-50 text-green-700'
+                  : 'border-red-200 bg-red-50 text-red-700'
+              }`}
+            >
+              <span className="text-sm sm:text-base">{feedback.message}</span>
+              <button
+                type="button"
+                className="rounded-full px-2 py-1 text-xs font-semibold uppercase tracking-wide"
+                onClick={() => setFeedback(null)}
+                aria-label="Close notification"
+              >
+                ×
+              </button>
+            </div>
+          )}
+
+      {body}
+
+      <ProfileEditModal
+        open={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        onSubmit={handleFormSubmit}
+        isSubmitting={isUpdating}
+        t={t}
+        user={user}
+      />
+    </div>
   );
+};
 
+const ProfileSkeleton: React.FC = () => (
+  <div className="space-y-4">
+    <div className="h-24 rounded-2xl bg-gray-100 animate-pulse" />
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div key={index} className="h-16 rounded-xl bg-gray-100 animate-pulse" />
+      ))}
+    </div>
+  </div>
+);
+
+const AvatarPreview: React.FC<{ user: User | null }> = ({ user }) => {
+  if (user?.avatar) {
+    return (
+      <Image
+        src={user.avatar}
+        alt={user.userName || user.email || 'Avatar'}
+        width={80}
+        height={80}
+        className="h-16 w-16 md:h-20 md:w-20 rounded-full border border-gray-200 object-cover"
+        unoptimized
+      />
+    );
+  }
+
+  const initials = getInitials(user);
+
+  return (
+    <div className="flex h-16 w-16 md:h-20 md:w-20 items-center justify-center rounded-full bg-emerald-100 text-base sm:text-lg md:text-xl font-semibold text-emerald-700">
+      {initials}
+    </div>
+  );
+};
+
+const InfoField: React.FC<ProfileField> = ({ label, value }) => {
+  const content = typeof value === 'string'
+    ? value.trim().length ? value : '–'
+    : value ?? '–';
+
+  return (
+    <div className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
+      <div className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-gray-500">{label}</div>
+      <div className="mt-1 text-sm sm:text-base text-gray-800 break-words">{content}</div>
+    </div>
+  );
+};
+
+const getInitials = (user: User | null): string => {
+  const source = user?.userName || user?.email || '';
+  if (!source) return '?';
+  const parts = source.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) {
+    return source.slice(0, 2).toUpperCase() || '?';
+  }
+  return parts
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('') || '?';
+};
+
+const formatDateOnly = (value?: string | null): string => {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return new Intl.DateTimeFormat('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(date);
+};
+
+const formatDateTime = (value?: string | null): string => {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return new Intl.DateTimeFormat('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+};
+
+const formatAddress = (address?: User['address'] | null): string => {
+  if (!address) return '';
+  const parts = [address.detail, address.street, address.commune, address.district, address.province]
+    .map((part) => (typeof part === 'string' ? part.trim() : ''))
+    .filter((part) => part.length);
+  return parts.join(', ');
+};
+
+const formatRole = (role?: string): string => {
+  if (!role) return '–';
+  return role
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
 };
 
 export default SettingsSections;
 
-// --- Other sections ---
-const SecuritySection: React.FC<{ t: ReturnType<typeof useTranslations> }> = ({ t }) => {
-  return (
-    <div className="space-y-6 px-2 sm:px-6 py-6">
-      <div className="text-center mb-4">
-        <h2 className="text-2xl font-bold text-gray-800">{t('security')}</h2>
-        <p className="text-sm text-gray-600">{t('securityDesc')}</p>
-      </div>
-
-      <div className="bg-green-50 p-4 sm:p-6 rounded-2xl border border-green-100">
-        <h3 className="font-semibold text-green-800 mb-3">{t('changePasswordTitle')}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-          <Input label={t('currentPassword') || 'Mật khẩu hiện tại'} type="password" />
-          <Input label={t('newPassword') || 'Mật khẩu mới'} type="password" />
-          <Input label={t('confirmNewPassword') || 'Xác nhận mật khẩu mới'} type="password" />
-        </div>
-        <div>
-          <Button variant="primary">{t('updatePassword')}</Button>
-        </div>
-      </div>
-
-      <div className="bg-green-50 p-4 sm:p-6 rounded-2xl border border-green-100">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold text-green-800">{t('twoFactorTitle')}</h3>
-            <p className="text-sm text-gray-600">{t('twoFactorDesc')}</p>
-          </div>
-          <ToggleSwitch label="" enabled={false} />
-        </div>
-      </div>
-
-      <div className="bg-green-50 p-4 sm:p-6 rounded-2xl border border-green-100">
-        <h3 className="font-semibold text-green-800 mb-3">{t('devicesTitle')}</h3>
-        <div className="space-y-3">
-          <DeviceItem name="Chrome trên Windows" location="TP.HCM, Việt Nam" time={t('now') || 'Hiện tại'} isCurrent t={t} />
-          <DeviceItem name="Safari trên iPhone" location="Hà Nội, Việt Nam" time={t('hoursAgo', { hours: 2 }) || '2 giờ trước'} t={t} />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const NotificationsSection: React.FC<{ t: ReturnType<typeof useTranslations> }> = ({ t }) => (
-  <div className="px-2 sm:px-6 py-6 space-y-6">
-    <div className="text-center">
-      <h2 className="text-2xl font-bold text-gray-800">{t('notificationsTitle')}</h2>
-      <p className="text-sm text-gray-600">{t('notificationsDesc')}</p>
-    </div>
-
-    <div className="bg-green-50 p-4 sm:p-6 rounded-2xl border border-green-100">
-      <ToggleSwitch label={t('notif_order')} description={t('notif_order_desc')} enabled={true} />
-      <ToggleSwitch label={t('notif_promo')} description={t('notif_promo_desc')} enabled={true} />
-      <ToggleSwitch label={t('notif_new_product')} description={t('notif_new_product_desc')} enabled={false} />
-      <ToggleSwitch label={t('notif_livestream')} description={t('notif_livestream_desc')} enabled={true} />
-      <ToggleSwitch label={t('notif_community')} description={t('notif_community_desc')} enabled={false} />
-    </div>
-  </div>
-);
-
-const PreferencesSection: React.FC<{ t: ReturnType<typeof useTranslations> }> = ({ t }) => (
-  <div className="px-2 sm:px-6 py-6 space-y-6">
-    <div className="text-center">
-      <h2 className="text-2xl font-bold text-gray-800">{t('preferences')}</h2>
-      <p className="text-sm text-gray-600">{t('preferencesDesc')}</p>
-    </div>
-
-    <div className="bg-green-50 p-4 sm:p-6 rounded-2xl border border-green-100">
-      <label className="block text-sm font-medium text-gray-700 mb-2">{t('pref_language')}</label>
-      <select className="w-full px-4 py-3 border border-gray-200 rounded-xl mb-4">
-        <option value="vi">{t('lang_vietnamese')}</option>
-        <option value="en">{t('lang_english')}</option>
-      </select>
-
-      <SelectField label={t('pref_timezone')} options={[t('timezone_gmt7') || '(GMT+7)']} />
-    </div>
-
-    <div className="bg-green-50 p-4 sm:p-6 rounded-2xl border border-green-100">
-      <ToggleSwitch label={t('darkMode')} description={t('darkModeDesc')} enabled={false} />
-    </div>
-
-    <div className="bg-red-50 p-4 sm:p-6 rounded-2xl border border-red-100">
-      <h3 className="font-semibold text-red-600 mb-2">{t('dangerous_zone')}</h3>
-      <p className="text-sm text-gray-600 mb-4">{t('dangerous_desc')}</p>
-      <Button variant="outline" className="border-red-300 text-red-600">{t('deleteAccount')}</Button>
-    </div>
-  </div>
-);
-
-// --- Reusable small components (local) ---
-
-const SelectField: React.FC<{
-  label?: string;
-  options: string[];
-  value?: string;
-  onChange?: (value: string) => void;
-}> = ({ label, options, value, onChange }) => (
-  <div className="mb-4">
-    {label && <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>}
-    <select value={value} onChange={(e) => onChange?.(e.target.value)} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white transition-all duration-200 focus:border-blue-500">
-      {options.map((option) => (
-        <option key={option} value={option}>{option}</option>
-      ))}
-    </select>
-  </div>
-);
-
-const ToggleSwitch: React.FC<{
-  label: string;
-  description?: string;
-  enabled: boolean;
-}> = ({ label, description, enabled }) => (
-  <div className="flex items-start justify-between py-4 border-b border-gray-100 last:border-0">
-    <div className="flex-1">
-      <div className="font-medium text-gray-800">{label}</div>
-      {description && <div className="text-sm text-gray-500 mt-1">{description}</div>}
-    </div>
-    <button className={`relative w-14 h-7 rounded-full transition-all duration-300 shadow-sm ${enabled ? 'bg-green-500' : 'bg-gray-300'}`}>
-      <span className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300 ${enabled ? 'transform translate-x-7' : ''}`} />
-    </button>
-  </div>
-);
-
-const DeviceItem: React.FC<{
-  name: string;
-  location: string;
-  time: string;
-  isCurrent?: boolean;
-  t: ReturnType<typeof useTranslations>;
-}> = ({ name, location, time, isCurrent, t }) => (
-  <div className="flex items-start justify-between p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-    <div className="flex gap-4">
-      <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">💻</div>
-      <div>
-        <div className="font-semibold text-gray-800">{name} {isCurrent && <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">{t('current')}</span>}</div>
-        <div className="text-sm text-gray-500">{location}</div>
-        <div className="text-xs text-gray-400 mt-1">{time}</div>
-      </div>
-    </div>
-    {!isCurrent && <Button variant="outline" size="sm" className="border-red-200 text-red-600">{t('logout')}</Button>}
-  </div>
-);

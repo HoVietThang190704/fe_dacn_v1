@@ -116,8 +116,7 @@ export class PostApiDataSource {
     }
 
     const result = await response.json();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return result.data.map((post: any) => this.transformPost(post));
+    return (result.data as unknown as Record<string, unknown>[]).map((post) => this.transformPost(post as Record<string, unknown>));
   }
 
   async createPost(data: CreatePostData): Promise<Post> {
@@ -264,9 +263,20 @@ export class PostApiDataSource {
     return result.data;
   }
 
-  private transformPost(data: any): Post {
+  private transformPost(data: Record<string, unknown>): Post {
     // Fallback: if backend didn't return populated user, try to use locally stored user
-    let user = data.user;
+    const userObj = data.user as unknown as Record<string, unknown> | undefined;
+    let user = undefined as { id: string; userName?: string; email: string; avatar?: string } | undefined;
+    if (userObj && userObj.id && userObj.email) {
+      user = {
+        id: String(userObj.id),
+        userName: userObj.userName as string | undefined,
+        email: String(userObj.email),
+        avatar: userObj.avatar as string | undefined,
+      };
+    } else {
+      user = undefined;
+    }
     try {
       if (!user) {
         const stored = localStorage.getItem('user');
@@ -288,31 +298,41 @@ export class PostApiDataSource {
     }
 
     return {
-      id: data.id,
-      userId: data.userId,
+      id: String(data.id),
+      userId: String(data.userId),
       user: user,
-      content: data.content,
-      images: data.images || [],
-      likesCount: data.likesCount || 0,
-      commentsCount: data.commentsCount || 0,
-      sharesCount: data.sharesCount || 0,
-      isLiked: data.isLiked || false,
-      visibility: data.visibility,
-      isEdited: data.isEdited || false,
-      editedAt: data.editedAt ? new Date(data.editedAt) : undefined,
-      originalPostId: data.originalPostId,
-      originalPost: data.originalPost ? this.transformPost(data.originalPost) : undefined,
-      sharedBy: data.sharedBy,
-      createdAt: new Date(data.createdAt),
-      updatedAt: new Date(data.updatedAt),
+      content: String(data.content),
+      images: (data.images as unknown as string[]) || [],
+      likesCount: (data.likesCount as number) || 0,
+      commentsCount: (data.commentsCount as number) || 0,
+      sharesCount: (data.sharesCount as number) || 0,
+      isLiked: (data.isLiked as boolean) || false,
+  visibility: ((data.visibility as string) || 'public') as 'public' | 'friends' | 'private',
+      isEdited: (data.isEdited as boolean) || false,
+      editedAt: data.editedAt ? new Date(String(data.editedAt)) : undefined,
+      originalPostId: data.originalPostId as string | undefined,
+      originalPost: data.originalPost ? this.transformPost(data.originalPost as Record<string, unknown>) : undefined,
+      sharedBy: (() => {
+        const sb = data.sharedBy as unknown as Record<string, unknown> | undefined;
+        if (sb && sb.id) {
+          return {
+            id: String(sb.id),
+            userName: sb.userName as string | undefined,
+            avatar: sb.avatar as string | undefined,
+          };
+        }
+        return undefined;
+      })(),
+      createdAt: new Date(String(data.createdAt)),
+      updatedAt: new Date(String(data.updatedAt)),
     };
   }
 
-  private transformResponse(data: any): PaginatedPosts {
+  private transformResponse(data: Record<string, unknown>): PaginatedPosts {
     // Ensure each post has user; if backend omitted user for newly created post,
     // try to patch with local user data when possible.
-    const posts = data.posts.map((post: any) => {
-      const transformed = this.transformPost(post);
+    const posts = (data.posts as unknown as Record<string, unknown>[]).map((post) => {
+      const transformed = this.transformPost(post as Record<string, unknown>);
       if (!transformed.user) {
         try {
           const stored = localStorage.getItem('user');
@@ -334,7 +354,7 @@ export class PostApiDataSource {
 
     return {
       posts,
-      pagination: data.pagination,
+      pagination: data.pagination as unknown as { total: number; page: number; limit: number; totalPages: number; hasMore: boolean },
     };
   }
 }

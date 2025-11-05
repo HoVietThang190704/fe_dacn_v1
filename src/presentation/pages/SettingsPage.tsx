@@ -15,7 +15,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ userId }) => {
   const t = useTranslations("settings");
   const [activeTab, setActiveTab] = useState<"profile" | "security" | "notifications" | "preferences">("profile");
 
-  const tabs = [
+  const tabs: { key: 'profile' | 'security' | 'notifications' | 'preferences'; label: string; icon?: string }[] = [
     { key: "profile", label: t("profile") || "Hồ sơ", icon: ICONS.USERS },
     { key: "security", label: t("security") || "Bảo mật", icon: ICONS.SETTINGS },
     { key: "notifications", label: t("notifications") || "Thông báo", icon: ICONS.BELL },
@@ -24,13 +24,11 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ userId }) => {
 
   return (
     <SettingsLayout title={t("title") || "Cài đặt"} description={t("settingsDesc") || "Quản lý tài khoản & cài đặt"}>
-      <div className="flex flex-col lg:flex-row gap-6">
-        <SettingsNav tabs={tabs as any} active={activeTab} onChange={(k) => setActiveTab(k)} />
+      <div className="flex flex-col lg:flex-row gap-4 -mx-4">
+        <SettingsNav tabs={tabs} active={activeTab} onChange={(k) => setActiveTab(k)} />
 
         <div className="lg:w-3/4">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 lg:p-8">
-            <SettingsSections activeTab={activeTab} userId={userId} />
-          </div>
+          <SettingsSections activeTab={activeTab} userId={userId} />
         </div>
       </div>
     </SettingsLayout>
