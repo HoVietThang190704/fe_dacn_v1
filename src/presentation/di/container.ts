@@ -29,6 +29,11 @@ import { GetProductByIdUseCase } from '@/domain/usecases/GetProductByIdUseCase';
 import { UpdateUserProfileUseCase } from '@/domain/usecases/UpdateUserProfileUseCase';
 import { GetOrderByIdUseCase } from '@/domain/usecases/GetOrderByIdUseCase';
 import { GetSupportDataUseCase } from '@/domain/usecases/GetSupportTicketsUseCase';
+import { CreateLivestreamUseCase } from '@/domain/usecases/CreateLivestreamUseCase';
+import { GetLivestreamByIdUseCase } from '@/domain/usecases/GetLivestreamByIdUseCase';
+import { UpdateLivestreamStatusUseCase } from '@/domain/usecases/UpdateLivestreamStatusUseCase';
+import { GetAgoraTokenUseCase } from '@/domain/usecases/GetAgoraTokenUseCase';
+import { GetMyLivestreamHistoryUseCase } from '@/domain/usecases/GetMyLivestreamHistoryUseCase';
 
 class DIContainer {
   private static instance: DIContainer;
@@ -62,6 +67,11 @@ class DIContainer {
   private _updateUserProfileUseCase?: UpdateUserProfileUseCase;
   private _getOrderByIdUseCase?: GetOrderByIdUseCase;
   private _getSupportDataUseCase?: GetSupportDataUseCase;
+  private _createLivestreamUseCase?: CreateLivestreamUseCase;
+  private _getLivestreamByIdUseCase?: GetLivestreamByIdUseCase;
+  private _updateLivestreamStatusUseCase?: UpdateLivestreamStatusUseCase;
+  private _getAgoraTokenUseCase?: GetAgoraTokenUseCase;
+  private _getMyLivestreamHistoryUseCase?: GetMyLivestreamHistoryUseCase;
 
   private constructor() {}
 
@@ -262,6 +272,41 @@ class DIContainer {
       this._getSupportDataUseCase = new GetSupportDataUseCase(this.supportRepository);
     }
     return this._getSupportDataUseCase;
+  }
+
+  get createLivestreamUseCase(): CreateLivestreamUseCase {
+    if (!this._createLivestreamUseCase) {
+      this._createLivestreamUseCase = new CreateLivestreamUseCase(this.livestreamRepository);
+    }
+    return this._createLivestreamUseCase;
+  }
+
+  get getLivestreamByIdUseCase(): GetLivestreamByIdUseCase {
+    if (!this._getLivestreamByIdUseCase) {
+      this._getLivestreamByIdUseCase = new GetLivestreamByIdUseCase(this.livestreamRepository);
+    }
+    return this._getLivestreamByIdUseCase;
+  }
+
+  get updateLivestreamStatusUseCase(): UpdateLivestreamStatusUseCase {
+    if (!this._updateLivestreamStatusUseCase) {
+      this._updateLivestreamStatusUseCase = new UpdateLivestreamStatusUseCase(this.livestreamRepository);
+    }
+    return this._updateLivestreamStatusUseCase;
+  }
+
+  get getAgoraTokenUseCase(): GetAgoraTokenUseCase {
+    if (!this._getAgoraTokenUseCase) {
+      this._getAgoraTokenUseCase = new GetAgoraTokenUseCase(this.livestreamRepository);
+    }
+    return this._getAgoraTokenUseCase;
+  }
+
+  get getMyLivestreamHistoryUseCase(): GetMyLivestreamHistoryUseCase {
+    if (!this._getMyLivestreamHistoryUseCase) {
+      this._getMyLivestreamHistoryUseCase = new GetMyLivestreamHistoryUseCase(this.livestreamRepository);
+    }
+    return this._getMyLivestreamHistoryUseCase;
   }
 }
 

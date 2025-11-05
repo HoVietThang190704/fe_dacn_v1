@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI, LoginRequest, RegisterRequest } from '@/lib/api';
+import { postCommentContainer } from '@/presentation/di/PostCommentContainer';
 
-interface User {
+export interface User {
   id: string;
   email: string;
   userName: string;
-  phone: string;
+  phone?: string;
   role: string;
   isVerified: boolean;
+  avatar?: string;
 }
 
 export function useAuth() {
@@ -28,6 +30,8 @@ export function useAuth() {
           const userData = JSON.parse(savedUser);
           setUser(userData);
           setIsAuthenticated(true);
+          // Set token to container on app start
+          postCommentContainer.setAuthToken(token);
         } else {
           setUser(null);
           setIsAuthenticated(false);
@@ -57,6 +61,8 @@ export function useAuth() {
           localStorage.setItem('user', JSON.stringify(result.data.user));
           setUser(result.data.user);
           setIsAuthenticated(true);
+          // Set token to container immediately after login
+          postCommentContainer.setAuthToken(result.data.token);
         }
 
         router.push('/main');
@@ -121,6 +127,8 @@ export function useAuth() {
     localStorage.removeItem('user');
     setUser(null);
     setIsAuthenticated(false);
+    // Clear token from container on logout
+    postCommentContainer.setAuthToken('');
     router.push('/auth/login');
   };
 

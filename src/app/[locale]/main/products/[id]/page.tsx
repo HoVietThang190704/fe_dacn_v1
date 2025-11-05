@@ -1,11 +1,13 @@
+import { use } from 'react';
 import { ProductDetailPage } from '@/presentation/pages';
 
 interface ProductDetailProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function ProductDetail({ params }: ProductDetailProps) {
-  return <ProductDetailPage productId={params.id} />;
+  const { id } = use(params);
+  return <ProductDetailPage productId={id} />;
 }

@@ -1,11 +1,15 @@
-import { LivestreamWatchPage } from '@/presentation/pages/livestream/[id]';
+'use client';
+
+import { use } from 'react';
+import { WatchLivestreamPage } from '@/presentation/pages/livestream/WatchLivestreamPage';
 
 interface LivestreamWatchProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function LivestreamWatch({ params }: LivestreamWatchProps) {
-  return <LivestreamWatchPage livestreamId={params.id} />;
+  const { id } = use(params);
+  return <WatchLivestreamPage livestreamId={id} />;
 }

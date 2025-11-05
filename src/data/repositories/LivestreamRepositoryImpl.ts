@@ -1,5 +1,5 @@
 import { ILivestreamRepository } from '@/domain/repositories/ILivestreamRepository';
-import { Livestream, LivestreamStatus } from '@/domain/entities/Livestream';
+import { Livestream, LivestreamStatus, CreateLivestreamDto, UpdateLivestreamDto, AgoraToken } from '@/domain/entities/Livestream';
 import { LivestreamApiDataSource } from '../datasources/LivestreamApiDataSource';
 
 export class LivestreamRepositoryImpl implements ILivestreamRepository {
@@ -19,5 +19,25 @@ export class LivestreamRepositoryImpl implements ILivestreamRepository {
 
   async getScheduledLivestreams(): Promise<Livestream[]> {
     return await this.apiDataSource.getScheduledLivestreams();
+  }
+
+  async getUserHistory(userId: string): Promise<Livestream[]> {
+    return await this.apiDataSource.getUserHistory(userId);
+  }
+
+  async createLivestream(data: CreateLivestreamDto): Promise<Livestream> {
+    return await this.apiDataSource.createLivestream(data);
+  }
+
+  async updateLivestream(id: string, data: UpdateLivestreamDto): Promise<Livestream> {
+    return await this.apiDataSource.updateLivestream(id, data);
+  }
+
+  async updateLivestreamStatus(id: string, status: LivestreamStatus): Promise<Livestream> {
+    return await this.apiDataSource.updateLivestreamStatus(id, status);
+  }
+
+  async getAgoraToken(channel: string, uid: number, role: 'publisher' | 'audience'): Promise<AgoraToken> {
+    return await this.apiDataSource.getAgoraToken(channel, uid, role);
   }
 }
