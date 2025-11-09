@@ -17,6 +17,11 @@ interface Props {
 }
 
 export const SortDropdownUI: React.FC<Props> = ({ value, open, onToggle, onSelect, options, className, matchButtonWidth = false, align = 'left' }) => {
+  const selectedLabel = React.useMemo(() => {
+    const match = options.find((opt) => opt.value === value);
+    return match?.label ?? value;
+  }, [options, value]);
+
   return (
     <div className={`${className ?? ''} relative inline-block`}>
       <button
@@ -26,7 +31,7 @@ export const SortDropdownUI: React.FC<Props> = ({ value, open, onToggle, onSelec
         aria-haspopup="true"
         aria-expanded={open}
       >
-        <span className="text-sm">{value}</span>
+        <span className="text-sm">{selectedLabel}</span>
         <span className="text-xs">▾</span>
       </button>
 

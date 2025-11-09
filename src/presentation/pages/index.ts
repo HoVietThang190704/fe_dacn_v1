@@ -1,6 +1,7 @@
 export { HomePage } from './HomePage';
 export { ProductsListPage } from './ProductsListPage';
 export { ProductDetailPage } from './ProductDetailPage';
+export { ProductCreatePage } from './ProductCreatePage';
 export { OrdersPage } from './OrdersPage';
 export { OrderDetailPage } from './OrderDetailPage';
 export { FavoritesPage } from './FavoritesPage';
@@ -8,3 +9,5 @@ export { LivestreamsPage } from './LivestreamsPage';
 export { CommunityPage } from './CommunityPage';
 export { SupportPage } from './SupportPage';
 export { SettingsPage } from './SettingsPage';
+export { CartPage } from './CartPage';
+export { CheckoutPage } from './CheckoutPage';

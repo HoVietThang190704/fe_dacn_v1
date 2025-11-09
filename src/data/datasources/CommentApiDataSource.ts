@@ -1,5 +1,6 @@
 import { Comment, CreateCommentData, UpdateCommentData, PaginatedComments } from '@/domain/entities/Comment';
 import { API_CONFIG, API_ENDPOINTS } from '@/shared/constants/api';
+import { authApiClient } from '@/lib/authApiClient';
 
 export class CommentApiDataSource {
   private token: string | null = null;
@@ -28,19 +29,12 @@ export class CommentApiDataSource {
   }
 
   async getCommentsByPostId(postId: string, page: number = 1, limit: number = 20): Promise<PaginatedComments> {
-    const url = this.getFullUrl(API_ENDPOINTS.COMMENTS_BY_POST(postId)) + `?page=${page}&limit=${limit}`;
-    console.log('[CommentApiDataSource] Fetching comments from:', url);
-    
-    const response = await fetch(url, {
-      headers: this.getHeaders(),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch comments: ${response.statusText}`);
+    console.log('[CommentApiDataSource] Fetching comments');
+    const response = await authApiClient.get<{ success: boolean; data: unknown }>(`${API_ENDPOINTS.COMMENTS_BY_POST(postId)}?page=${page}&limit=${limit}`);
+    if (!response.success || !response.data?.data) {
+      throw new Error(response.error || `Failed to fetch comments`);
     }
-
-    const result = await response.json();
-    return this.transformResponse(result.data);
+    return this.transformResponse(response.data.data as Record<string, unknown>);
   }
 
   async getCommentsWithNested(postId: string, page: number = 1, limit: number = 20): Promise<PaginatedComments> {
@@ -222,16 +216,24 @@ export class CommentApiDataSource {
   }
 
   private transformComment(data: Record<string, unknown>): Comment {
+    const userObj = data.user as unknown as Record<string, unknown> | undefined;
+    const userVal = userObj && userObj.id && userObj.email ? {
+      id: String(userObj.id),
+      userName: userObj.userName as string | undefined,
+      email: String(userObj.email),
+      avatar: userObj.avatar as string | undefined
+    } : undefined;
+
     return {
       id: data.id as string,
       postId: data.postId as string,
       userId: data.userId as string,
-      user: data.user as any,
+      user: userVal,
       content: data.content as string,
       images: (data.images as string[]) || [],
       parentCommentId: data.parentCommentId as string | undefined,
       level: (data.level as number) || 0,
-      replies: (data.replies as any[])?.map((reply) => this.transformComment(reply)),
+      replies: (data.replies as unknown as Record<string, unknown>[] )?.map((reply) => this.transformComment(reply)),
       likesCount: (data.likesCount as number) || 0,
       repliesCount: (data.repliesCount as number) || 0,
       isLiked: (data.isLiked as boolean) || false,
@@ -244,8 +246,8 @@ export class CommentApiDataSource {
 
   private transformResponse(data: Record<string, unknown>): PaginatedComments {
     return {
-      comments: ((data.comments as any[]) || []).map((comment) => this.transformComment(comment)),
-      pagination: data.pagination as any,
+      comments: ((data.comments as unknown as Record<string, unknown>[] ) || []).map((comment) => this.transformComment(comment)),
+      pagination: data.pagination as unknown as { page: number; limit: number; total: number; totalPages: number; hasMore: boolean },
     };
   }
 }

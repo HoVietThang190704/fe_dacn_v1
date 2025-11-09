@@ -1,140 +1,173 @@
 'use client';
 
-import React from 'react';
-import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useCallback, useMemo } from 'react';
 import Image from 'next/image';
-import { useOrdersViewModel } from '../viewmodels/useOrdersViewModel';
+import { useLocale, useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import { ORDER_STATUS, Order, OrderStatus, PaymentMethod } from '@/domain/entities/Order';
 import { container } from '../di/container';
-import { Order, OrderStatus } from '@/domain/entities/Order';
+import { useOrdersViewModel } from '../viewmodels/useOrdersViewModel';
 
-interface OrdersPageProps {
-  userId: string;
-}
+type FilterStatus = OrderStatus | 'ALL';
 
-export const OrdersPage: React.FC<OrdersPageProps> = ({ userId }) => {
+const FALLBACK_IMAGE = '/img/Background.png';
+
+const paymentLabels: Record<PaymentMethod, string> = {
+  cod: 'Cash on Delivery',
+  momo: 'MoMo Wallet',
+  zalopay: 'ZaloPay',
+  vnpay: 'VNPay',
+  card: 'Bank Card',
+};
+
+const translateSafely = (translate: (key: string) => string, key: string, fallback: string) => {
+  try {
+    const value = translate(key);
+    return !value || value === key ? fallback : value;
+  } catch {
+    return fallback;
+  }
+};
+
+type TranslationValues = Record<string, string | number | Date>;
+
+const translateWithValues = (
+  translate: (key: string, values?: TranslationValues) => string,
+  key: string,
+  values: TranslationValues,
+  fallback: string
+) => {
+  try {
+    const value = translate(key, values);
+    return !value || value === key ? fallback : value;
+  } catch {
+    return fallback;
+  }
+};
+
+export const OrdersPage = () => {
   const t = useTranslations('orders');
   const router = useRouter();
-  // Comment out API calls - using mock data for UI preview
-  // const viewModel = useOrdersViewModel(container.getOrdersUseCase, userId);
-  // if (viewModel.isLoading) {
-  //   return <LoadingState />;
-  // }
-  // if (viewModel.error) {
-  //   return <ErrorState error={viewModel.error} onRetry={viewModel.refresh} />;
-  // }
+  const locale = useLocale();
 
-  const mockOrders = [
-    {
-      id: 'ODR12345678',
-      userId: userId,
-      status: OrderStatus.SHIPPING,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      totalAmount: 450000,
-      items: [
-        {
-          productId: 'PR001',
-          productName: 'Cà chua Đà Lạt tươi ngon',
-          image: 'https://images.unsplash.com/photo-1546094096-0df4bcaaa337?auto=format&fit=crop&w=400&q=80',
-          quantity: 2,
-          price: 35000
-        },
-        {
-          productId: 'PR002',
-          productName: 'Dưa hấu không hạt Mỹ',
-          image: 'https://images.unsplash.com/photo-1587049352846-4a222e784l66?auto=format&fit=crop&w=400&q=80',
-          quantity: 1,
-          price: 120000
-        },
-        {
-          productId: 'PR003',
-          productName: 'Rau xà lách hữu cơ',
-          image: 'https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?auto=format&fit=crop&w=400&q=80',
-          quantity: 3,
-          price: 25000
-        }
-      ],
-      shippingAddress: '123 Nguyễn Văn Linh, Quận 7, TP.HCM'
+  const getOrdersUseCase = container.getOrdersUseCase;
+  const getOrderStatisticsUseCase = container.getOrderStatisticsUseCase;
+
+  const title = translateSafely(t, 'title', 'Đơn hàng của bạn');
+  const subtitle = translateSafely(t, 'subtitle', 'Theo dõi trạng thái và quản lý đơn hàng gần đây.');
+  const refreshLabel = translateSafely(t, 'actions.refresh', 'Làm mới');
+  const filterLabelAll = translateSafely(t, 'filter.all', 'Tất cả');
+  const filterLabelPending = translateSafely(t, 'filter.pending', 'Chờ xác nhận');
+  const filterLabelConfirmed = translateSafely(t, 'filter.confirmed', 'Đã xác nhận');
+  const filterLabelPreparing = translateSafely(t, 'filter.preparing', 'Đang chuẩn bị');
+  const filterLabelShipping = translateSafely(t, 'filter.shipping', 'Đang giao');
+  const filterLabelDelivered = translateSafely(t, 'filter.delivered', 'Đã giao');
+  const filterLabelCancelled = translateSafely(t, 'filter.cancelled', 'Đã hủy');
+
+  const {
+    orders,
+    orderStats,
+    isLoading,
+    isStatsLoading,
+    error,
+    statsError,
+    filterStatus,
+    setFilterStatus,
+    refresh,
+  } = useOrdersViewModel({
+    getOrdersUseCase,
+    getOrderStatisticsUseCase,
+    initialFilters: { limit: 10 },
+  });
+
+  const filterOptions = useMemo(
+    () => [
+      { key: 'ALL' as FilterStatus, label: filterLabelAll, count: orderStats?.total ?? 0 },
+      { key: ORDER_STATUS.PENDING, label: filterLabelPending, count: orderStats?.pending ?? 0 },
+      { key: ORDER_STATUS.CONFIRMED, label: filterLabelConfirmed, count: orderStats?.confirmed ?? 0 },
+      { key: ORDER_STATUS.PREPARING, label: filterLabelPreparing, count: orderStats?.preparing ?? 0 },
+      { key: ORDER_STATUS.SHIPPING, label: filterLabelShipping, count: orderStats?.shipping ?? 0 },
+      { key: ORDER_STATUS.DELIVERED, label: filterLabelDelivered, count: orderStats?.delivered ?? 0 },
+      { key: ORDER_STATUS.CANCELLED, label: filterLabelCancelled, count: orderStats?.cancelled ?? 0 },
+    ],
+    [
+      filterLabelAll,
+      filterLabelPending,
+      filterLabelConfirmed,
+      filterLabelPreparing,
+      filterLabelShipping,
+      filterLabelDelivered,
+      filterLabelCancelled,
+      orderStats,
+    ]
+  );
+
+  const handleFilterChange = useCallback(
+    (status: FilterStatus) => {
+      setFilterStatus(status);
     },
-    {
-      id: 'ODR87654321',
-      userId: userId,
-      status: OrderStatus.DELIVERED,
-      createdAt: new Date(Date.now() - 86400000),
-      updatedAt: new Date(Date.now() - 43200000),
-      totalAmount: 280000,
-      items: [
-        {
-          productId: 'PR004',
-          productName: 'Táo Envy New Zealand',
-          image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=400&q=80',
-          quantity: 2,
-          price: 85000
-        },
-        {
-          productId: 'PR005',
-          productName: 'Nho xanh không hạt Úc',
-          image: 'https://images.unsplash.com/photo-1599819177360-6eede6b5a6f7?auto=format&fit=crop&w=400&q=80',
-          quantity: 1,
-          price: 110000
-        }
-      ],
-      shippingAddress: '456 Lê Văn Việt, Quận 9, TP.HCM'
-    },
-    {
-      id: 'ODR13579246',
-      userId: userId,
-      status: OrderStatus.PENDING,
-      createdAt: new Date(Date.now() - 3600000),
-      updatedAt: new Date(Date.now() - 3600000),
-      totalAmount: 195000,
-      items: [
-        {
-          productId: 'PR006',
-          productName: 'Cam sành Cao Phong',
-          image: 'https://images.unsplash.com/photo-1580052614034-c55d20bfee3b?auto=format&fit=crop&w=400&q=80',
-          quantity: 5,
-          price: 39000
-        }
-      ],
-      shippingAddress: '789 Võ Văn Ngân, Thủ Đức, TP.HCM'
-    }
-  ];
+    [setFilterStatus]
+  );
 
-  const mockOrderStats = {
-    total: 2,
-    pending: 1,
-    confirmed: 0,
-    shipping: 0,
-    delivered: 1,
-    cancelled: 0
-  };
+  const isInitialLoading = isLoading && orders.length === 0;
 
-  const [filterStatus, setFilterStatus] = React.useState<OrderStatus | 'ALL'>('ALL');
-  const filteredOrders =
-    filterStatus === 'ALL'
-      ? mockOrders
-      : mockOrders.filter((order) => order.status === filterStatus);
+  if (isInitialLoading) {
+    return <LoadingState />;
+  }
+
+  if (error && orders.length === 0) {
+    return <ErrorState error={error} onRetry={refresh} />;
+  }
 
   return (
-    <section className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6">
-      <div className="mb-4">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{t('title')}</h1>
-      </div>
-      <div className="bg-white shadow-sm lg:text-3xl mb-3 sticky top-0 z-10">
-        <div className="flex overflow-x-auto scrollbar-hide gap-2 sm:gap-4 px-2 sm:px-0">
-          <FilterButton label={t('filter.all')} active={filterStatus === 'ALL'} onClick={() => setFilterStatus('ALL')} />
-          <FilterButton label={t('filter.pending')} active={filterStatus === OrderStatus.PENDING} onClick={() => setFilterStatus(OrderStatus.PENDING)} />
-          <FilterButton label={t('filter.shipping')} active={filterStatus === OrderStatus.SHIPPING} onClick={() => setFilterStatus(OrderStatus.SHIPPING)} />
-          <FilterButton label={t('filter.delivered')} active={filterStatus === OrderStatus.DELIVERED} onClick={() => setFilterStatus(OrderStatus.DELIVERED)} />
-          <FilterButton label={t('filter.cancelled')} active={filterStatus === OrderStatus.CANCELLED} onClick={() => setFilterStatus(OrderStatus.CANCELLED)} />
+    <section className="min-h-screen bg-gray-50 px-3 pb-8 pt-4 sm:px-6 lg:px-10">
+      <header className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900 md:text-3xl">{title}</h1>
+          {subtitle && <p className="mt-1 text-sm text-gray-500 md:text-base">{subtitle}</p>}
         </div>
-      </div>
-      <div className="space-y-3">
-        {filteredOrders.length > 0 ? (
-          filteredOrders.map((order) => (
-            <OrderCard key={order.id} order={order} />
+        <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
+          {statsError && (
+            <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-600">
+              {statsError}
+            </span>
+          )}
+          <button
+            onClick={refresh}
+            className="inline-flex items-center gap-2 rounded-full border border-orange-500 px-4 py-2 text-sm font-medium text-orange-500 transition-colors hover:bg-orange-50"
+          >
+            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path d="M4 4v3h.01L4 7a6 6 0 111.757 4.242l1.415-1.414A4 4 0 104 7h3V4H4z" />
+            </svg>
+            {refreshLabel}
+          </button>
+        </div>
+      </header>
+
+      <nav className="sticky top-0 z-20 -mx-3 mb-6 border-y border-gray-200 bg-white/95 backdrop-blur sm:mx-0 sm:rounded-2xl sm:border">
+        <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto px-3 py-3 sm:px-4">
+          {filterOptions.map((option) => (
+            <FilterPill
+              key={option.key}
+              label={option.label}
+              active={filterStatus === option.key}
+              onClick={() => handleFilterChange(option.key)}
+              count={option.count}
+              isLoading={isStatsLoading}
+            />
+          ))}
+        </div>
+      </nav>
+
+      <div className="space-y-4">
+        {orders.length > 0 ? (
+          orders.map((order) => (
+            <OrderCard
+              key={order.id}
+              order={order}
+              locale={locale}
+              onViewDetail={() => router.push(`/main/orders/${order.id}`)}
+            />
           ))
         ) : (
           <EmptyState filterStatus={filterStatus} />
@@ -144,158 +177,244 @@ export const OrdersPage: React.FC<OrdersPageProps> = ({ userId }) => {
   );
 };
 
-const FilterButton: React.FC<{ label: string; active: boolean; onClick: () => void }> = ({
-  label,
-  active,
-  onClick,
-}) => (
+const FilterPill: React.FC<{
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  count?: number;
+  isLoading?: boolean;
+}> = ({ label, active, onClick, count, isLoading }) => (
   <button
     onClick={onClick}
-    className={`flex-shrink-0 px-2 py-2 text-xs sm:px-4 sm:py-3 lg:px-5 lg:py-3 lg:text-lg sm:text-sm font-medium whitespace-nowrap transition-all border-b-2 ${
+    className={`flex snap-start items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium transition-colors sm:px-4 sm:text-sm ${
       active
-        ? 'border-orange-500 text-orange-500'
-        : 'border-transparent text-gray-600 hover:text-orange-500'
+        ? 'border-orange-500 bg-orange-50 text-orange-600 shadow-sm'
+        : 'border-transparent bg-gray-100 text-gray-600 hover:bg-gray-200'
     }`}
   >
-    {label}
+    <span>{label}</span>
+    <span
+      className={`rounded-full px-2 py-0.5 text-[10px] font-semibold sm:text-xs ${
+        active ? 'bg-white text-orange-600' : 'bg-white text-gray-600'
+      }`}
+    >
+      {isLoading ? '…' : count ?? 0}
+    </span>
   </button>
 );
 
-const OrderCard: React.FC<{ order: Order }> = ({ order }) => {
+const statusStyles: Record<OrderStatus, { labelKey: string; bg: string; text: string }> = {
+  [ORDER_STATUS.PENDING]: { labelKey: 'status.pending', bg: 'bg-orange-50', text: 'text-orange-600' },
+  [ORDER_STATUS.CONFIRMED]: { labelKey: 'status.confirmed', bg: 'bg-blue-50', text: 'text-blue-600' },
+  [ORDER_STATUS.PREPARING]: { labelKey: 'status.preparing', bg: 'bg-indigo-50', text: 'text-indigo-600' },
+  [ORDER_STATUS.SHIPPING]: { labelKey: 'status.shipping', bg: 'bg-emerald-50', text: 'text-emerald-600' },
+  [ORDER_STATUS.DELIVERED]: { labelKey: 'status.delivered', bg: 'bg-gray-100', text: 'text-gray-700' },
+  [ORDER_STATUS.CANCELLED]: { labelKey: 'status.cancelled', bg: 'bg-red-50', text: 'text-red-600' },
+  [ORDER_STATUS.REFUNDED]: { labelKey: 'status.refunded', bg: 'bg-purple-50', text: 'text-purple-600' },
+};
+
+const OrderCard: React.FC<{ order: Order; onViewDetail: () => void; locale: string }> = ({ order, onViewDetail, locale }) => {
   const t = useTranslations('orders');
-  const router = useRouter();
+  const leadItem = order.items[0];
+  const remainingItems = Math.max(0, order.totalItems - 1);
+  const createdAtDisplay = order.createdAt ? new Date(order.createdAt).toLocaleString(locale) : '';
 
-  const statusColors = {
-    [OrderStatus.PENDING]: 'text-orange-500',
-    [OrderStatus.CONFIRMED]: 'text-blue-500',
-    [OrderStatus.SHIPPING]: 'text-green-500',
-    [OrderStatus.DELIVERED]: 'text-gray-500',
-    [OrderStatus.CANCELLED]: 'text-red-500',
-  };
+  const statusVariant = statusStyles[order.status];
+  const statusLabel = translateSafely(t, statusVariant?.labelKey ?? order.status, order.statusDisplay ?? order.status);
 
-  const statusLabels = {
-    [OrderStatus.PENDING]: t('filter.pending'),
-    [OrderStatus.CONFIRMED]: t('actions.confirmed') || 'Confirmed',
-    [OrderStatus.SHIPPING]: t('filter.shipping'),
-    [OrderStatus.DELIVERED]: t('filter.delivered'),
-    [OrderStatus.CANCELLED]: t('filter.cancelled'),
-  };
+  const paymentLabel = translateSafely(
+    t,
+    `payment.${order.paymentMethod}`,
+    paymentLabels[order.paymentMethod] ?? order.paymentMethod
+  );
+
+  const shippingAddress = order.shippingAddress?.fullAddress;
+  const estimatedDelivery = order.estimatedDelivery
+    ? new Date(order.estimatedDelivery).toLocaleDateString(locale)
+    : undefined;
+  const estimatedLabel = estimatedDelivery
+    ? translateWithValues(t, 'labels.estimatedDelivery', { date: estimatedDelivery }, estimatedDelivery)
+    : undefined;
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: 'VND',
+      maximumFractionDigits: 0,
+    }).format(value);
+
+  const amountBreakdown = translateWithValues(
+    t,
+    'amountBreakdown',
+    {
+      subtotal: formatCurrency(order.subtotal),
+      shipping: formatCurrency(order.shippingFee),
+      discount: formatCurrency(order.discount),
+    },
+    `Tạm tính ${formatCurrency(order.subtotal)} · Ship ${formatCurrency(order.shippingFee)} · Giảm ${formatCurrency(order.discount)}`
+  );
+  const cancelReason = order.cancelReason
+    ? translateWithValues(t, 'labels.cancelReason', { reason: order.cancelReason }, order.cancelReason)
+    : undefined;
+
+  const cancellableStatuses: OrderStatus[] = [
+    ORDER_STATUS.PENDING,
+    ORDER_STATUS.CONFIRMED,
+    ORDER_STATUS.PREPARING,
+  ];
 
   return (
-    <div className="bg-white shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between px-4 py-3 border-b">
-        <div className="flex items-center gap-2">
-          <svg className="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z" />
-          </svg>
-          <span className="font-medium text-sm">Fresh Market</span>
+    <article className="rounded-2xl border border-gray-100 bg-white shadow-sm transition-shadow hover:shadow-md">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-gray-100 px-4 py-3 sm:px-6">
+        <div className="space-y-1">
+          <p className="text-sm font-semibold text-gray-900 sm:text-base">#{order.orderNumber}</p>
+          <p className="text-xs text-gray-500 sm:text-sm">{createdAtDisplay}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className={`text-sm font-medium ${statusColors[order.status]}`}>
-            {statusLabels[order.status]}
-          </span>
-        </div>
-      </div>
-      <div className="p-4">
-        {order.items.map((item, index) => (
-          <div key={index} className={`flex gap-3 ${index > 0 ? 'mt-3 pt-3 border-t' : ''}`}>
-            <Image
-              src={item.image}
-              alt={item.productName}
-              width={80}
-              height={80}
-              className="w-20 h-20 object-cover border rounded"
-            />
-            <div className="flex-1 min-w-0">
-              <h4 className="text-sm font-normal line-clamp-2 mb-1">{item.productName}</h4>
-              <p className="text-xs text-gray-500">x{item.quantity}</p>
-            </div>
-            <div className="text-right flex-shrink-0">
-              <div className="text-sm text-gray-400 line-through">
-                ₫{(item.price * 1.2).toLocaleString('vi-VN')}
-              </div>
-              <div className="text-sm font-medium text-orange-500">
-                ₫{item.price.toLocaleString('vi-VN')}
-              </div>
-            </div>
-          </div>
-        ))}
+        <span
+          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold sm:text-sm ${statusVariant?.bg ?? 'bg-gray-100'} ${
+            statusVariant?.text ?? 'text-gray-700'
+          }`}
+        >
+          {statusLabel}
+        </span>
       </div>
 
-      <div className="px-4 py-3 border-t bg-gray-50">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-sm text-gray-600">{t('amountLabel')}</span>
-          <div className="text-right">
-            <span className="text-lg font-medium text-orange-500">
-              ₫{order.totalAmount.toLocaleString('vi-VN')}
-            </span>
+      <div className="flex flex-col gap-4 px-4 py-4 sm:px-6 sm:py-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-1 items-center gap-4">
+          <div className="relative h-16 w-16 overflow-hidden rounded-xl bg-gray-100 sm:h-20 sm:w-20">
+            {leadItem ? (
+              <Image
+                src={leadItem.productImage || FALLBACK_IMAGE}
+                alt={leadItem.productName}
+                fill
+                sizes="80px"
+                className="object-cover"
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-gray-400">📦</div>
+            )}
+            {remainingItems > 0 && (
+              <span className="absolute bottom-1 right-1 rounded-full bg-black/70 px-2 py-0.5 text-[11px] font-semibold text-white">
+                +{remainingItems}
+              </span>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="line-clamp-2 text-sm font-medium text-gray-900 sm:text-base">
+              {leadItem?.productName ?? translateSafely(t, 'labels.noProduct', 'Sản phẩm không xác định')}
+            </p>
+            <p className="mt-1 text-xs text-gray-500 sm:text-sm">
+              {leadItem ? `x${leadItem.quantity}` : ''}
+              {remainingItems > 0 && ` · ${order.totalItems} sản phẩm`}
+            </p>
+            {order.note && (
+              <p className="mt-1 truncate text-xs text-gray-400">{order.note}</p>
+            )}
           </div>
         </div>
-        
-        <div className="flex gap-2 justify-end">
-          {order.status === OrderStatus.DELIVERED && (
-            <>
-              <button className="px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors">{t('actions.review')}</button>
-              <button className="px-4 py-2 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors">{t('actions.buyAgain')}</button>
-            </>
-          )}
-          {order.status === OrderStatus.SHIPPING && (
-            <>
-              <button className="px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors">{t('actions.contactSeller')}</button>
-              <button className="px-4 py-2 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors">{t('actions.confirmReceived')}</button>
-            </>
-          )}
-          {order.status === OrderStatus.PENDING && (
-            <>
-              <button className="px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors">{t('actions.cancel')}</button>
-              <button 
-                onClick={() => router.push(`/main/orders/${order.id}`)}
-                className="px-4 py-2 text-sm bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors"
-              >
-                {t('actions.details')}
+
+        <div className="flex flex-none flex-col items-start gap-2 text-sm text-gray-500 sm:items-end">
+          <div className="text-xs uppercase tracking-wide text-gray-400">{translateSafely(t, 'labels.total', 'Tổng cộng')}</div>
+          <div className="text-lg font-semibold text-orange-500 sm:text-xl">{formatCurrency(order.total)}</div>
+          <p className="text-xs text-gray-400 sm:text-sm">{amountBreakdown}</p>
+          <div className="flex flex-wrap gap-2 pt-1">
+            <button
+              onClick={onViewDetail}
+              className="inline-flex items-center rounded-full bg-orange-500 px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-orange-600 sm:text-sm"
+            >
+              {translateSafely(t, 'actions.details', 'Xem chi tiết')}
+            </button>
+            {order.canBeCancelled && cancellableStatuses.includes(order.status) && (
+              <button className="inline-flex items-center rounded-full border border-gray-300 px-4 py-2 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-100 sm:text-sm">
+                {translateSafely(t, 'actions.cancel', 'Hủy đơn')}
               </button>
-            </>
-          )}
+            )}
+          </div>
         </div>
+      </div>
+
+      <footer className="flex flex-col gap-3 border-t border-gray-100 px-4 py-3 text-xs text-gray-500 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 sm:px-6 sm:text-sm">
+        {shippingAddress && (
+          <div className="flex items-start gap-2">
+            <span aria-hidden>📍</span>
+            <span className="line-clamp-2 sm:line-clamp-1">{shippingAddress}</span>
+          </div>
+        )}
+        <div className="flex items-center gap-2">
+          <span aria-hidden>💳</span>
+          <span>{paymentLabel}</span>
+        </div>
+        {estimatedLabel && (
+          <div className="flex items-center gap-2">
+            <span aria-hidden>🗓</span>
+            <span>{estimatedLabel}</span>
+          </div>
+        )}
+        {order.status === ORDER_STATUS.CANCELLED && cancelReason && (
+          <div className="flex items-center gap-2 text-red-500">
+            <span aria-hidden>⚠️</span>
+            <span>{cancelReason}</span>
+          </div>
+        )}
+      </footer>
+    </article>
+  );
+};
+
+const LoadingState = () => {
+  const t = useTranslations('orders');
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="text-center">
+        <div className="mx-auto mb-4 h-14 w-14 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
+        <p className="text-sm text-gray-600">
+          {translateSafely(t, 'loading', 'Đang tải đơn hàng...')}
+        </p>
       </div>
     </div>
   );
 };
-
-  const LoadingState = () => {
-    const t = useTranslations('orders');
-    return (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="text-center">
-      <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-gray-600">{t('loading') || 'Loading orders...'}</p>
-    </div>
-  </div>
-    );
-  };
 
 const ErrorState: React.FC<{ error: string; onRetry: () => void }> = ({ error, onRetry }) => {
   const t = useTranslations('orders');
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center">
-        <div className="text-red-500 text-5xl mb-4">⚠️</div>
-        <h2 className="text-xl font-semibold mb-2">{t('errorTitle') || 'An error occurred'}</h2>
-        <p className="text-gray-600 mb-4">{error}</p>
-        <button onClick={onRetry} className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">{t('retry') || 'Retry'}</button>
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <div className="max-w-sm rounded-2xl bg-white p-6 text-center shadow-lg">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-2xl">⚠️</div>
+        <h2 className="text-lg font-semibold text-gray-900">
+          {translateSafely(t, 'errorTitle', 'Có lỗi xảy ra')}
+        </h2>
+        <p className="mt-2 text-sm text-gray-500">{error}</p>
+        <button
+          onClick={onRetry}
+          className="mt-4 inline-flex items-center rounded-full bg-orange-500 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600"
+        >
+          {translateSafely(t, 'retry', 'Thử lại')}
+        </button>
       </div>
     </div>
   );
 };
 
-const EmptyState: React.FC<{ filterStatus: OrderStatus | 'ALL' }> = ({ filterStatus }) => {
+const EmptyState: React.FC<{ filterStatus: FilterStatus }> = ({ filterStatus }) => {
   const t = useTranslations('orders');
+  const isAll = filterStatus === 'ALL';
+  const heading = isAll
+    ? translateSafely(t, 'noOrders', 'Bạn chưa có đơn hàng nào')
+    : translateSafely(t, 'noOrdersInFilter', 'Không có đơn phù hợp với bộ lọc');
+  const body = isAll
+    ? translateSafely(t, 'startShopping', 'Khám phá sản phẩm và đặt hàng ngay hôm nay')
+    : translateSafely(t, 'emptyFilterHint', 'Hãy thử bộ lọc khác hoặc quay lại sau.');
+
   return (
-    <div className="text-center py-12 bg-white rounded-lg">
-      <div className="text-gray-400 text-6xl mb-4">📦</div>
-      <h3 className="text-xl font-semibold text-gray-700 mb-2">{filterStatus === 'ALL' ? t('noOrders') : t('noOrders')}</h3>
-      <p className="text-gray-500 mb-6">{filterStatus === 'ALL' ? t('startShopping') : t('startShopping')}</p>
-      {filterStatus === 'ALL' && <button className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">{t('startShopping')}</button>}
+    <div className="rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-12 text-center shadow-sm">
+      <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-3xl">📦</div>
+      <h3 className="text-lg font-semibold text-gray-900 sm:text-xl">{heading}</h3>
+      <p className="mt-2 text-sm text-gray-500 sm:text-base">{body}</p>
+      {isAll && (
+        <button className="mt-5 inline-flex items-center rounded-full bg-orange-500 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-600">
+          {translateSafely(t, 'startShoppingCta', 'Bắt đầu mua sắm')}
+        </button>
+      )}
     </div>
   );
 };

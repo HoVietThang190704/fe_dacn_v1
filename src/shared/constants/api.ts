@@ -19,6 +19,7 @@ export const API_ENDPOINTS = {
   LOGOUT: '/api/auth/logout',
   REFRESH_TOKEN: '/api/auth/refresh',
   AUTH_PROFILE: '/api/auth/profile',
+  CHANGE_PASSWORD: '/api/auth/change-password',
   
   // Products
   PRODUCTS: '/api/products',
@@ -27,6 +28,9 @@ export const API_ENDPOINTS = {
   PRODUCT_SEARCH: '/api/products/search',
   BEST_SELLING: '/api/products/best-selling',
   NEW_PRODUCTS: '/api/products/new',
+  PRODUCT_REVIEWS: '/api/product-reviews',
+  PRODUCT_REVIEWS_BY_PRODUCT: (productId: string) => `/api/product-reviews/product/${productId}`,
+  PRODUCT_REVIEW_DETAIL: (reviewId: string) => `/api/product-reviews/${reviewId}`,
   
   // Orders (user-specific endpoints under /api/users/me/... as per docs)
   ORDERS: '/api/users/me/orders',
@@ -35,6 +39,8 @@ export const API_ENDPOINTS = {
   CREATE_ORDER: '/api/orders',
   UPDATE_ORDER_STATUS: (id: string) => `/api/orders/${id}/status`,
   CANCEL_ORDER: (id: string) => `/api/users/me/orders/${id}/cancel`,
+  USER_VOUCHERS: '/api/users/me/vouchers',
+  APPLY_VOUCHER: '/api/users/me/vouchers/apply',
   
   BANNERS: '/api/banners/active',
   PROMOTIONS: '/api/promotions/active',
@@ -42,12 +48,14 @@ export const API_ENDPOINTS = {
   // User endpoints (current user)
   USER_PROFILE: '/api/users/me/profile',
   UPDATE_PROFILE: '/api/users/me/profile',
+  UPLOAD_AVATAR: '/api/users/me/avatar',
   USER_ADDRESSES: '/api/users/me/addresses',
   USER_ADDRESS_DETAIL: (id: string) => `/api/users/me/addresses/${id}`,
+  SET_DEFAULT_ADDRESS: (id: string) => `/api/users/me/addresses/${id}/default`,
   
-  FAVORITES: '/api/favorites',
-  ADD_FAVORITE: '/api/favorites',
-  REMOVE_FAVORITE: (id: string) => `/api/favorites/${id}`,
+  WISHLIST: '/api/wishlist',
+  WISHLIST_ITEM: (productId: string) => `/api/wishlist/${productId}`,
+  WISHLIST_TOGGLE: (productId: string) => `/api/wishlist/toggle/${productId}`,
   
   // Livestreams
   LIVESTREAMS: '/api/livestreams',
@@ -80,4 +88,9 @@ export const API_ENDPOINTS = {
   UPDATE_COMMENT: (commentId: string) => `/api/comments/${commentId}`,
   DELETE_COMMENT: (commentId: string) => `/api/comments/${commentId}`,
   TOGGLE_LIKE_COMMENT: (commentId: string) => `/api/comments/${commentId}/like`,
+
+  // Cart
+  CART: '/api/cart',
+  CART_ITEMS: '/api/cart/items',
+  CART_ITEM: (itemId: string) => `/api/cart/items/${itemId}`,
 } as const;

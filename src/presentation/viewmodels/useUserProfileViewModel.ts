@@ -2,11 +2,14 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { UpdateUserProfileUseCase } from '@/domain/usecases/UpdateUserProfileUseCase';
-import { User, UpdateUserDto } from '@/domain/entities/User';
-import { usersAPI } from '@/lib/api';
+import { GetUserProfileUseCase } from '@/domain/usecases/GetUserProfileUseCase';
+import { UploadUserAvatarUseCase } from '@/domain/usecases/UploadUserAvatarUseCase';
+import { User, UpdateUserDto, UserAddress } from '@/domain/entities/User';
 
 export const useUserProfileViewModel = (
+  getUserProfileUseCase: GetUserProfileUseCase,
   updateUserProfileUseCase: UpdateUserProfileUseCase,
+  uploadUserAvatarUseCase: UploadUserAvatarUseCase,
   userId: string
 ) => {
   const [user, setUser] = useState<User | null>(null);
@@ -14,65 +17,29 @@ export const useUserProfileViewModel = (
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  const parseRawUser = (payload: unknown, fallbackId: string): User | null => {
-    if (!payload || typeof payload !== 'object') return null;
-    const obj = payload as Record<string, unknown>;
-    const raw = ('data' in obj && typeof obj.data === 'object') ? (obj.data as Record<string, unknown>) : ('user' in obj && typeof obj.user === 'object') ? (obj.user as Record<string, unknown>) : obj;
-
-    const id = (raw._id as string) || (raw.id as string) || fallbackId;
-    const email = (raw.email as string) || '';
-    const name = (raw.name as string) || (raw.userName as string) || '';
-    const userName = (raw.userName as string) || undefined;
-    const phone = (raw.phone as string) || undefined;
-    const address = (raw.address as string) || undefined;
-    const gender = (raw.gender as 'male' | 'female' | 'other') || undefined;
-    const birthDate = raw.birthDate ? new Date(raw.birthDate as string) : undefined;
-    const role = (raw.role as string) || undefined;
-    const isVerified = typeof raw.isVerified === 'boolean' ? (raw.isVerified as boolean) : undefined;
-    const createdAt = raw.createdAt ? new Date(raw.createdAt as string) : new Date();
-    const updatedAt = raw.updatedAt ? new Date(raw.updatedAt as string) : new Date();
-
-    return {
-      id,
-      email,
-      name,
-      userName,
-      phone,
-      address,
-      gender,
-      birthDate,
-      role,
-      isVerified,
-      createdAt,
-      updatedAt,
-    } as User;
-  };
-
   const fetchUser = useCallback(async () => {
+    if (!userId) {
+      setError('User ID is required');
+      setUser(null);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
+
     try {
-      const token = typeof window !== 'undefined' ? (localStorage.getItem('token') || localStorage.getItem('accessToken') || localStorage.getItem('authToken')) : undefined;
-      const resp = await usersAPI.getMyProfile(token || undefined, true);
-      console.debug('[useUserProfileViewModel] usersAPI.getMyProfile response:', resp);
-      const payload = resp.data ?? null;
-      const parsed = parseRawUser(payload, userId);
-      console.debug('[useUserProfileViewModel] parsed raw user data:', parsed);
-      if (!parsed) {
-        setError('User not found');
-        setUser(null);
-      } else {
-        setUser(parsed);
-      }
+      const profile = await getUserProfileUseCase.execute(userId);
+      setUser(profile);
     } catch (err) {
       console.error('[useUserProfileViewModel] fetch error:', err);
-      const message = err instanceof Error ? err.message : 'Failed to load user';
+      const message = err instanceof Error ? err.message : 'Failed to load user profile';
       setError(message);
       setUser(null);
     } finally {
       setIsLoading(false);
     }
-  }, [userId]);
+  }, [getUserProfileUseCase, userId]);
 
   useEffect(() => {
     fetchUser();
@@ -82,20 +49,8 @@ export const useUserProfileViewModel = (
     try {
       setIsUpdating(true);
       setError(null);
-      const token = typeof window !== 'undefined' ? (localStorage.getItem('token') || localStorage.getItem('accessToken') || localStorage.getItem('authToken')) : undefined;
-      try {
-        const resp = await usersAPI.updateMyProfile(updates as Record<string, unknown>, token || undefined, true);
-        const payload = resp.data ?? null;
-        const parsed = parseRawUser(payload, userId);
-        if (parsed) {
-          setUser(parsed);
-          return parsed;
-        }
-      } catch (apiErr) {
-        console.warn('usersAPI.updateMyProfile failed, falling back to usecase:', apiErr);
-      }
-
-      const updatedUser = await updateUserProfileUseCase.execute(userId, updates);
+      const normalizedUpdates = normalizeUpdates(updates);
+      const updatedUser = await updateUserProfileUseCase.execute(userId, normalizedUpdates);
       setUser(updatedUser);
       return updatedUser;
     } catch (err) {
@@ -107,12 +62,87 @@ export const useUserProfileViewModel = (
     }
   }, [updateUserProfileUseCase, userId]);
 
+  const uploadAvatar = useCallback(async (file: File): Promise<string> => {
+    try {
+      return await uploadUserAvatarUseCase.execute(file);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to upload avatar';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    }
+  }, [uploadUserAvatarUseCase]);
+
   return {
     user,
     isLoading,
     error,
     isUpdating,
     updateProfile,
+    uploadAvatar,
     refresh: fetchUser,
   };
+};
+
+const normalizeUpdates = (updates: UpdateUserDto): UpdateUserDto => {
+  const payload: UpdateUserDto = {};
+
+  if (updates.userName !== undefined) {
+    const trimmed = updates.userName.trim();
+    if (trimmed) {
+      payload.userName = trimmed;
+    }
+  }
+
+  if (updates.phone !== undefined) {
+    const trimmed = updates.phone.trim();
+    if (trimmed) {
+      payload.phone = trimmed;
+    }
+  }
+
+  if (updates.dateOfBirth !== undefined) {
+    payload.dateOfBirth = updates.dateOfBirth
+      ? new Date(updates.dateOfBirth).toISOString()
+      : null;
+  }
+
+  if (updates.avatar !== undefined) {
+    payload.avatar = updates.avatar;
+  }
+
+  if (updates.address !== undefined) {
+    payload.address = normalizeAddress(updates.address);
+  }
+
+  return payload;
+};
+
+const normalizeAddress = (address: UpdateUserDto['address']): UserAddress | null | undefined => {
+  if (address === null) {
+    return null;
+  }
+
+  if (!address || typeof address !== 'object') {
+    return null;
+  }
+
+  const sanitized: UserAddress = {
+    province: sanitizeAddressField(address.province),
+    district: sanitizeAddressField(address.district),
+    commune: sanitizeAddressField(address.commune),
+    street: sanitizeAddressField(address.street),
+    detail: sanitizeAddressField(address.detail),
+  };
+
+  const hasValue = Object.values(sanitized).some(Boolean);
+  return hasValue ? sanitized : null;
+};
+
+const sanitizeAddressField = (value: unknown): string | undefined => {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length ? trimmed : undefined;
 };

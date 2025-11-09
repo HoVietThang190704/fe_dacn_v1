@@ -5,6 +5,8 @@ import { GetProductsUseCase } from '@/domain/usecases/GetProductsUseCase';
 import { GetProductsParams, ProductsResponse } from '@/domain/repositories/IProductRepository';
 import { ProductCategory } from '@/domain/entities/Product';
 
+type SortKey = 'price' | 'name' | 'createdAt';
+
 export const useProductsListViewModel = (
   getProductsUseCase: GetProductsUseCase,
   categories: ProductCategory[]
@@ -12,25 +14,27 @@ export const useProductsListViewModel = (
   const [data, setData] = useState<ProductsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState<string>('');
   const [params, setParams] = useState<GetProductsParams>({
     page: 1,
-    limit: 20,
+    limit: 24,
+    order: 'desc',
+    sortBy: 'createdAt',
   });
 
-  const loadProducts = async (newParams?: GetProductsParams) => {
+  const currentCategory = params.category ?? '';
+  const currentSearch = params.search ?? '';
+
+  const loadProducts = async (override?: Partial<GetProductsParams>) => {
+    const nextParams = { ...params, ...override };
     try {
       setIsLoading(true);
       setError(null);
-      const searchParams = { ...params, ...newParams };
-      const productsData = await getProductsUseCase.execute(searchParams);
+      const productsData = await getProductsUseCase.execute(nextParams);
       setData(productsData);
-      if (newParams) {
-        setParams(searchParams);
-      }
+      setParams(nextParams);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load products');
+      const message = err instanceof Error ? err.message : 'Failed to load products';
+      setError(message);
       console.error('Error loading products:', err);
     } finally {
       setIsLoading(false);
@@ -39,37 +43,43 @@ export const useProductsListViewModel = (
 
   useEffect(() => {
     loadProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCategoryChange = (categoryId: string) => {
-    setSelectedCategory(categoryId);
-    loadProducts({ category: categoryId, page: 1 });
+    loadProducts({ category: categoryId || undefined, page: 1 });
   };
 
   const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    // TODO: Implement search functionality
+    loadProducts({ search: query || undefined, page: 1 });
   };
 
   const handlePageChange = (page: number) => {
+    if (page < 1) return;
     loadProducts({ page });
   };
 
-  const handleSortChange = (sortBy: 'price' | 'name' | 'newest', order: 'asc' | 'desc') => {
+  const handleSortChange = (sortBy: SortKey, order: 'asc' | 'desc') => {
     loadProducts({ sortBy, order, page: 1 });
+  };
+
+  const handleToggleInStock = (inStock?: boolean) => {
+    loadProducts({ inStock, page: 1 });
   };
 
   return {
     data,
     isLoading,
     error,
-    selectedCategory,
-    searchQuery,
+    selectedCategory: currentCategory,
+    searchQuery: currentSearch,
     categories,
+    params,
     handleCategoryChange,
     handleSearch,
     handlePageChange,
     handleSortChange,
-    refresh: () => loadProducts(params),
+    handleToggleInStock,
+    refresh: () => loadProducts(),
   };
 };

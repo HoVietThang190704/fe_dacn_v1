@@ -1,25 +1,34 @@
+export interface UserAddress {
+  province?: string;
+  district?: string;
+  commune?: string;
+  street?: string;
+  detail?: string;
+}
+
 export interface User {
   id: string;
   email: string;
-  name: string;
-  // optional username coming from backend (sometimes called userName)
   userName?: string;
   phone?: string;
   avatar?: string;
-  address?: string;
-  gender?: 'male' | 'female' | 'other';
-  birthDate?: Date;
-  // optional fields that exist on backend user document
+  address?: UserAddress | null;
   role?: string;
   isVerified?: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  dateOfBirth?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
 }
 
 export interface UpdateUserDto {
-  name?: string;
+  userName?: string;
   phone?: string;
-  address?: string;
-  gender?: 'male' | 'female' | 'other';
-  birthDate?: Date;
+  dateOfBirth?: string | null;
+  avatar?: string | null;
+  address?: UserAddress | null;
+}
+
+export interface ChangePasswordDto {
+  oldPassword: string;
+  newPassword: string;
 }

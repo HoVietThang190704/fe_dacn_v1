@@ -1,27 +1,42 @@
-import { IOrderRepository, CreateOrderDto } from '@/domain/repositories/IOrderRepository';
-import { Order, OrderStatus } from '@/domain/entities/Order';
+import {
+  IOrderRepository,
+  CreateOrderPayload,
+  OrderListFilters,
+  OrderListResult,
+  OrderStatistics,
+  VoucherApplicationResult,
+} from '@/domain/repositories/IOrderRepository';
+import { Order } from '@/domain/entities/Order';
 import { OrderApiDataSource } from '../datasources/OrderApiDataSource';
 
 export class OrderRepositoryImpl implements IOrderRepository {
   constructor(private apiDataSource: OrderApiDataSource) {}
 
-  async getOrders(userId: string): Promise<Order[]> {
-    return await this.apiDataSource.getOrders(userId);
+  async getOrders(filters?: OrderListFilters): Promise<OrderListResult> {
+    return await this.apiDataSource.getOrders(filters);
   }
 
   async getOrderById(orderId: string): Promise<Order> {
     return await this.apiDataSource.getOrderById(orderId);
   }
 
-  async createOrder(order: CreateOrderDto): Promise<Order> {
-    return await this.apiDataSource.createOrder(order);
+  async createOrder(payload: CreateOrderPayload): Promise<Order> {
+    return await this.apiDataSource.createOrder(payload);
   }
 
-  async updateOrderStatus(orderId: string, status: OrderStatus): Promise<Order> {
-    return await this.apiDataSource.updateOrderStatus(orderId, status);
+  async cancelOrder(orderId: string, reason: string): Promise<Order> {
+    return await this.apiDataSource.cancelOrder(orderId, reason);
   }
 
-  async cancelOrder(orderId: string): Promise<void> {
-    return await this.apiDataSource.cancelOrder(orderId);
+  async getStatistics(): Promise<OrderStatistics> {
+    return await this.apiDataSource.getStatistics();
+  }
+
+  async applyVoucher(code: string, subtotal: number): Promise<VoucherApplicationResult> {
+    return await this.apiDataSource.applyVoucher(code, subtotal);
+  }
+
+  async updatePaymentStatus(orderId: string, paymentStatus: string): Promise<Order> {
+    return await this.apiDataSource.updatePaymentStatus(orderId, paymentStatus);
   }
 }

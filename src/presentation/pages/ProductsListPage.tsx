@@ -1,159 +1,208 @@
 
 'use client';
 
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import SortDropdown from '../components/SortDropdown';
 import ProductListCard from '../components/ProductListCard';
 import EmptyState from '../components/EmptyState';
-import { Product, ProductCategory } from '@/domain/entities/Product';
-
-interface MockProduct extends Omit<Product, 'rating' | 'reviewCount' | 'description' | 'additionalImages' | 'brand' | 'origin'> {
-  sold?: number;
-}
+import { ProductCategory } from '@/domain/entities/Product';
+import { container } from '@/presentation/di/container';
+import { useProductsListViewModel } from '@/presentation/viewmodels/useProductsListViewModel';
 
 interface ProductsListPageProps {
   categories: ProductCategory[];
 }
 
+const SortMapping: Record<string, { sortBy: 'price' | 'name' | 'createdAt'; order: 'asc' | 'desc' }> = {
+  default: { sortBy: 'createdAt', order: 'desc' },
+  'low-high': { sortBy: 'price', order: 'asc' },
+  'high-low': { sortBy: 'price', order: 'desc' },
+  name: { sortBy: 'name', order: 'asc' },
+};
+
 export const ProductsListPage: React.FC<ProductsListPageProps> = ({ categories }) => {
   const t = useTranslations('products');
   const router = useRouter();
-  // Comment out API calls - using mock data for UI preview
-  // const viewModel = useProductsListViewModel(container.getProductsUseCase, categories);
-  // if (viewModel.isLoading) {
-  //   return <LoadingState />;
-  // }
-  // if (viewModel.error) {
-  //   return <ErrorState error={viewModel.error} onRetry={viewModel.refresh} />;
-  // }
+  const [sortKey, setSortKey] = useState<'default' | 'low-high' | 'high-low' | 'name'>('default');
 
-  // Mock data for UI preview - Shopee style
-  const [selectedCategory, setSelectedCategory] = React.useState('');
-  const [sortBy, setSortBy] = React.useState<'none' | 'low-high' | 'high-low'>('none');
-  const mockProducts: MockProduct[] = [
-    {
-      id: 'p1',
-      name: 'Táo Envy New Zealand cao cấp - Hộp 1kg',
-      image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=400&q=80',
-      price: 85000,
-      originalPrice: 120000,
-      discount: 29,
-      unit: 'hộp',
-      category: 'fruits',
-      stock: 50,
-      sold: 1234,
-    },
-    {
-      id: 'p2',
-      name: 'Cam sành Cao Phong ngọt thanh - Túi 1kg',
-      image: 'https://images.unsplash.com/photo-1580052614034-c55d20bfee3b?auto=format&fit=crop&w=400&q=80',
-      price: 39000,
-      originalPrice: 55000,
-      discount: 29,
-      unit: 'túi',
-      category: 'fruits',
-      stock: 100,
-      sold: 2341,
-    },
-    {
-      id: 'p3',
-      name: 'Nho xanh không hạt Úc nhập khẩu - Hộp 500g',
-      image: 'https://images.unsplash.com/photo-1599819177360-6eede6b5a6f7?auto=format&fit=crop&w=400&q=80',
-      price: 110000,
-      originalPrice: 150000,
-      discount: 27,
-      unit: 'hộp',
-      category: 'fruits',
-      stock: 30,
-      sold: 891,
-    },
-    {
-      id: 'p4',
-      name: 'Dưa hấu không hạt Mỹ siêu ngọt - Trái 3-4kg',
-      image: 'https://images.unsplash.com/photo-1587049352846-4a222e784l66?auto=format&fit=crop&w=400&q=80',
-      price: 45000,
-      originalPrice: 60000,
-      discount: 25,
-      unit: 'kg',
-      category: 'fruits',
-      stock: 80,
-      sold: 3456,
-    },
-    {
-      id: 'p5',
-      name: 'Cà chua cherry Đà Lạt tươi ngon - Hộp 250g',
-      image: 'https://images.unsplash.com/photo-1546094096-0df4bcaaa337?auto=format&fit=crop&w=400&q=80',
-      price: 28000,
-      originalPrice: 35000,
-      discount: 20,
-      unit: 'hộp',
-      category: 'vegetables',
-      stock: 120,
-      sold: 5678,
-    },
-    {
-      id: 'p6',
-      name: 'Dâu tây Đà Lạt hữu cơ an toàn - Hộp 250g',
-      image: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=400&q=80',
-      price: 95000,
-      originalPrice: 120000,
-      discount: 21,
-      unit: 'hộp',
-      category: 'fruits',
-      stock: 45,
-      sold: 782,
-    },
-  ];
+  const viewModel = useProductsListViewModel(container.getProductsUseCase, categories);
 
-  const filteredProducts = selectedCategory === '' 
-    ? mockProducts 
-    : mockProducts.filter(p => p.category === selectedCategory);
+  const products = useMemo(() => viewModel.data?.products ?? [], [viewModel.data]);
+  const totalProducts = viewModel.data?.total ?? products.length;
 
-  const displayedProducts = React.useMemo(() => {
-    if (sortBy === 'low-high') return [...filteredProducts].sort((a, b) => a.price - b.price);
-    if (sortBy === 'high-low') return [...filteredProducts].sort((a, b) => b.price - a.price);
-    return filteredProducts;
-  }, [filteredProducts, sortBy]);
+  const handleSortChange = (value: string) => {
+    const mapping = SortMapping[value] ?? SortMapping.default;
+    setSortKey(value as typeof sortKey);
+    viewModel.handleSortChange(mapping.sortBy, mapping.order);
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+    viewModel.handleSearch(value);
+  };
+
+  const handleCategoryClick = (categoryId: string) => {
+    const newCategory = viewModel.selectedCategory === categoryId ? '' : categoryId;
+    viewModel.handleCategoryChange(newCategory);
+  };
 
   return (
-    <div className="  bg-gray-50 p-3 sm:p-4 md:p-4">
-      <div className="mb-4">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{t('title')}</h1>
-        <p className="text-sm text-gray-600 mt-1">{t('found', { count: filteredProducts.length })}</p>
-      </div>
-      <div className="bg-white shadow-sm p-3 mb-3 flex items-center justify-between text-sm">
-        <div className="flex gap-2">
-          <button className="px-3 py-1.5 bg-orange-500 text-white rounded hover:bg-orange-600">
-            {t('popular')}
-          </button>
-          <button className="px-3 py-1.5 bg-white border rounded hover:bg-gray-50">
-            {t('newest')}
-          </button>
-          <button className="px-3 py-1.5 bg-white border rounded hover:bg-gray-50">
-            {t('bestSellers')}
-          </button>
+    <div className="bg-gray-50 p-3 sm:p-4 md:p-6 space-y-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{t('title')}</h1>
+          <p className="text-sm text-gray-600 mt-1">
+            {viewModel.isLoading ? t('loading') : t('found', { count: totalProducts })}
+          </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+          <input
+            type="search"
+            placeholder={t('searchPlaceholder')}
+            className="px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            defaultValue={viewModel.searchQuery}
+            onChange={handleSearchChange}
+          />
           <SortDropdown
-            value={t('sort')}
+            value={sortKey}
             options={[
+              { value: 'default', label: t('sortDefault') },
               { value: 'low-high', label: t('sortLowHigh') },
               { value: 'high-low', label: t('sortHighLow') },
+              { value: 'name', label: t('sortName') },
             ]}
             align="right"
-            onChange={(v) => setSortBy(v as 'none' | 'low-high' | 'high-low')}
+            onChange={handleSortChange}
           />
+          <button
+            type="button"
+            onClick={() => router.push('/main/products/create')}
+            className="px-4 py-2 bg-orange-500 text-white rounded-md text-sm hover:bg-orange-600 transition-colors"
+          >
+            {t('createButton')}
+          </button>
         </div>
       </div>
-      {displayedProducts.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 overflow-hidden">
-          {displayedProducts.map((product) => (
+
+      <div className="bg-white shadow-sm rounded-lg p-3 sm:p-4 border border-gray-100">
+        <h2 className="text-sm font-semibold text-gray-700 mb-3">{t('filterByCategory')}</h2>
+        <div className="flex flex-wrap gap-2">
+          <button
+            key="all"
+            onClick={() => viewModel.handleCategoryChange('')}
+            className={`px-3 py-1.5 rounded-full text-xs sm:text-sm border transition-colors ${
+              viewModel.selectedCategory === ''
+                ? 'bg-orange-500 text-white border-orange-500'
+                : 'border-gray-200 text-gray-700 hover:border-orange-400 hover:text-orange-500'
+            }`}
+          >
+            {t('allCategories')}
+          </button>
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => handleCategoryClick(category.id)}
+              className={`px-3 py-1.5 rounded-full text-xs sm:text-sm border transition-colors ${
+                viewModel.selectedCategory === category.id
+                  ? 'bg-orange-500 text-white border-orange-500'
+                  : 'border-gray-200 text-gray-700 hover:border-orange-400 hover:text-orange-500'
+              }`}
+            >
+              {category.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-white shadow-sm rounded-lg p-3 sm:p-4 flex flex-wrap gap-2 text-sm">
+        <button
+          onClick={() => viewModel.handleToggleInStock(true)}
+          className="px-3 py-1.5 border rounded hover:bg-gray-50"
+        >
+          {t('inStockOnly')}
+        </button>
+        <button
+          onClick={() => viewModel.handleToggleInStock(false)}
+          className="px-3 py-1.5 border rounded hover:bg-gray-50"
+        >
+          {t('outOfStockOnly')}
+        </button>
+        <button
+          onClick={() => viewModel.handleToggleInStock(undefined)}
+          className="px-3 py-1.5 border rounded hover:bg-gray-50"
+        >
+          {t('clearStockFilter')}
+        </button>
+      </div>
+
+      {viewModel.error && (
+        <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded">
+          <div className="flex justify-between items-center">
+            <span>{viewModel.error}</span>
+            <button
+              className="text-sm underline"
+              onClick={viewModel.refresh}
+            >
+              {t('retry')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {viewModel.isLoading ? (
+        <LoadingState />
+      ) : products.length > 0 ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+          {products.map((product) => (
             <ProductListCard key={product.id} product={product} router={router} t={t} />
           ))}
         </div>
       ) : (
         <EmptyState t={t} />
       )}
+
+      <div className="flex justify-between items-center pt-4">
+        <span className="text-xs text-gray-500">
+          {t('paginationInfo', {
+            page: viewModel.params.page ?? 1,
+            totalPages: viewModel.data?.totalPages ?? 1,
+          })}
+        </span>
+        <div className="flex gap-2">
+          <button
+            onClick={() => viewModel.handlePageChange((viewModel.params.page ?? 1) - 1)}
+            disabled={(viewModel.params.page ?? 1) <= 1 || viewModel.isLoading}
+            className="px-3 py-1.5 border rounded disabled:opacity-50"
+          >
+            {t('prevPage')}
+          </button>
+          <button
+            onClick={() => viewModel.handlePageChange((viewModel.params.page ?? 1) + 1)}
+            disabled={
+              (viewModel.params.page ?? 1) >= (viewModel.data?.totalPages ?? 1) || viewModel.isLoading
+            }
+            className="px-3 py-1.5 border rounded disabled:opacity-50"
+          >
+            {t('nextPage')}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
+
+const LoadingState = () => (
+  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+    {Array.from({ length: 12 }).map((_, index) => (
+      <div key={index} className="bg-white rounded-lg shadow-sm animate-pulse">
+        <div className="aspect-square bg-gray-200 rounded-t-lg" />
+        <div className="p-3 space-y-2">
+          <div className="h-4 bg-gray-200 rounded" />
+          <div className="h-4 bg-gray-200 rounded w-1/2" />
+        </div>
+      </div>
+    ))}
+  </div>
+);

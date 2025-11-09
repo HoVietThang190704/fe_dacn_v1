@@ -67,11 +67,13 @@
     "login": "Sign In",
     "register": "Sign Up",
     "welcome": "Welcome!",
-    "pleaseSignIn": "Please sign in to continue"
+    "pleaseSignIn": "Please sign in to continue",
+    "cartAria": "View shopping cart"
   },
   "sidebar": {
     "home": "Home",
     "products": "Products",
+    "cart": "Shopping Cart",
     "livestream": "Livestream",
     "orders": "Orders",
     "favorites": "Favorites",
@@ -91,16 +93,67 @@
     "title": "All Products",
     "found": "Found {count} products",
     "sort": "Price",
+    "sortDefault": "Newest",
     "sortLowHigh": "Price: Low to High",
     "sortHighLow": "Price: High to Low",
+    "sortName": "Name: A → Z",
     "popular": "Popular",
     "newest": "Newest",
-    "bestSellers": "Best Sellers"
-    ,
+    "bestSellers": "Best Sellers",
     "sold": "Sold",
     "loading": "Loading products...",
+    "error": "Something went wrong",
+    "retry": "Try again",
     "emptyTitle": "No products found",
-    "emptyDesc": "Try changing filters or search terms"
+    "emptyDesc": "Try changing filters or search terms",
+    "discover": "Discover products",
+    "searchPlaceholder": "Search for products...",
+    "filterByCategory": "Category",
+    "allCategories": "All",
+    "inStockOnly": "In stock only",
+    "outOfStockOnly": "Out of stock only",
+    "clearStockFilter": "Clear stock filter",
+    "organicOnly": "Organic only",
+    "clearOrganicFilter": "Clear organic filter",
+    "paginationInfo": "Page {page} / {totalPages}",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "contact": "Contact",
+    "createButton": "Add product"
+  },
+  "productForm": {
+    "title": "Create New Product",
+    "description": "Fill in the details below to publish a new product.",
+    "basicInfo": "Basic Information",
+    "name": "Product name",
+    "nameEn": "English name",
+    "descriptionLabel": "Description",
+    "category": "Category",
+    "price": "Price (VND)",
+    "unit": "Unit",
+    "images": "Image URLs (one per line)",
+    "tags": "Tags (comma separated)",
+    "inventory": "Inventory & Quality",
+    "stockQuantity": "Stock quantity",
+    "harvestDate": "Harvest date",
+    "shelfLife": "Shelf life (days)",
+    "isOrganic": "Organic",
+    "isFresh": "Fresh",
+    "certifications": "Certifications (comma separated)",
+    "farmSection": "Farm Information",
+    "farmName": "Farm name",
+    "farmer": "Farmer",
+    "contact": "Contact",
+    "province": "Province",
+    "district": "District",
+    "commune": "Commune",
+    "submit": "Create product",
+    "creating": "Creating...",
+    "success": "Product created successfully!",
+    "error": "Failed to create product. Please review the information and try again.",
+    "backToList": "Back to products",
+    "requiredSuffix": "is required",
+    "invalidNumberSuffix": "must be a valid number"
   },
   "product": {
     "home": "Home",
@@ -121,28 +174,156 @@
     "notFound": "Product Not Found",
     "notFoundMessage": "The product you're looking for might have been removed or doesn't exist."
   },
+  "productCard": {
+    "seller": "Seller",
+    "unknownSeller": "Unknown seller",
+    "available": "Available",
+    "sold": "Sold",
+    "inStock": "{count} in stock",
+    "soldCount": "{count} sold"
+  },
+  "cart": {
+    "title": "Your Shopping Cart",
+    "totalItems": "You have {count} items in the cart",
+    "removeSelected": "Remove selected",
+    "clearCart": "Clear cart",
+    "dismiss": "Dismiss",
+    "emptyTitle": "Your cart is empty",
+    "emptySubtitle": "Start shopping to add items to your cart.",
+    "emptyAlt": "Empty cart icon",
+    "continueShopping": "Continue shopping",
+    "loading": "Loading cart...",
+    "product": "Product",
+    "unitPrice": "Unit price",
+    "quantity": "Quantity",
+    "lineTotal": "Line total",
+    "actions": "Actions",
+    "unknownProduct": "Unknown product",
+    "sku": "SKU: {id}",
+    "unitLabel": "Unit: {unit}",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity",
+    "remove": "Remove",
+    "summaryTitle": "Order summary",
+    "itemsSelected": "Items selected",
+    "itemsTotal": "Selected subtotal",
+    "cartSubtotal": "Cart subtotal",
+    "checkout": "Checkout",
+    "checkoutNote": "Shipping fees will be calculated at the next step.",
+    "messages": {
+      "added_to_cart": "Added item to cart",
+      "removed_from_cart": "Removed item from cart",
+      "cleared_cart": "Cleared cart"
+    },
+    "errors": {
+      "maxStock": "Only {count} items left in stock"
+    }
+  },
   "home": {
     "heroTitle": "Fresh Market - Fresh Produce",
     "heroSubtitle": "Fast delivery - Great prices every day",
     "heroCta": "Buy Now",
     "flashSale": "FLASH SALE",
     "suggestions": "Suggestions for you",
-    "seeAll": "See all →"
+    "seeAll": "See all →",
+    "loading": "Loading home feed...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "stats": {
+      "categories": "Categories",
+      "categoriesDescription": "Browse a variety of fresh collections",
+      "bestSellers": "Best sellers",
+      "bestSellersDescription": "Customer favourites this week",
+      "newProducts": "Freshly harvested",
+      "newProductsDescription": "Just arrived from the farm",
+      "promotions": "Promotions",
+      "promotionsDescription": "Save more with limited-time vouchers"
+    },
+    "sections": {
+      "banners": {
+        "title": "From farm to table",
+        "subtitle": "Discover the story behind every harvest"
+      },
+      "promotions": {
+        "title": "Featured offers",
+        "subtitle": "Redeem now and save on your next order",
+        "validUntil": "Valid until {date}"
+      },
+      "bestSellers": {
+        "title": "Best sellers",
+        "subtitle": "Trusted picks loved by our shoppers"
+      },
+      "newArrivals": {
+        "title": "Just harvested",
+        "subtitle": "Add to cart and enjoy the freshest taste"
+      },
+      "shelfLife": {
+        "week": {
+          "title": "Use within this week",
+          "subtitle": "Shelf life ≤ 7 days - enjoy soon"
+        },
+        "twoWeeks": {
+          "title": "Fresh for 2 weeks",
+          "subtitle": "Shelf life 8–14 days"
+        },
+        "month": {
+          "title": "Stays fresh 1 month",
+          "subtitle": "Shelf life 15–30 days"
+        },
+        "longTerm": {
+          "title": "Long-lasting beyond 1 month",
+          "subtitle": "Shelf life > 30 days"
+        }
+      }
+    }
   },
   "orders": {
-    "title": "Orders",
+    "title": "Your Orders",
+    "subtitle": "Track progress and manage your recent purchases.",
+    "loading": "Loading orders...",
+    "errorTitle": "Something went wrong",
+    "retry": "Try again",
     "filter": {
       "all": "All",
       "pending": "Pending",
+      "confirmed": "Confirmed",
+      "preparing": "Preparing",
       "shipping": "Shipping",
       "delivered": "Delivered",
       "cancelled": "Cancelled"
     },
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "preparing": "Preparing",
+      "shipping": "Shipping",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded"
+    },
+    "payment": {
+      "cod": "Cash on Delivery",
+      "momo": "MoMo Wallet",
+      "zalopay": "ZaloPay",
+      "vnpay": "VNPay",
+      "card": "Bank Card"
+    },
+    "labels": {
+      "total": "Total",
+      "estimatedDelivery": "Estimated delivery {date}",
+      "cancelReason": "Cancellation reason: {reason}",
+      "noProduct": "Unknown product"
+    },
+    "amountBreakdown": "Subtotal {subtotal} · Shipping {shipping} · Discount {discount}",
     "total": "Total",
-    "noOrders": "No orders found",
-    "startShopping": "Start shopping",
+    "noOrders": "You don't have any orders yet",
+    "noOrdersInFilter": "No orders match this filter",
+    "startShopping": "Discover products and place your first order today",
+    "startShoppingCta": "Start shopping",
+    "emptyFilterHint": "Try a different filter or check back later.",
     "amountLabel": "Amount",
     "actions": {
+      "refresh": "Refresh",
       "review": "Review",
       "buyAgain": "Buy again",
       "contactSeller": "Contact seller",
@@ -156,6 +337,15 @@
     "addToCart": "Add to cart",
     "outOfStock": "Out of stock",
     "discover": "Discover products",
+    "loginToFavorite": "Sign in to favorite",
+    "processing": "Processing...",
+    "favorited": "Favorited",
+    "favorite": "Favorite",
+    "addedToFavorites": "Added to favorites",
+    "removedFromFavorites": "Removed from favorites",
+    "cannotLoadFavoriteStatus": "Can't load favorite status.",
+    "cannotUpdateFavorite": "Can't update favorites.",
+    "removeAria": "Remove from favorites",
     "loading": "Loading favorites...",
     "error": "An error occurred",
     "retry": "Retry",
@@ -350,7 +540,38 @@
     "other": "Other",
     "profileUpdated": "Profile updated successfully",
     "updateError": "Failed to update profile",
-    "profileCompletion": "Profile completion"
+    "profileCompletion": "Profile completion",
+    "profileDetails": "Profile details",
+    "editProfile": "Edit information",
+  "removeAvatar": "Remove current avatar",
+  "avatarHint": "Supported formats: JPG, PNG. Max size 5MB.",
+    "accountInfo": "Account information",
+    "userNotFound": "User information not found",
+    "retry": "Retry",
+    "yes": "Yes",
+    "no": "No",
+    "name": "Full name",
+    "username": "Username",
+    "email": "Email",
+    "phone": "Phone number",
+    "birthDate": "Date of birth",
+    "address": "Address",
+  "addressDetail": "Address detail",
+  "enterAddressDetail": "Enter specific address (house number, lane...)",
+  "street": "Street",
+  "commune": "Ward/Commune",
+  "district": "District",
+  "province": "Province",
+    "role": "Role",
+    "verified": "Verified",
+    "createdAt": "Created at",
+    "updatedAt": "Last updated",
+    "enterName": "Enter full name",
+    "enterPhone": "Enter phone number",
+    "enterAddress": "Enter address",
+    "saving": "Saving...",
+    "clickToChangeAvatar": "Click to change avatar",
+    "uploadAvatarError": "Failed to upload avatar. Please try again."
   }
   ,
   "profile": {
@@ -373,21 +594,156 @@
     "orderDate": "Order Date",
     "status": "Status",
     "shippingAddress": "Shipping Address",
+    "paymentMethod": "Payment Method",
+    "paymentStatus": "Payment Status",
     "totalAmount": "Total Amount",
     "items": "Items",
     "quantity": "Quantity",
-    "price": "Price",
+    "price": "Unit Price",
     "subtotal": "Subtotal",
+    "subtotalLabel": "Subtotal",
+    "shippingFee": "Shipping Fee",
+    "discount": "Discount",
+    "note": "Note",
+    "cancelReason": "Cancellation Reason",
     "pending": "Pending",
     "confirmed": "Confirmed",
     "shipping": "Shipping",
     "delivered": "Delivered",
     "cancelled": "Cancelled",
+    "refunded": "Refunded",
+    "statusLabels": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "preparing": "Preparing",
+      "shipping": "Shipping",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded"
+    },
+    "payment": {
+      "methods": {
+        "cod": "Cash on Delivery",
+        "momo": "MoMo Wallet",
+        "zalopay": "ZaloPay",
+        "vnpay": "VNPay",
+        "card": "Bank Card"
+      },
+      "status": {
+        "pending": "Awaiting payment",
+        "paid": "Paid",
+        "failed": "Payment failed",
+        "refunded": "Refunded"
+      }
+    },
+    "actions": {
+      "payNow": "Pay now",
+      "payProcessing": "Processing payment...",
+      "contactSupport": "Contact support",
+      "cancelOrder": "Cancel order"
+    },
+    "errors": {
+      "paymentFailed": "Payment failed. Please try again later."
+    },
     "backToOrders": "Back to Orders",
     "loading": "Loading...",
-    "error": "Error",
-    "retry": "Retry",
+    "error": "An error occurred",
+    "retry": "Try again",
     "notFound": "Order Not Found",
-    "notFoundMessage": "The order you're looking for may have been deleted or doesn't exist."
+    "notFoundMessage": "This order does not exist or has been removed."
+  },
+  "checkout": {
+    "title": "Checkout",
+    "backToCart": "Back to Cart",
+    "loading": "Loading your cart...",
+    "noItems": "No items selected",
+    "noItemsMessage": "Please return to your cart and choose the products you want to buy.",
+    "backToCartButton": "Back to Cart",
+    "processing": "Processing...",
+    "placeOrder": "Place Order",
+    "terms": "By placing an order, you agree to our terms of service.",
+    "shippingFee": "Shipping Fee",
+    "total": "Total",
+    "actions": {
+      "cancel": "Cancel"
+    },
+    "address": {
+      "title": "Shipping Address",
+      "add": "Add address",
+      "formTitle": "Add a new address",
+      "fields": {
+        "recipientName": "Recipient name",
+        "phone": "Phone number",
+        "address": "Address",
+        "ward": "Ward/Commune",
+        "district": "District",
+        "province": "Province/City"
+      },
+      "setDefault": "Set as default",
+      "saving": "Saving...",
+      "save": "Save address",
+      "loading": "Loading addresses...",
+      "empty": "You don't have any shipping addresses yet",
+      "emptyAction": "Add new address",
+      "profileNameFallback": "Profile address",
+      "labels": {
+        "home": "Home",
+        "work": "Work",
+        "other": "Other",
+        "profile": "Profile"
+      },
+      "badges": {
+        "profile": "Auto-filled",
+        "default": "Default"
+      }
+    },
+    "products": {
+      "title": "Selected Products",
+      "fallbackAlt": "Product image",
+      "quantity": "Quantity: {count}",
+      "pricePerUnit": "{price} per {unit}",
+      "unitFallback": "item"
+    },
+    "voucher": {
+      "title": "Voucher",
+      "appliedDiscount": "Discount applied: {amount}",
+      "remove": "Remove",
+      "placeholder": "Enter voucher code",
+      "applying": "Applying...",
+      "apply": "Apply"
+    },
+    "payment": {
+      "title": "Payment Method",
+      "options": {
+        "cod": "Cash on Delivery (COD)",
+        "momo": "MoMo Wallet",
+        "zalopay": "ZaloPay",
+        "vnpay": "VNPay",
+        "card": "Credit Card"
+      },
+      "comingSoon": "Coming soon"
+    },
+    "note": {
+      "title": "Order Note",
+      "placeholder": "Add a note for your order..."
+    },
+    "summary": {
+      "title": "Order Summary",
+      "subtotalWithCount": "Subtotal ({count} items)",
+      "discount": "Discount"
+    },
+    "errors": {
+      "fetchAddresses": "Unable to load addresses.",
+      "authRequired": "Please sign in to continue.",
+      "addressIncomplete": "Please fill in all required address fields.",
+      "addAddressFailed": "Failed to save the address. Please try again.",
+      "reloadAddressesFailed": "Unable to refresh the address list.",
+      "voucherRequired": "Please enter a voucher code.",
+      "applyVoucher": "Failed to apply voucher.",
+      "noItemsSelected": "No products selected.",
+      "noAddressSelected": "Please choose a shipping address.",
+      "addressIncompleteForOrder": "Shipping address is incomplete.",
+      "createOrder": "Could not create order. Please try again."
+    }
   }
 }

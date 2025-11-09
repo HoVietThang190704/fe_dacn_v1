@@ -22,8 +22,6 @@ interface ApiPost {
   user?: ApiUser;
 }
 
-// ApiComment intentionally omitted — comments are handled by the CommentSection component
-
 interface Props {
   postId: string;
   isOpen: boolean;

@@ -56,13 +56,14 @@ export function useAuth() {
       const result = await authAPI.login(credentials);
       
       if (result.success && result.data) {
-        if (result.data.token && result.data.user) {
-          localStorage.setItem('authToken', result.data.token);
+        if (result.data.accessToken && result.data.refreshToken && result.data.user) {
+          localStorage.setItem('authToken', result.data.accessToken);
+          localStorage.setItem('refreshToken', result.data.refreshToken);
           localStorage.setItem('user', JSON.stringify(result.data.user));
           setUser(result.data.user);
           setIsAuthenticated(true);
           // Set token to container immediately after login
-          postCommentContainer.setAuthToken(result.data.token);
+          postCommentContainer.setAuthToken(result.data.accessToken);
         }
 
         router.push('/main');

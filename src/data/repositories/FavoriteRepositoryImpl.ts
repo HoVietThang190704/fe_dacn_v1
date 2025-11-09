@@ -3,21 +3,26 @@ import { Favorite } from '@/domain/entities/Favorite';
 import { FavoriteApiDataSource } from '../datasources/FavoriteApiDataSource';
 
 export class FavoriteRepositoryImpl implements IFavoriteRepository {
-  constructor(private apiDataSource: FavoriteApiDataSource) {}
+  constructor(private readonly apiDataSource: FavoriteApiDataSource) {}
 
-  async getFavorites(userId: string): Promise<Favorite[]> {
-    return await this.apiDataSource.getFavorites(userId);
+  async getFavorites(userId?: string): Promise<Favorite[]> {
+    void userId;
+    return await this.apiDataSource.getFavorites();
   }
 
-  async addFavorite(userId: string, productId: string): Promise<Favorite> {
-    return await this.apiDataSource.addFavorite(userId, productId);
+  async addFavorite(productId: string): Promise<Favorite[]> {
+    return await this.apiDataSource.addFavorite(productId);
   }
 
-  async removeFavorite(favoriteId: string): Promise<void> {
-    return await this.apiDataSource.removeFavorite(favoriteId);
+  async removeFavorite(productId: string): Promise<Favorite[]> {
+    return await this.apiDataSource.removeFavorite(productId);
   }
 
-  async isFavorite(userId: string, productId: string): Promise<boolean> {
-    return await this.apiDataSource.isFavorite(userId, productId);
+  async toggleFavorite(productId: string): Promise<Favorite[]> {
+    return await this.apiDataSource.toggleFavorite(productId);
+  }
+
+  async isFavorite(productId: string): Promise<boolean> {
+    return await this.apiDataSource.isFavorite(productId);
   }
 }
