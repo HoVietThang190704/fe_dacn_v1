@@ -2,11 +2,14 @@
 
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 import type { UserProfile } from "@/presentation/viewmodels/useProfileViewModel";
 import { usePosts } from "@/hooks/usePosts";
+import { useUserProducts } from "@/hooks/useUserProducts";
 import PostCard from "../components/PostCard";
+import ProfileProductCard from "../components/ProfileProductCard";
 
 interface ProfilePageProps {
   profile: UserProfile;
@@ -14,6 +17,7 @@ interface ProfilePageProps {
 
 export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
   const t = useTranslations("profile");
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'posts' | 'products'>('posts');
   
   const {
@@ -23,6 +27,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
     deletePost,
     sharePost,
   } = usePosts();
+
+  const {
+    products,
+    isLoading: isLoadingProducts,
+  } = useUserProducts(profile.id);
 
   // Filter posts by current user
   const userPosts = posts.filter(post => post.userId === profile.id);
@@ -53,6 +62,15 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
       console.error('Error sharing post:', err);
       alert(err instanceof Error ? err.message : 'Lỗi khi chia sẻ bài viết');
     }
+  };
+
+  const handleEditProduct = (productId: string) => {
+    router.push(`/main/products/${productId}/edit`);
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    // This will be handled in the ProfileProductCard component
+    console.log('Delete product:', productId);
   };
 
   return (
@@ -122,7 +140,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Sản phẩm (0)
+              Sản phẩm ({products.length})
             </button>
           </div>
         </div>
@@ -171,11 +189,31 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
         )}
 
         {activeTab === 'products' && (
-          <div className="text-center py-12">
-            <svg className="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-            <p className="text-gray-500">Chưa có sản phẩm nào</p>
+          <div className="space-y-4">
+            {isLoadingProducts && products.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="inline-block w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : products.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {products.map((product) => (
+                  <ProfileProductCard
+                    key={product.id}
+                    product={product}
+                    router={router}
+                    onEdit={handleEditProduct}
+                    onDelete={handleDeleteProduct}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <svg className="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+                <p className="text-gray-500">Chưa có sản phẩm nào</p>
+              </div>
+            )}
           </div>
         )}
       </div>
