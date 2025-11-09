@@ -1,72 +1,215 @@
-import { Order, OrderStatus } from '@/domain/entities/Order';
-import { CreateOrderDto } from '@/domain/repositories/IOrderRepository';
+import { Order } from '@/domain/entities/Order';
+import {
+	CreateOrderPayload,
+	OrderListFilters,
+	OrderListResult,
+	OrderStatistics,
+	VoucherApplicationResult,
+} from '@/domain/repositories/IOrderRepository';
+import { Voucher } from '@/domain/entities/Voucher';
+import { API_ENDPOINTS } from '@/shared/constants/api';
+import { authApiClient } from '@/lib/authApiClient';
+
+type OrderItemDto = {
+	productId: string;
+	productName: string;
+	productImage?: string;
+	quantity: number;
+	price: number;
+	subtotal: number;
+};
+
+type OrderDto = {
+	id: string;
+	orderNumber: string;
+	userId: string;
+	items: OrderItemDto[];
+	totalItems: number;
+	subtotal: number;
+	shippingFee: number;
+	discount: number;
+	total: number;
+	status: Order['status'];
+	statusDisplay: string;
+	paymentMethod: Order['paymentMethod'];
+	paymentStatus: Order['paymentStatus'];
+	isInProgress: boolean;
+	isCompleted: boolean;
+	canBeCancelled: boolean;
+	shippingAddress: Order['shippingAddress'];
+	createdAt: string;
+	updatedAt: string;
+	estimatedDelivery?: string;
+	deliveredAt?: string;
+	daysUntilDelivery?: number | null;
+	note?: string;
+	cancelReason?: string;
+};
+
+type OrderListApiResponse = {
+	message?: string;
+	data?: {
+		orders: OrderDto[];
+		pagination: OrderListResult['pagination'];
+	};
+};
+
+type OrderDetailApiResponse = {
+	message?: string;
+	data?: OrderDto;
+};
+
+type CreateOrderApiResponse = {
+	message?: string;
+	data?: OrderDto;
+};
+
+type CancelOrderApiResponse = {
+	message?: string;
+	data?: OrderDto;
+};
+
+type VoucherApiResponse = {
+	message?: string;
+	data?: {
+		voucher: Voucher;
+		discount: number;
+	};
+};
+
+type StatisticsApiResponse = {
+	message?: string;
+	data?: OrderStatistics;
+};
 
 export class OrderApiDataSource {
-  private baseUrl: string;
+	private buildQuery(filters?: OrderListFilters): string {
+		if (!filters) return '';
 
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
-  }
+		const params = new URLSearchParams();
 
-  async getOrders(userId: string): Promise<Order[]> {
-    const response = await fetch(`${this.baseUrl}/orders?userId=${userId}`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch orders: ${response.statusText}`);
-    }
-    
-    return await response.json();
-  }
+		if (filters.status) params.append('status', filters.status);
+		if (filters.page) params.append('page', filters.page.toString());
+		if (filters.limit) params.append('limit', filters.limit.toString());
 
-  async getOrderById(orderId: string): Promise<Order> {
-    const response = await fetch(`${this.baseUrl}/orders/${orderId}`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch order: ${response.statusText}`);
-    }
-    
-    return await response.json();
-  }
+		const query = params.toString();
+		return query ? `?${query}` : '';
+	}
 
-  async createOrder(order: CreateOrderDto): Promise<Order> {
-    const response = await fetch(`${this.baseUrl}/orders`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(order),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to create order: ${response.statusText}`);
-    }
-    
-    return await response.json();
-  }
+	private mapOrder(dto: OrderDto): Order {
+		return {
+			id: dto.id,
+			orderNumber: dto.orderNumber,
+			userId: dto.userId,
+			items: dto.items.map((item) => ({
+				productId: item.productId,
+				productName: item.productName,
+				productImage: item.productImage,
+				quantity: item.quantity,
+				price: item.price,
+				subtotal: item.subtotal,
+			})),
+			totalItems: dto.totalItems,
+			subtotal: dto.subtotal,
+			shippingFee: dto.shippingFee,
+			discount: dto.discount,
+			total: dto.total,
+			status: dto.status,
+			statusDisplay: dto.statusDisplay,
+			paymentMethod: dto.paymentMethod,
+			paymentStatus: dto.paymentStatus,
+			isInProgress: dto.isInProgress,
+			isCompleted: dto.isCompleted,
+			canBeCancelled: dto.canBeCancelled,
+			shippingAddress: dto.shippingAddress,
+			createdAt: dto.createdAt,
+			updatedAt: dto.updatedAt,
+			estimatedDelivery: dto.estimatedDelivery,
+			deliveredAt: dto.deliveredAt,
+			daysUntilDelivery: dto.daysUntilDelivery,
+			note: dto.note,
+			cancelReason: dto.cancelReason,
+		};
+	}
 
-  async updateOrderStatus(orderId: string, status: OrderStatus): Promise<Order> {
-    const response = await fetch(`${this.baseUrl}/orders/${orderId}/status`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ status }),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to update order status: ${response.statusText}`);
-    }
-    
-    return await response.json();
-  }
+	async getOrders(filters?: OrderListFilters): Promise<OrderListResult> {
+		const query = this.buildQuery(filters);
+		const response = await authApiClient.get<OrderListApiResponse>(`${API_ENDPOINTS.ORDERS}${query}`);
 
-  async cancelOrder(orderId: string): Promise<void> {
-    const response = await fetch(`${this.baseUrl}/orders/${orderId}/cancel`, {
-      method: 'POST',
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Failed to cancel order: ${response.statusText}`);
-    }
-  }
+		if (!response.success || !response.data?.data) {
+			throw new Error(response.error || response.data?.message || 'Không thể tải danh sách đơn hàng');
+		}
+
+		const { orders, pagination } = response.data.data;
+
+		return {
+			orders: orders.map((order) => this.mapOrder(order)),
+			pagination,
+		};
+	}
+
+	async getOrderById(orderId: string): Promise<Order> {
+		const response = await authApiClient.get<OrderDetailApiResponse>(API_ENDPOINTS.ORDER_DETAIL(orderId));
+
+		if (!response.success || !response.data?.data) {
+			throw new Error(response.error || response.data?.message || 'Không thể tải đơn hàng');
+		}
+
+		return this.mapOrder(response.data.data);
+	}
+
+	async createOrder(payload: CreateOrderPayload): Promise<Order> {
+		const response = await authApiClient.post<CreateOrderApiResponse>(API_ENDPOINTS.ORDERS, payload);
+
+		if (!response.success || !response.data?.data) {
+			throw new Error(response.error || response.data?.message || 'Không thể tạo đơn hàng');
+		}
+
+		return this.mapOrder(response.data.data);
+	}
+
+	async cancelOrder(orderId: string, reason: string): Promise<Order> {
+		const response = await authApiClient.post<CancelOrderApiResponse>(API_ENDPOINTS.CANCEL_ORDER(orderId), { reason });
+
+		if (!response.success || !response.data?.data) {
+			throw new Error(response.error || response.data?.message || 'Không thể hủy đơn hàng');
+		}
+
+		return this.mapOrder(response.data.data);
+	}
+
+	async getStatistics(): Promise<OrderStatistics> {
+		const response = await authApiClient.get<StatisticsApiResponse>(API_ENDPOINTS.ORDER_STATISTICS);
+
+		if (!response.success || !response.data?.data) {
+			throw new Error(response.error || response.data?.message || 'Không thể tải thống kê đơn hàng');
+		}
+
+		return response.data.data;
+	}
+
+	async applyVoucher(code: string, subtotal: number): Promise<VoucherApplicationResult> {
+		const response = await authApiClient.post<VoucherApiResponse>(API_ENDPOINTS.APPLY_VOUCHER, {
+			code,
+			subtotal,
+		});
+
+		if (!response.success || !response.data?.data) {
+			throw new Error(response.error || response.data?.message || 'Không thể áp dụng mã giảm giá');
+		}
+
+		return response.data.data;
+	}
+
+	async updatePaymentStatus(orderId: string, paymentStatus: string): Promise<Order> {
+		const response = await authApiClient.put<OrderDetailApiResponse>(`/api/orders/${orderId}/payment-status`, {
+			paymentStatus,
+		});
+
+		if (!response.success || !response.data?.data) {
+			throw new Error(response.error || response.data?.message || 'Không thể cập nhật trạng thái thanh toán');
+		}
+
+		return this.mapOrder(response.data.data);
+	}
 }

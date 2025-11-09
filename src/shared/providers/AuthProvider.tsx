@@ -37,6 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           postCommentContainer.setAuthToken(e.newValue);
         } else {
           console.log('[AuthProvider] Token removed');
+          postCommentContainer.setAuthToken('');
         }
       }
     };

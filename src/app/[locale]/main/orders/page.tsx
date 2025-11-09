@@ -27,5 +27,5 @@ export default function OrdersPageRoute() {
     return null;
   }
 
-  return <OrdersPage userId={user.id} />;
+  return <OrdersPage />;
 }

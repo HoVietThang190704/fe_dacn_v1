@@ -1,18 +1,65 @@
-import { Order, OrderStatus } from '../entities/Order';
+import { Order, OrderStatus, PaymentMethod } from '../entities/Order';
+import { Voucher } from '../entities/Voucher';
 
-export interface IOrderRepository {
-  getOrders(userId: string): Promise<Order[]>;
-  getOrderById(orderId: string): Promise<Order>;
-  createOrder(order: CreateOrderDto): Promise<Order>;
-  updateOrderStatus(orderId: string, status: OrderStatus): Promise<Order>;
-  cancelOrder(orderId: string): Promise<void>;
+export interface OrderListFilters {
+  status?: OrderStatus;
+  page?: number;
+  limit?: number;
 }
 
-export interface CreateOrderDto {
-  userId: string;
-  items: Array<{
-    productId: string;
-    quantity: number;
-  }>;
-  shippingAddress: string;
+export interface OrderPagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface OrderListResult {
+  orders: Order[];
+  pagination: OrderPagination;
+}
+
+export interface CreateOrderPayload {
+  cartItemIds?: string[];
+  paymentMethod?: PaymentMethod;
+  note?: string;
+  voucherCode?: string;
+  shippingAddressId?: string;
+  shippingAddress?: {
+    recipientName: string;
+    phone: string;
+    address: string;
+    ward: string;
+    district: string;
+    province: string;
+    note?: string;
+    label?: string;
+    isDefault?: boolean;
+  };
+  saveShippingAddress?: boolean;
+}
+
+export interface OrderStatistics {
+  total: number;
+  pending: number;
+  confirmed: number;
+  preparing: number;
+  shipping: number;
+  delivered: number;
+  cancelled: number;
+}
+
+export interface VoucherApplicationResult {
+  voucher: Voucher;
+  discount: number;
+}
+
+export interface IOrderRepository {
+  getOrders(filters?: OrderListFilters): Promise<OrderListResult>;
+  getOrderById(orderId: string): Promise<Order>;
+  createOrder(payload: CreateOrderPayload): Promise<Order>;
+  cancelOrder(orderId: string, reason: string): Promise<Order>;
+  getStatistics(): Promise<OrderStatistics>;
+  applyVoucher(code: string, subtotal: number): Promise<VoucherApplicationResult>;
+  updatePaymentStatus(orderId: string, paymentStatus: string): Promise<Order>;
 }

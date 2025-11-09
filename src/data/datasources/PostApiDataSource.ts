@@ -1,5 +1,6 @@
 import { Post, CreatePostData, UpdatePostData, SharePostData, PaginatedPosts } from '@/domain/entities/Post';
 import { API_CONFIG, API_ENDPOINTS } from '@/shared/constants/api';
+import { authApiClient } from '@/lib/authApiClient';
 
 export class PostApiDataSource {
   private token: string | null = null;
@@ -27,54 +28,29 @@ export class PostApiDataSource {
   }
 
   async getFeed(page: number = 1, limit: number = 20): Promise<PaginatedPosts> {
-    const url = this.getFullUrl(`${API_ENDPOINTS.POSTS_FEED_USER}?page=${page}&limit=${limit}`);
-    const response = await fetch(url, {
-      headers: this.getHeaders(),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch feed: ${response.statusText}`);
+    const response = await authApiClient.get<{ success: boolean; data: unknown }>(`${API_ENDPOINTS.POSTS_FEED_USER}?page=${page}&limit=${limit}`);
+    if (!response.success || !response.data?.data) {
+      throw new Error(response.error || `Failed to fetch feed`);
     }
-
-    const result = await response.json();
-    return this.transformResponse(result.data);
+    return this.transformResponse(response.data.data as Record<string, unknown>);
   }
 
   async getPostsByUserId(userId: string, page: number = 1, limit: number = 20): Promise<PaginatedPosts> {
-    const url = this.getFullUrl(`${API_ENDPOINTS.POSTS_USER(userId)}?page=${page}&limit=${limit}`);
-    const response = await fetch(url, {
-      headers: this.getHeaders(),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch user posts: ${response.statusText}`);
+    const response = await authApiClient.get<{ success: boolean; data: unknown }>(`${API_ENDPOINTS.POSTS_USER(userId)}?page=${page}&limit=${limit}`);
+    if (!response.success || !response.data?.data) {
+      throw new Error(response.error || `Failed to fetch user posts`);
     }
-
-    const result = await response.json();
-    return this.transformResponse(result.data);
+    return this.transformResponse(response.data.data as Record<string, unknown>);
   }
 
   async getPublicPosts(page: number = 1, limit: number = 20): Promise<PaginatedPosts> {
-    const url = this.getFullUrl(`${API_ENDPOINTS.POSTS_FEED_PUBLIC}?page=${page}&limit=${limit}`);
-    console.log('[PostApiDataSource] Fetching from:', url);
-    
-    const response = await fetch(url, {
-      headers: this.getHeaders(),
-    });
-
-    console.log('[PostApiDataSource] Response status:', response.status, response.statusText);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[PostApiDataSource] Error response:', errorText);
-      throw new Error(`Failed to fetch public posts: ${response.statusText}`);
+    console.log('[PostApiDataSource] Fetching public posts');
+    const response = await authApiClient.get<{ success: boolean; data: unknown }>(`${API_ENDPOINTS.POSTS_FEED_PUBLIC}?page=${page}&limit=${limit}`);
+    if (!response.success || !response.data?.data) {
+      throw new Error(response.error || `Failed to fetch public posts`);
     }
-
-    const result = await response.json();
-    console.log('[PostApiDataSource] API Response:', JSON.stringify(result, null, 2));
-    
-    // Backend returns { success: true, data: { posts: [], pagination: {} } }
-    return this.transformResponse(result.data);
+    console.log('[PostApiDataSource] API Response received');
+    return this.transformResponse(response.data.data as Record<string, unknown>);
   }
 
   async getPostById(postId: string): Promise<Post> {

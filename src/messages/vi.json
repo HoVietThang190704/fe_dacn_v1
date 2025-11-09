@@ -67,11 +67,13 @@
     "login": "Đăng nhập",
     "register": "Đăng ký",
     "welcome": "Chào mừng!",
-    "pleaseSignIn": "Vui lòng đăng nhập để tiếp tục"
+    "pleaseSignIn": "Vui lòng đăng nhập để tiếp tục",
+    "cartAria": "Xem giỏ hàng"
   },
   "sidebar": {
     "home": "Trang chủ",
     "products": "Sản phẩm",
+    "cart": "Giỏ hàng",
     "livestream": "Livestream",
     "orders": "Đơn hàng",
     "favorites": "Yêu thích",
@@ -92,18 +94,67 @@
     "title": "Tất Cả Sản Phẩm",
     "found": "Tìm thấy {count} sản phẩm",
     "sort": "Giá",
+    "sortDefault": "Mới nhất",
     "sortLowHigh": "Giá: Thấp đến Cao",
     "sortHighLow": "Giá: Cao đến Thấp",
+    "sortName": "Tên: A → Z",
     "popular": "Phổ biến",
     "newest": "Mới nhất",
-    "bestSellers": "Bán chạy"
-    ,
+    "bestSellers": "Bán chạy",
     "sold": "Đã bán",
     "loading": "Đang tải sản phẩm...",
     "error": "Có lỗi xảy ra",
     "retry": "Thử lại",
     "emptyTitle": "Không tìm thấy sản phẩm",
-    "emptyDesc": "Thử thay đổi bộ lọc hoặc tìm kiếm khác"
+    "emptyDesc": "Thử thay đổi bộ lọc hoặc tìm kiếm khác",
+    "discover": "Khám phá ngay",
+    "searchPlaceholder": "Tìm kiếm sản phẩm...",
+    "filterByCategory": "Danh mục",
+    "allCategories": "Tất cả",
+    "inStockOnly": "Chỉ còn hàng",
+    "outOfStockOnly": "Chỉ hết hàng",
+    "clearStockFilter": "Bỏ lọc tồn kho",
+    "organicOnly": "Chỉ hữu cơ",
+    "clearOrganicFilter": "Bỏ lọc hữu cơ",
+    "paginationInfo": "Trang {page} / {totalPages}",
+    "prevPage": "Trước",
+    "nextPage": "Sau",
+    "contact": "Liên hệ",
+    "createButton": "Đăng sản phẩm"
+  },
+  "productForm": {
+    "title": "Tạo sản phẩm mới",
+    "description": "Nhập đầy đủ thông tin để đăng sản phẩm lên gian hàng.",
+    "basicInfo": "Thông tin cơ bản",
+    "name": "Tên sản phẩm",
+    "nameEn": "Tên tiếng Anh",
+    "descriptionLabel": "Mô tả",
+    "category": "Danh mục",
+    "price": "Giá (VND)",
+    "unit": "Đơn vị",
+    "images": "Link ảnh (mỗi dòng một link)",
+    "tags": "Thẻ (phân cách bằng dấu phẩy)",
+    "inventory": "Tồn kho & Chất lượng",
+    "stockQuantity": "Số lượng tồn",
+    "harvestDate": "Ngày thu hoạch",
+    "shelfLife": "Hạn sử dụng (ngày)",
+    "isOrganic": "Hữu cơ",
+    "isFresh": "Tươi mới",
+    "certifications": "Chứng nhận (phân cách bằng dấu phẩy)",
+    "farmSection": "Thông tin nông trại",
+    "farmName": "Tên nông trại",
+    "farmer": "Người phụ trách",
+    "contact": "Liên hệ",
+    "province": "Tỉnh/Thành phố",
+    "district": "Quận/Huyện",
+    "commune": "Phường/Xã",
+    "submit": "Tạo sản phẩm",
+    "creating": "Đang tạo...",
+    "success": "Tạo sản phẩm thành công!",
+    "error": "Không thể tạo sản phẩm. Vui lòng kiểm tra lại thông tin.",
+    "backToList": "Quay lại danh sách",
+    "requiredSuffix": "là bắt buộc",
+    "invalidNumberSuffix": "phải là số hợp lệ"
   },
   "product": {
     "home": "Trang chủ",
@@ -124,35 +175,163 @@
     "notFound": "Sản phẩm không tồn tại",
     "notFoundMessage": "Sản phẩm bạn tìm kiếm có thể đã bị xóa hoặc không tồn tại."
   },
+  "productCard": {
+    "seller": "Người bán",
+    "unknownSeller": "Chưa rõ người bán",
+    "available": "Còn lại",
+    "sold": "Đã bán",
+    "inStock": "{count} có sẵn",
+    "soldCount": "Đã bán {count}"
+  },
+  "cart": {
+    "title": "Giỏ hàng của bạn",
+    "totalItems": "Tổng {count} sản phẩm trong giỏ",
+    "removeSelected": "Xóa mục đã chọn",
+    "clearCart": "Xóa giỏ hàng",
+    "dismiss": "Đóng",
+    "emptyTitle": "Giỏ hàng chưa có sản phẩm",
+    "emptySubtitle": "Bắt đầu mua sắm để thêm sản phẩm vào giỏ.",
+    "emptyAlt": "Biểu tượng giỏ hàng trống",
+    "continueShopping": "Tiếp tục mua sắm",
+    "loading": "Đang tải giỏ hàng...",
+    "product": "Sản phẩm",
+    "unitPrice": "Đơn giá",
+    "quantity": "Số lượng",
+    "lineTotal": "Thành tiền",
+    "actions": "Thao tác",
+    "unknownProduct": "Sản phẩm chưa rõ",
+    "sku": "Mã: {id}",
+    "unitLabel": "Đơn vị: {unit}",
+    "decreaseQuantity": "Giảm số lượng",
+    "increaseQuantity": "Tăng số lượng",
+    "remove": "Xóa",
+    "summaryTitle": "Tổng kết đơn hàng",
+    "itemsSelected": "Sản phẩm đã chọn",
+    "itemsTotal": "Tạm tính mục đã chọn",
+    "cartSubtotal": "Tổng tiền giỏ hàng",
+    "checkout": "Mua hàng",
+    "checkoutNote": "Phí vận chuyển sẽ được tính ở bước tiếp theo.",
+    "messages": {
+      "added_to_cart": "Đã thêm sản phẩm vào giỏ hàng",
+      "removed_from_cart": "Đã xóa sản phẩm khỏi giỏ hàng",
+      "cleared_cart": "Đã xóa toàn bộ giỏ hàng"
+    },
+    "errors": {
+      "maxStock": "Chỉ còn {count} sản phẩm trong kho"
+    }
+  },
   "home": {
     "heroTitle": "Fresh Market - Nông Sản Tươi Sạch",
     "heroSubtitle": "Giao hàng nhanh - Giá tốt mỗi ngày",
     "heroCta": "Mua Ngay",
     "flashSale": "FLASH SALE",
     "suggestions": "Gợi ý cho bạn",
-    "seeAll": "Xem tất cả →"
+    "seeAll": "Xem tất cả →",
+    "loading": "Đang tải trang chủ...",
+    "error": "Có lỗi xảy ra",
+    "retry": "Thử lại",
+    "stats": {
+      "categories": "Danh mục",
+      "categoriesDescription": "Khám phá các nhóm nông sản đa dạng",
+      "bestSellers": "Bán chạy",
+      "bestSellersDescription": "Được yêu thích nhiều nhất tuần",
+      "newProducts": "Vừa thu hoạch",
+      "newProductsDescription": "Sản phẩm mới cập bến từ nông trại",
+      "promotions": "Ưu đãi",
+      "promotionsDescription": "Tiết kiệm với voucher hấp dẫn"
+    },
+    "sections": {
+      "banners": {
+        "title": "Hành trình từ nông trại",
+        "subtitle": "Theo dõi câu chuyện phía sau mỗi mẻ nông sản"
+      },
+      "promotions": {
+        "title": "Ưu đãi nổi bật",
+        "subtitle": "Áp dụng ngay để tiết kiệm cho đơn hàng của bạn",
+        "validUntil": "Áp dụng đến {date}"
+      },
+      "bestSellers": {
+        "title": "Sản phẩm bán chạy",
+        "subtitle": "Những lựa chọn được khách hàng tin dùng"
+      },
+      "newArrivals": {
+        "title": "Vừa thu hoạch",
+        "subtitle": "Đặt ngay để thưởng thức hương vị tươi ngon"
+      },
+      "shelfLife": {
+        "week": {
+          "title": "Sử dụng trong tuần này",
+          "subtitle": "Hạn sử dụng ≤ 7 ngày - nên dùng ngay"
+        },
+        "twoWeeks": {
+          "title": "Tươi trong 2 tuần",
+          "subtitle": "Hạn sử dụng 8–14 ngày"
+        },
+        "month": {
+          "title": "Bảo quản tốt 1 tháng",
+          "subtitle": "Hạn sử dụng 15–30 ngày"
+        },
+        "longTerm": {
+          "title": "Bền lâu trên 1 tháng",
+          "subtitle": "Hạn sử dụng > 30 ngày"
+        }
+      }
+    }
   },
   "orders": {
-    "title": "Đơn Mua",
+    "title": "Đơn hàng của bạn",
+    "subtitle": "Theo dõi trạng thái và quản lý đơn hàng gần đây.",
+    "loading": "Đang tải đơn hàng...",
+    "errorTitle": "Có lỗi xảy ra",
+    "retry": "Thử lại",
     "filter": {
       "all": "Tất cả",
       "pending": "Chờ xác nhận",
+      "confirmed": "Đã xác nhận",
+      "preparing": "Đang chuẩn bị",
       "shipping": "Đang giao",
       "delivered": "Đã giao",
       "cancelled": "Đã hủy"
     },
+    "status": {
+      "pending": "Chờ xác nhận",
+      "confirmed": "Đã xác nhận",
+      "preparing": "Đang chuẩn bị",
+      "shipping": "Đang giao",
+      "delivered": "Đã giao",
+      "cancelled": "Đã hủy",
+      "refunded": "Đã hoàn tiền"
+    },
+    "payment": {
+      "cod": "Thanh toán khi nhận hàng",
+      "momo": "Ví MoMo",
+      "zalopay": "ZaloPay",
+      "vnpay": "VNPay",
+      "card": "Thẻ ngân hàng"
+    },
+    "labels": {
+      "total": "Tổng cộng",
+      "estimatedDelivery": "Dự kiến giao {date}",
+      "cancelReason": "Lý do hủy: {reason}",
+      "noProduct": "Sản phẩm không xác định"
+    },
+    "amountBreakdown": "Tạm tính {subtotal} · Vận chuyển {shipping} · Giảm {discount}",
     "total": "Tổng",
-    "noOrders": "Không có đơn hàng",
-    "startShopping": "Bắt đầu mua sắm",
+    "noOrders": "Bạn chưa có đơn hàng nào",
+    "noOrdersInFilter": "Không có đơn phù hợp với bộ lọc",
+    "startShopping": "Khám phá sản phẩm và đặt hàng ngay hôm nay",
+    "startShoppingCta": "Bắt đầu mua sắm",
+    "emptyFilterHint": "Hãy thử bộ lọc khác hoặc quay lại sau.",
     "amountLabel": "Thành tiền",
     "actions": {
+      "refresh": "Làm mới",
       "review": "Đánh giá",
       "buyAgain": "Mua lại",
       "contactSeller": "Liên hệ người bán",
       "confirmReceived": "Đã nhận hàng",
       "cancel": "Hủy đơn",
       "details": "Xem chi tiết",
-      "confirmed": "Đã xác nhận"
+      "confirmed": "Đã xác nhận"  
     }
   },
   "favorites": {
@@ -160,6 +339,15 @@
     "addToCart": "Thêm vào giỏ",
     "outOfStock": "Hết hàng",
     "discover": "Khám phá sản phẩm",
+    "loginToFavorite": "Đăng nhập để yêu thích",
+    "processing": "Đang xử lý...",
+    "favorited": "Đã yêu thích",
+    "favorite": "Yêu thích",
+    "addedToFavorites": "Đã thêm vào yêu thích",
+    "removedFromFavorites": "Đã xóa khỏi yêu thích",
+    "cannotLoadFavoriteStatus": "Không thể tải trạng thái yêu thích.",
+    "cannotUpdateFavorite": "Không thể cập nhật danh sách yêu thích.",
+    "removeAria": "Xóa khỏi yêu thích",
     "loading": "Đang tải sản phẩm yêu thích...",
     "error": "Có lỗi xảy ra",
     "retry": "Thử lại",
@@ -407,24 +595,159 @@
   "order": {
     "orderDetails": "Chi tiết đơn hàng",
     "orderNumber": "Mã đơn hàng",
-    "orderDate": "Ngày đặt hàng",
+    "orderDate": "Ngày đặt",
     "status": "Trạng thái",
     "shippingAddress": "Địa chỉ giao hàng",
+    "paymentMethod": "Phương thức thanh toán",
+    "paymentStatus": "Trạng thái thanh toán",
     "totalAmount": "Tổng tiền",
     "items": "Sản phẩm",
     "quantity": "Số lượng",
-    "price": "Giá",
+    "price": "Đơn giá",
     "subtotal": "Thành tiền",
+    "subtotalLabel": "Tạm tính",
+    "shippingFee": "Phí vận chuyển",
+    "discount": "Giảm giá",
+    "note": "Ghi chú",
+    "cancelReason": "Lý do hủy",
     "pending": "Chờ xác nhận",
     "confirmed": "Đã xác nhận",
     "shipping": "Đang giao hàng",
     "delivered": "Đã giao hàng",
     "cancelled": "Đã hủy",
-    "backToOrders": "Quay lại danh sách đơn hàng",
+    "refunded": "Đã hoàn tiền",
+    "statusLabels": {
+      "pending": "Chờ xác nhận",
+      "confirmed": "Đã xác nhận",
+      "preparing": "Đang chuẩn bị",
+      "shipping": "Đang giao",
+      "delivered": "Đã giao",
+      "cancelled": "Đã hủy",
+      "refunded": "Đã hoàn tiền"
+    },
+    "payment": {
+      "methods": {
+        "cod": "Thanh toán khi nhận hàng",
+        "momo": "Ví MoMo",
+        "zalopay": "ZaloPay",
+        "vnpay": "VNPay",
+        "card": "Thẻ ngân hàng"
+      },
+      "status": {
+        "pending": "Chờ thanh toán",
+        "paid": "Đã thanh toán",
+        "failed": "Thanh toán thất bại",
+        "refunded": "Đã hoàn tiền"
+      }
+    },
+    "actions": {
+      "payNow": "Thanh toán ngay",
+      "payProcessing": "Đang xử lý thanh toán...",
+      "contactSupport": "Liên hệ hỗ trợ",
+      "cancelOrder": "Hủy đơn hàng"
+    },
+    "errors": {
+      "paymentFailed": "Thanh toán thất bại. Vui lòng thử lại sau."
+    },
+    "backToOrders": "Quay lại đơn hàng",
     "loading": "Đang tải...",
-    "error": "Lỗi",
+    "error": "Đã xảy ra lỗi",
     "retry": "Thử lại",
-    "notFound": "Đơn hàng không tồn tại",
-    "notFoundMessage": "Đơn hàng bạn tìm kiếm có thể đã bị xóa hoặc không tồn tại."
+    "notFound": "Không tìm thấy đơn hàng",
+    "notFoundMessage": "Đơn hàng này không tồn tại hoặc đã bị xóa"
+  },
+  "checkout": {
+    "title": "Thanh toán",
+    "backToCart": "Quay lại giỏ hàng",
+    "loading": "Đang tải đơn hàng...",
+    "noItems": "Không có sản phẩm nào được chọn",
+    "noItemsMessage": "Vui lòng quay lại giỏ hàng và chọn sản phẩm cần mua.",
+    "backToCartButton": "Quay lại giỏ hàng",
+    "processing": "Đang xử lý...",
+    "placeOrder": "Đặt hàng",
+    "terms": "Bằng việc đặt hàng, bạn đồng ý với điều khoản sử dụng của chúng tôi",
+    "shippingFee": "Phí vận chuyển",
+    "total": "Tổng cộng",
+    "actions": {
+      "cancel": "Hủy"
+    },
+    "address": {
+      "title": "Địa chỉ giao hàng",
+      "add": "Thêm địa chỉ",
+      "formTitle": "Tạo địa chỉ mới",
+      "fields": {
+        "recipientName": "Tên người nhận",
+        "phone": "Số điện thoại",
+        "address": "Địa chỉ",
+        "ward": "Phường/Xã",
+        "district": "Quận/Huyện",
+        "province": "Tỉnh/Thành phố"
+      },
+      "setDefault": "Đặt làm mặc định",
+      "saving": "Đang lưu...",
+      "save": "Lưu địa chỉ",
+      "loading": "Đang tải danh sách địa chỉ...",
+      "empty": "Bạn chưa có địa chỉ giao hàng",
+      "emptyAction": "Thêm địa chỉ mới",
+      "profileNameFallback": "Địa chỉ hồ sơ",
+      "labels": {
+        "home": "Nhà riêng",
+        "work": "Cơ quan",
+        "other": "Khác",
+        "profile": "Hồ sơ"
+      },
+      "badges": {
+        "profile": "Tự động điền",
+        "default": "Mặc định"
+      }
+    },
+    "products": {
+      "title": "Sản phẩm đã chọn",
+      "fallbackAlt": "Hình ảnh sản phẩm",
+      "quantity": "Số lượng: {count}",
+      "pricePerUnit": "Giá {price}/{unit}",
+      "unitFallback": "sản phẩm"
+    },
+    "voucher": {
+      "title": "Mã giảm giá",
+      "appliedDiscount": "Đã áp dụng giảm {amount}",
+      "remove": "Gỡ mã",
+      "placeholder": "Nhập mã giảm giá",
+      "applying": "Đang áp dụng...",
+      "apply": "Áp dụng"
+    },
+    "payment": {
+      "title": "Phương thức thanh toán",
+      "options": {
+        "cod": "Thanh toán khi nhận hàng (COD)",
+        "momo": "Ví MoMo",
+        "zalopay": "ZaloPay",
+        "vnpay": "VNPay",
+        "card": "Thẻ ngân hàng"
+      },
+      "comingSoon": "Sắp ra mắt"
+    },
+    "note": {
+      "title": "Ghi chú đơn hàng",
+      "placeholder": "Nhập ghi chú cho đơn hàng..."
+    },
+    "summary": {
+      "title": "Tóm tắt đơn hàng",
+      "subtotalWithCount": "Tạm tính ({count} sản phẩm)",
+      "discount": "Giảm giá"
+    },
+    "errors": {
+      "fetchAddresses": "Không thể tải danh sách địa chỉ.",
+      "authRequired": "Vui lòng đăng nhập để tiếp tục.",
+      "addressIncomplete": "Vui lòng điền đầy đủ thông tin địa chỉ.",
+      "addAddressFailed": "Không thể lưu địa chỉ. Vui lòng thử lại.",
+      "reloadAddressesFailed": "Không thể tải lại danh sách địa chỉ.",
+      "voucherRequired": "Vui lòng nhập mã giảm giá.",
+      "applyVoucher": "Áp dụng mã giảm giá thất bại.",
+      "noItemsSelected": "Bạn chưa chọn sản phẩm nào.",
+      "noAddressSelected": "Vui lòng chọn địa chỉ giao hàng.",
+      "addressIncompleteForOrder": "Địa chỉ giao hàng chưa đầy đủ.",
+      "createOrder": "Không thể tạo đơn hàng. Vui lòng thử lại."
+    }
   }
 }

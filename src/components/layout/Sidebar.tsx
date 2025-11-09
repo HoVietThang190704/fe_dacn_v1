@@ -35,13 +35,18 @@ export function Sidebar({ isOpen, isMobile = false, onClose }: SidebarProps) {
       href: '/main/products',
     },
     {
+      icon: <Image src={ICONS.SHOPPING_CART} alt="cart" width={20} height={20} className="w-5 h-5" />,
+      label: t('cart') || 'Giỏ hàng',
+      href: '/main/cart',
+    },
+    {
       icon: <Image src={ICONS.VIDEO_CAMERA_ALT} alt="livestream" width={20} height={20} className="w-5 h-5" />,
       label: t('livestream') || 'Livestream',
       href: '/main/livestream',
       badge: 3,
     },
     {
-      icon: <Image src={ICONS.SHOPPING_CART} alt="orders" width={20} height={20} className="w-5 h-5" />,
+      icon: <Image src={ICONS.TRUCK_SIDE || ICONS.SHOPPING_CART} alt="orders" width={20} height={20} className="w-5 h-5" />,
       label: t('orders') || 'Đơn hàng',
       href: '/main/orders',
     },

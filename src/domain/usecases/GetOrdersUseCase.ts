@@ -1,14 +1,9 @@
-import { IOrderRepository } from '../repositories/IOrderRepository';
-import { Order } from '../entities/Order';
+import { IOrderRepository, OrderListFilters, OrderListResult } from '../repositories/IOrderRepository';
 
 export class GetOrdersUseCase {
   constructor(private orderRepository: IOrderRepository) {}
 
-  async execute(userId: string): Promise<Order[]> {
-    if (!userId) {
-      throw new Error('User ID is required');
-    }
-    
-    return await this.orderRepository.getOrders(userId);
+  async execute(filters?: OrderListFilters): Promise<OrderListResult> {
+    return await this.orderRepository.getOrders(filters);
   }
 }

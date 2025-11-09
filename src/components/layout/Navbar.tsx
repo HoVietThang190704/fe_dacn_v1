@@ -8,6 +8,7 @@ import { MenuButton, UserDropdown } from '@/components/ui';
 import { Sidebar } from './Sidebar';
 import Image from 'next/image';
 import { ICONS } from '@/shared/constants/images';
+import { useCart } from '@/shared/hooks/useCart';
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const t = useTranslations('navbar');
@@ -33,11 +34,16 @@ const SearchBar = () => {
 };
 
 const CartIcon = () => {
-  const [cartItems] = useState(3);
   const t = useTranslations('navbar');
+  const { totalQuantity, isLoading, isMutating } = useCart();
+  const displayCount = totalQuantity;
 
   return (
-    <Link href="/main/orders" className="relative p-1.5 sm:p-2 text-navbar-foreground hover:text-navbar-foreground/80 transition-colors">
+    <Link
+      href="/main/cart"
+      className="relative p-1.5 sm:p-2 text-navbar-foreground hover:text-navbar-foreground/80 transition-colors"
+      aria-label={t('cartAria')}
+    >
       <Image
         src={ICONS.SHOPPING_CART}
         alt="cart"
@@ -45,9 +51,12 @@ const CartIcon = () => {
         height={16}
         className="w-4 h-4 xl:w-6 xl:h-6"
       />
-      {cartItems > 0 && (
-        <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-destructive text-destructive-foreground text-[10px] sm:text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center font-bold">
-          {cartItems}
+      {displayCount > 0 && (
+        <span
+          className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-destructive text-destructive-foreground text-[10px] sm:text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center font-bold"
+          aria-live="polite"
+        >
+          {isLoading || isMutating ? '...' : displayCount > 99 ? '99+' : displayCount}
         </span>
       )}
     </Link>

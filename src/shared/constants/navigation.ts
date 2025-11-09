@@ -34,6 +34,12 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     path: '/main/orders',
   },
   {
+    id: 'cart',
+    labelKey: 'nav.cart',
+    icon: 'shopping-cart',
+    path: '/main/cart',
+  },
+  {
     id: 'favorites',
     labelKey: 'nav.favorites',
     icon: 'heart',

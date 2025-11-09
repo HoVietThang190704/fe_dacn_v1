@@ -1,5 +1,6 @@
 import { Comment, CreateCommentData, UpdateCommentData, PaginatedComments } from '@/domain/entities/Comment';
 import { API_CONFIG, API_ENDPOINTS } from '@/shared/constants/api';
+import { authApiClient } from '@/lib/authApiClient';
 
 export class CommentApiDataSource {
   private token: string | null = null;
@@ -28,19 +29,12 @@ export class CommentApiDataSource {
   }
 
   async getCommentsByPostId(postId: string, page: number = 1, limit: number = 20): Promise<PaginatedComments> {
-    const url = this.getFullUrl(API_ENDPOINTS.COMMENTS_BY_POST(postId)) + `?page=${page}&limit=${limit}`;
-    console.log('[CommentApiDataSource] Fetching comments from:', url);
-    
-    const response = await fetch(url, {
-      headers: this.getHeaders(),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch comments: ${response.statusText}`);
+    console.log('[CommentApiDataSource] Fetching comments');
+    const response = await authApiClient.get<{ success: boolean; data: unknown }>(`${API_ENDPOINTS.COMMENTS_BY_POST(postId)}?page=${page}&limit=${limit}`);
+    if (!response.success || !response.data?.data) {
+      throw new Error(response.error || `Failed to fetch comments`);
     }
-
-    const result = await response.json();
-    return this.transformResponse(result.data);
+    return this.transformResponse(response.data.data as Record<string, unknown>);
   }
 
   async getCommentsWithNested(postId: string, page: number = 1, limit: number = 20): Promise<PaginatedComments> {
