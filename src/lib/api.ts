@@ -45,6 +45,11 @@ export interface ChangePasswordRequest {
   oldPassword: string;
   newPassword: string;
 }
+export interface ApiResponse<T = unknown> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
 
 class APIClient {
     private baseURL: string;

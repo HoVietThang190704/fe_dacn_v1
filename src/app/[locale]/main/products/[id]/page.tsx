@@ -9,5 +9,5 @@ interface ProductDetailProps {
 
 export default function ProductDetail({ params }: ProductDetailProps) {
   const { id } = use(params);
-  return <ProductDetailPage productId={id} />;
+  return <ProductDetailPage />;
 }

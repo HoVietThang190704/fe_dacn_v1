@@ -20,6 +20,7 @@ export interface Product {
   additionalImages?: string[];
   inStock?: boolean;
   tags?: string[];
+  shelfLife?: number; // in days, optional
   createdAt?: string;
   updatedAt?: string;
   sold?: number;

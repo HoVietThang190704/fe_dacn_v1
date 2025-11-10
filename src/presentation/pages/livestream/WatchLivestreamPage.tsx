@@ -9,6 +9,7 @@ import type { IAgoraRTCClient, IAgoraRTCRemoteUser } from 'agora-rtc-sdk-ng';
 import { io, Socket } from 'socket.io-client';
 import { ChatBox, ChatMessage } from '@/components/livestream/ChatBox';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { API_CONFIG } from '@/shared/constants/api';
 
 interface WatchLivestreamPageProps {
   livestreamId: string;
@@ -159,7 +160,8 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
     if (!user || !livestreamId) return;
 
     console.log('[WatchLivestream] 🔌 Connecting to socket server...');
-    const socket = io('http://26.186.199.65:5000', {
+    const socketUrl = API_CONFIG.SOCKET_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+    const socket = io(socketUrl || undefined, {
       transports: ['websocket', 'polling']
     });
     socketRef.current = socket;

@@ -44,7 +44,8 @@ export const useProductsViewModel = (getProductsUseCase: GetProductsUseCase) => 
   };
 
   const changeSort = (sortBy: 'price' | 'name' | 'newest', order: 'asc' | 'desc') => {
-    loadProducts({ sortBy, order, page: 1 });
+    const actualSortBy = sortBy === 'newest' ? 'createdAt' : (sortBy as 'price' | 'name' | 'createdAt');
+    loadProducts({ sortBy: actualSortBy, order, page: 1 });
   };
 
   return {
