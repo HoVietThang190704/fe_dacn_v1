@@ -1,19 +1,49 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { usersAPI } from '@/lib/api';
 import { useAuth } from '@/shared/hooks/useAuth';
 
 interface UserDropdownProps {
   className?: string;
 }
 
+const avatarKeys = ['avatar', 'avatarUrl', 'avatarURL', 'image', 'profileImage'] as const;
+const nestedKeys = ['data', 'user', 'profile'] as const;
+
+// Attempts to retrieve an avatar URL from various API response shapes.
+const findAvatarInPayload = (payload: unknown): string | null => {
+  if (!payload || typeof payload !== 'object') return null;
+  const source = payload as Record<string, unknown>;
+
+  for (const key of avatarKeys) {
+    const value = source[key];
+    if (typeof value === 'string' || typeof value === 'number') {
+      const normalized = String(value).trim();
+      if (normalized) return normalized;
+    }
+  }
+
+  for (const key of nestedKeys) {
+    if (key in source) {
+      const nested = findAvatarInPayload(source[key]);
+      if (nested) return nested;
+    }
+  }
+
+  return null;
+};
+
 export const UserDropdown = ({ className = '' }: UserDropdownProps) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, logout } = useAuth();
   const t = useTranslations('navbar');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const hasFetchedAvatar = useRef(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -30,6 +60,60 @@ export const UserDropdown = ({ className = '' }: UserDropdownProps) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showDropdown]);
+
+  useEffect(() => {
+    if (!user) {
+      setAvatarUrl(null);
+      hasFetchedAvatar.current = false;
+      return;
+    }
+
+    if (user.avatar) {
+      setAvatarUrl(user.avatar);
+      hasFetchedAvatar.current = true;
+    } else {
+      setAvatarUrl(null);
+      hasFetchedAvatar.current = false;
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user || avatarUrl || hasFetchedAvatar.current) {
+      return;
+    }
+
+    let isMounted = true;
+    hasFetchedAvatar.current = true;
+
+    const fetchAvatar = async () => {
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') || undefined : undefined;
+        const response = await usersAPI.getMyProfile(token, true);
+        if (!isMounted) return;
+
+        if (response.success && response.data) {
+          const fetchedAvatar = findAvatarInPayload(response.data);
+          if (fetchedAvatar) {
+            setAvatarUrl(fetchedAvatar);
+            return;
+          }
+        }
+
+        hasFetchedAvatar.current = false;
+      } catch (error) {
+        hasFetchedAvatar.current = false;
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('Failed to load user avatar', error);
+        }
+      }
+    };
+
+    fetchAvatar();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user, avatarUrl]);
 
   const handleLogout = () => {
     logout();
@@ -112,13 +196,23 @@ export const UserDropdown = ({ className = '' }: UserDropdownProps) => {
         aria-label="User menu"
         aria-expanded={showDropdown}
       >
-        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-card rounded-full flex items-center justify-center">
-          <span className="text-primary font-semibold text-xs sm:text-sm">
-            {user?.userName?.charAt(0).toUpperCase() || 'U'}
-          </span>
+        <div className="w-7 h-7 sm:w-8 sm:h-8 bg-card rounded-full flex items-center justify-center overflow-hidden">
+          {avatarUrl ? (
+            <Image
+              src={avatarUrl}
+              alt={user?.userName || user?.email || 'User avatar'}
+              width={32}
+              height={32}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="text-primary font-semibold text-xs sm:text-sm">
+              {user?.userName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
+            </span>
+          )}
         </div>
       </button>
-
+ 
       {showDropdown && (
         user ? renderLoggedInDropdown() : renderGuestDropdown()
       )}

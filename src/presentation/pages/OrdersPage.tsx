@@ -1,12 +1,14 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { ORDER_STATUS, Order, OrderStatus, PaymentMethod } from '@/domain/entities/Order';
 import { container } from '../di/container';
 import { useOrdersViewModel } from '../viewmodels/useOrdersViewModel';
+import { useCancelOrder } from '../hooks/useCancelOrder';
+import { CancelOrderDialog } from '../components/CancelOrderDialog';
 
 type FilterStatus = OrderStatus | 'ALL';
 
@@ -49,6 +51,19 @@ export const OrdersPage = () => {
   const t = useTranslations('orders');
   const router = useRouter();
   const locale = useLocale();
+  const { cancelOrder, isLoading: isCancelling, error: cancelError } = useCancelOrder();
+  
+  const [cancelDialogState, setCancelDialogState] = useState<{
+    isOpen: boolean;
+    orderId: string | null;
+    orderNumber: string | null;
+  }>({
+    isOpen: false,
+    orderId: null,
+    orderNumber: null,
+  });
+
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const getOrdersUseCase = container.getOrdersUseCase;
   const getOrderStatisticsUseCase = container.getOrderStatisticsUseCase;
@@ -109,6 +124,39 @@ export const OrdersPage = () => {
     [setFilterStatus]
   );
 
+  const handleOpenCancelDialog = (orderId: string, orderNumber: string) => {
+    setCancelDialogState({
+      isOpen: true,
+      orderId,
+      orderNumber,
+    });
+  };
+
+  const handleCloseCancelDialog = () => {
+    setCancelDialogState({
+      isOpen: false,
+      orderId: null,
+      orderNumber: null,
+    });
+  };
+
+  const handleConfirmCancel = async (reason: string) => {
+    if (!cancelDialogState.orderId) return;
+    
+    try {
+      await cancelOrder(cancelDialogState.orderId, reason);
+      const successMsg = translateSafely(t, 'success.cancelledSuccessfully', 'Hủy đơn hàng thành công');
+      setSuccessMessage(successMsg);
+      handleCloseCancelDialog();
+      // Refresh orders list
+      refresh();
+      // Clear success message after 3 seconds
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch {
+      // Error is handled by the dialog via cancelError
+    }
+  };
+
   const isInitialLoading = isLoading && orders.length === 0;
 
   if (isInitialLoading) {
@@ -121,6 +169,18 @@ export const OrdersPage = () => {
 
   return (
     <section className="min-h-screen bg-gray-50 px-3 pb-8 pt-4 sm:px-6 lg:px-10">
+      {/* Success Toast */}
+      {successMessage && (
+        <div className="fixed top-4 right-4 z-50 rounded-lg bg-green-50 border border-green-200 px-4 py-3 shadow-lg animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="flex items-start gap-3">
+            <span className="text-xl">✅</span>
+            <div>
+              <p className="text-sm font-medium text-green-800">{successMessage}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900 md:text-3xl">{title}</h1>
@@ -167,12 +227,22 @@ export const OrdersPage = () => {
               order={order}
               locale={locale}
               onViewDetail={() => router.push(`/main/orders/${order.id}`)}
+              onCancel={() => handleOpenCancelDialog(order.id, order.orderNumber)}
             />
           ))
         ) : (
           <EmptyState filterStatus={filterStatus} />
         )}
       </div>
+
+      <CancelOrderDialog
+        isOpen={cancelDialogState.isOpen}
+        orderNumber={cancelDialogState.orderNumber || ''}
+        isLoading={isCancelling}
+        onConfirm={handleConfirmCancel}
+        onClose={handleCloseCancelDialog}
+        error={cancelError}
+      />
     </section>
   );
 };
@@ -213,7 +283,7 @@ const statusStyles: Record<OrderStatus, { labelKey: string; bg: string; text: st
   [ORDER_STATUS.REFUNDED]: { labelKey: 'status.refunded', bg: 'bg-purple-50', text: 'text-purple-600' },
 };
 
-const OrderCard: React.FC<{ order: Order; onViewDetail: () => void; locale: string }> = ({ order, onViewDetail, locale }) => {
+const OrderCard: React.FC<{ order: Order; onViewDetail: () => void; onCancel: () => void; locale: string }> = ({ order, onViewDetail, onCancel, locale }) => {
   const t = useTranslations('orders');
   const leadItem = order.items[0];
   const remainingItems = Math.max(0, order.totalItems - 1);
@@ -324,7 +394,10 @@ const OrderCard: React.FC<{ order: Order; onViewDetail: () => void; locale: stri
               {translateSafely(t, 'actions.details', 'Xem chi tiết')}
             </button>
             {order.canBeCancelled && cancellableStatuses.includes(order.status) && (
-              <button className="inline-flex items-center rounded-full border border-gray-300 px-4 py-2 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-100 sm:text-sm">
+              <button
+                onClick={onCancel}
+                className="inline-flex items-center rounded-full border border-gray-300 px-4 py-2 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-100 sm:text-sm"
+              >
                 {translateSafely(t, 'actions.cancel', 'Hủy đơn')}
               </button>
             )}

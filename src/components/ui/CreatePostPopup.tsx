@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { usersAPI } from '@/lib/api';
 
 interface CreatePostPopupProps {
   isOpen: boolean;
@@ -20,6 +21,8 @@ export const CreatePostPopup: React.FC<CreatePostPopupProps> = ({
 }) => {
   const t = useTranslations('community');
   const { user } = useAuth();
+  const [localAvatar, setLocalAvatar] = useState<string | null>(null);
+  const [localUserName, setLocalUserName] = useState<string | null>(null);
   const [content, setContent] = useState('');
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -106,10 +109,67 @@ export const CreatePostPopup: React.FC<CreatePostPopupProps> = ({
       .slice(0, 2);
   };
 
+  // If user exists but doesn't have avatar or userName, fetch profile only for this popup
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchProfile = async () => {
+      if (!user) return;
+
+      // determine whether we still need avatar or name
+      const needAvatar = !user.avatar && !localAvatar;
+      const needName = !user.userName && !localUserName;
+      if (!needAvatar && !needName) return; // nothing to fetch for this popup
+
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') || undefined : undefined;
+        const resp = await usersAPI.getMyProfile(token, true);
+        if (!cancelled && resp && resp.success && resp.data) {
+          const payload = resp.data as unknown;
+          if (typeof payload === 'object' && payload !== null) {
+            const p = payload as Record<string, unknown>;
+            let profile: Record<string, unknown> | null = null;
+            if ('user' in p && typeof p.user === 'object' && p.user !== null) profile = p.user as Record<string, unknown>;
+            else if ('data' in p && typeof p.data === 'object' && p.data !== null) profile = p.data as Record<string, unknown>;
+            else profile = p;
+
+            // avatar (existing behavior)
+            if (needAvatar && profile && 'avatar' in profile) {
+              const avatarVal = profile['avatar'];
+              if (typeof avatarVal === 'string' || typeof avatarVal === 'number') {
+                setLocalAvatar(String(avatarVal));
+              }
+            }
+
+            // name - try several common keys
+            if (needName && profile) {
+              const maybeNameKeys = ['userName', 'username', 'name', 'fullName', 'displayName'];
+              for (const k of maybeNameKeys) {
+                if (k in profile) {
+                  const v = profile[k];
+                  if (typeof v === 'string' || typeof v === 'number') {
+                    setLocalUserName(String(v));
+                    break;
+                  }
+                }
+              }
+            }
+          }
+        }
+      } catch {
+        // ignore - non-critical UI enhancement
+      }
+    };
+
+    if (isOpen) fetchProfile();
+
+    return () => { cancelled = true; };
+  }, [isOpen, user, localAvatar, localUserName]);
+
   if (!isOpen) return null;
   
-  const userName = user?.userName || 'Người dùng';
-  const userAvatar = user?.avatar;
+  const userName = user?.userName || localUserName || 'Người dùng';
+  const userAvatar = user?.avatar || localAvatar || undefined;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fadeIn">

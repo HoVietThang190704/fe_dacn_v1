@@ -332,6 +332,25 @@
       "cancel": "Hủy đơn",
       "details": "Xem chi tiết",
       "confirmed": "Đã xác nhận"  
+    },
+    "validation": {
+      "reasonRequired": "Vui lòng nhập lý do hủy đơn",
+      "reasonTooShort": "Lý do hủy phải tối thiểu 10 ký tự",
+      "reasonTooLong": "Lý do hủy không được vượt quá 500 ký tự"
+    },
+    "dialog": {
+      "cancelTitle": "Hủy đơn hàng",
+      "cancelSubtitle": "Đơn hàng",
+      "cancelWarning": "Việc hủy đơn hàng không thể được hoàn tác. Vui lòng xác nhận lý do hủy.",
+      "reasonLabel": "Lý do hủy đơn",
+      "reasonPlaceholder": "Vui lòng nhập lý do hủy đơn (tối thiểu 10 ký tự)...",
+      "characters": "ký tự",
+      "cancel": "Hủy bỏ",
+      "cancelling": "Đang hủy...",
+      "confirmCancel": "Xác nhận hủy"
+    },
+    "success": {
+      "cancelledSuccessfully": "Hủy đơn hàng thành công"
     }
   },
   "favorites": {
