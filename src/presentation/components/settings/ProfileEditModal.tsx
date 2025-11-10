@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { Button, Input } from '@/components/ui';
@@ -46,6 +46,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ open, onClos
     removeAvatar: false,
   });
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -208,7 +209,22 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ open, onClos
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Button type="button" variant="outline" className="px-4 py-2 rounded-lg" onClick={() => (document.querySelector('input[type=file]') as HTMLInputElement | null)?.click()}>
+                  {/* Hidden file input used to change avatar. Use ref to ensure we click exact input for accessibility and scope. */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    className="hidden"
+                    aria-hidden="true"
+                  />
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="px-4 py-2 rounded-lg"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
                     {t('changeAvatar') || 'Thay đổi ảnh'}
                   </Button>
                   <span className="text-xs text-gray-500">{t('avatarHint') || 'JPG, PNG — tối đa 5MB'}</span>

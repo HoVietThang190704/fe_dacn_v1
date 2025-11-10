@@ -330,6 +330,25 @@
       "confirmReceived": "Confirm received",
       "cancel": "Cancel",
       "details": "View details"
+    },
+    "validation": {
+      "reasonRequired": "Please enter a reason for cancellation",
+      "reasonTooShort": "Reason must be at least 10 characters",
+      "reasonTooLong": "Reason must not exceed 500 characters"
+    },
+    "dialog": {
+      "cancelTitle": "Cancel Order",
+      "cancelSubtitle": "Order",
+      "cancelWarning": "Cancelling an order cannot be undone. Please confirm your reason for cancellation.",
+      "reasonLabel": "Reason for Cancellation",
+      "reasonPlaceholder": "Please enter the reason for cancellation (minimum 10 characters)...",
+      "characters": "characters",
+      "cancel": "Dismiss",
+      "cancelling": "Cancelling...",
+      "confirmCancel": "Confirm Cancellation"
+    },
+    "success": {
+      "cancelledSuccessfully": "Order cancelled successfully"
     }
   },
   "favorites": {

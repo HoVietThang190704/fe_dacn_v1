@@ -17,6 +17,12 @@ type WishlistProductDto = {
   reviewCount?: number;
   originalPrice?: number;
   discount?: number;
+  owner?: {
+    id?: string;
+    _id?: string;
+    userName?: string;
+    email?: string;
+  };
 };
 
 type WishlistItemDto = {
@@ -74,6 +80,11 @@ export class FavoriteApiDataSource {
       reviewCount: raw.reviewCount,
       originalPrice: raw.originalPrice,
       discount: raw.discount,
+      owner: raw.owner ? {
+        id: raw.owner.id || raw.owner._id || '',
+        userName: raw.owner.userName,
+        email: raw.owner.email
+      } : undefined,
     };
   }
 

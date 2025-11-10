@@ -12,6 +12,11 @@ export interface FavoriteProduct {
   reviewCount?: number;
   originalPrice?: number;
   discount?: number;
+  owner?: {
+    id: string;
+    userName?: string;
+    email?: string;
+  };
 }
 
 export interface Favorite {

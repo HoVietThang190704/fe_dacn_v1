@@ -15,13 +15,16 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({ favorite, onRemove, isMutat
   const product = favorite.product;
   const productId = product?.id || favorite.productId;
   const fallbackName = product?.name || t('discover');
-  const imageSrc = product?.image || product?.images?.[0] || 'https://placehold.co/400x400?text=No+Image';
+  const imageSrc = product?.image || product?.images?.[0] || '';
   const price = product?.price;
   const originalPrice = product?.originalPrice;
   const discount = product?.discount;
   const stockQuantity = product?.stock ?? product?.stockQuantity;
   const isInStock = product?.inStock ?? (typeof stockQuantity === 'number' ? stockQuantity > 0 : true);
   const productLink = productId ? `/main/products/${productId}` : '#';
+
+  // Additional product info
+  const sellerName = product?.owner?.userName || product?.owner?.email;
 
   const handleRemove = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -95,7 +98,7 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({ favorite, onRemove, isMutat
             }
           }}
         >
-          <h3 className="text-xs sm:text-sm mb-1 line-clamp-2 h-8 sm:h-10">{fallbackName}</h3>
+          <h3 className="text-xs sm:text-sm  line-clamp-2 h-4 sm:h-6">{fallbackName}</h3>
           <div className="flex items-center gap-1 mb-1">
             <span className="text-orange-500 text-sm sm:text-base font-medium">
               {formatCurrency(price)}
@@ -106,6 +109,11 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({ favorite, onRemove, isMutat
               </span>
             )}
           </div>
+          {sellerName && (
+            <p className="text-xs text-gray-500 mb-1detail">
+               {sellerName}
+            </p>
+          )}
         </Link>
         <button
           type="button"

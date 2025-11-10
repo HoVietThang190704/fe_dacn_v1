@@ -42,12 +42,12 @@ const ProductCard: React.FC<{ product: MockProduct }> = ({ product }) => {
       </div>
       <div className="p-2.5">
         {/* Product name - larger and bolder */}
-        <h3 className="text-sm sm:text-base mb-2 line-clamp-2 font-semibold text-gray-800 leading-tight" style={{ minHeight: '2.5rem' }}>
+        <h3 className="text-sm sm:text-base mb-2 line-clamp-2 font-semibold text-gray-800 leading-tight" style={{ minHeight: '1rem' }}>
           {product.name}
         </h3>
         
         {/* Price */}
-        <div className="flex items-center gap-1.5 mb-2">
+        <div className="flex items-center gap-1 mb-2">
           <span className="text-orange-500 text-base sm:text-lg font-bold">
             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(product.price)}
           </span>
@@ -59,8 +59,8 @@ const ProductCard: React.FC<{ product: MockProduct }> = ({ product }) => {
         </div>
 
         {/* Seller info - larger and more prominent */}
-        <div className="text-sm text-gray-700 mb-1.5 truncate">
-          <span className="font-semibold text-blue-700">{t('seller')}:</span> <span className="font-medium">{sellerName}</span>
+        <div className="text-sm text-gray-700 mb-1 truncate">
+          <span className="font-semibold text-blue-700"></span> <span className="font-medium">{sellerName}</span>
         </div>
 
         {/* Stock and sold count - slightly larger */}

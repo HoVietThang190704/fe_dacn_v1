@@ -3,6 +3,8 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { CreatePostPopup } from '@/components/ui/CreatePostPopup';
+import Image from 'next/image';
+import { useAuth } from '@/shared/hooks/useAuth';
 import PostCard from '../components/PostCard';
 import EmptyState from '../components/EmptyState';
 import { usePosts } from '@/hooks/usePosts';
@@ -28,6 +30,17 @@ export const CommunityPage: React.FC = () => {
     deletePost,
     refresh,
   } = usePosts();
+
+  const { user } = useAuth();
+
+  const getInitials = (name = '') => {
+    return name
+      .split(' ')
+      .map((w) => w[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   const handleCreatePost = async (content: string, images?: File[]) => {
     try {
@@ -156,14 +169,34 @@ export const CommunityPage: React.FC = () => {
         <div className="pb-4 px-4 md:px-8 lg:px-16 xl:px-24">
           <div className="max-w-full mx-auto pt-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 shadow-md">
-                {posts[0]?.user?.userName?.charAt(0)?.toUpperCase() || 'U'}
-              </div>
+              {/* Use authenticated user avatar when available, otherwise fallback to first post user or initials */}
+              {user?.avatar ? (
+                <Image
+                  src={user.avatar}
+                  alt={user.userName || 'User'}
+                  width={40}
+                  height={40}
+                  className="rounded-full object-cover shadow-md flex-shrink-0"
+                />
+              ) : (posts[0]?.user?.avatar ? (
+                <Image
+                  src={posts[0]?.user?.avatar}
+                  alt={posts[0]?.user?.userName || 'User'}
+                  width={40}
+                  height={40}
+                  className="rounded-full object-cover shadow-md flex-shrink-0"
+                />
+              ) : (
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-md">
+                  {getInitials(user?.userName || posts[0]?.user?.userName || 'U') || 'U'}
+                </div>
+              ))}
+
               <button
                 onClick={() => setIsPopupOpen(true)}
                 className="flex-1 text-left px-4 py-3 bg-gray-100 rounded-full text-sm text-gray-500 hover:bg-gray-200 transition-all hover:shadow-sm"
               >
-                {t('placeholder') || 'Bạn đang nghĩ gì?'}
+                {user?.userName ? `${user.userName} ơi, bạn đang nghĩ gì thế?` : (t('placeholder') || 'Bạn đang nghĩ gì?')}
               </button>
             </div>
           </div>
