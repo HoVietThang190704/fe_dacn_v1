@@ -9,6 +9,7 @@ import { Livestream, LivestreamStatus } from '@/domain/entities/Livestream';
 import type { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack } from 'agora-rtc-sdk-ng';
 import { io, Socket } from 'socket.io-client';
 import { ChatBox, ChatMessage } from '@/components/livestream/ChatBox';
+import { API_CONFIG } from '@/shared/constants/api';
 
 interface HostLivestreamPageProps {
   livestreamId: string;
@@ -256,7 +257,8 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
     if (!user || !livestreamId) return;
 
     console.log('[HostLivestream] 🔌 Connecting to socket server...');
-    const socket = io('http://26.186.199.65:5000', {
+    const socketUrl = API_CONFIG.SOCKET_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+    const socket = io(socketUrl || undefined, {
       transports: ['websocket', 'polling']
     });
     socketRef.current = socket;

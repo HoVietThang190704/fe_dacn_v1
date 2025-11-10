@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useCart } from '@/shared/hooks/useCart';
 import { container } from '../di/container';
 import { usersAPI } from '@/lib/api';
+import { Voucher } from '@/domain/entities/Voucher';
 
 interface ShippingAddress {
   id?: string;
@@ -124,16 +125,7 @@ const buildProfileAddress = (payload: unknown, fallbackName: string): ShippingAd
 interface VoucherInfo {
   code: string;
   discount: number;
-  voucher: {
-    id: string;
-    code: string;
-    name: string;
-    description?: string;
-    discountType: 'percentage' | 'fixed';
-    discountValue: number;
-    minOrderValue: number;
-    maxDiscountAmount?: number;
-  };
+  voucher: Voucher;
 }
 
 const FALLBACK_IMAGE = '/img/Background.png';
@@ -721,7 +713,7 @@ export const CheckoutPage = () => {
                       ✓
                     </div>
                     <div>
-                      <div className="font-medium text-green-700">{appliedVoucher.voucher.name}</div>
+                      <div className="font-medium text-green-700">{appliedVoucher.voucher.code || appliedVoucher.code}</div>
                       <div className="text-sm text-green-600">
                         {t('voucher.appliedDiscount', { amount: formatCurrency(appliedVoucher.discount) })}
                       </div>

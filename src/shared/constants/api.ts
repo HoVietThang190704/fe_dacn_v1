@@ -1,5 +1,11 @@
+const normalizeUrl = (value?: string | null) => {
+  if (!value) return '';
+  return value.replace(/\/$/, '');
+};
+
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || "",
+  BASE_URL: normalizeUrl(process.env.NEXT_PUBLIC_API_URL),
+  SOCKET_URL: normalizeUrl(process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL),
   TIMEOUT: 30000,
   HEADERS: {
     'Content-Type': 'application/json',
@@ -10,6 +16,7 @@ export const API_CONFIG = {
 if (typeof window !== 'undefined') {
   console.log('[API_CONFIG] NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
   console.log('[API_CONFIG] BASE_URL:', API_CONFIG.BASE_URL);
+  console.log('[API_CONFIG] SOCKET_URL:', API_CONFIG.SOCKET_URL);
 }
 
 export const API_ENDPOINTS = {
