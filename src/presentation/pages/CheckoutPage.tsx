@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCart } from '@/shared/hooks/useCart';
@@ -136,6 +136,29 @@ export const CheckoutPage = () => {
   const { cart, selectedIds, isLoading } = useCart();
   const t = useTranslations('checkout');
   const locale = useLocale();
+  const searchParams = useSearchParams();
+
+  const isBuyNow = searchParams.get('buyNow') === 'true';
+
+  const buyNowItem = useMemo(() => {
+    if (!isBuyNow) return null;
+    const productId = searchParams.get('productId');
+    const quantity = parseInt(searchParams.get('quantity') || '1');
+    const price = parseFloat(searchParams.get('price') || '0');
+    const title = searchParams.get('title') || '';
+    const thumbnail = searchParams.get('thumbnail') || '';
+    const unit = searchParams.get('unit') || '';
+    if (!productId || !title) return null;
+    return {
+      id: `buynow-${productId}`,
+      productId,
+      quantity,
+      price,
+      title,
+      thumbnail,
+      unit,
+    };
+  }, [isBuyNow, searchParams]);
   const formatCurrency = useCallback(
     (value: number) =>
       new Intl.NumberFormat(locale, {
@@ -343,11 +366,14 @@ export const CheckoutPage = () => {
   const createOrderUseCase = container.createOrderUseCase;
   const applyVoucherUseCase = container.applyVoucherUseCase;
 
-  // Get selected items from cart
+  // Get selected items from cart or buy now
   const selectedItems = useMemo(() => {
+    if (isBuyNow && buyNowItem) {
+      return [buyNowItem];
+    }
     if (!cart?.items || selectedIds.size === 0) return [];
     return cart.items.filter((item) => selectedIds.has(item.id));
-  }, [cart?.items, selectedIds]);
+  }, [isBuyNow, buyNowItem, cart?.items, selectedIds]);
 
   const subtotal = useMemo(() => {
     return selectedItems.reduce((sum, item) => sum + (item.price ?? 0) * (item.quantity || 0), 0);
@@ -385,7 +411,7 @@ export const CheckoutPage = () => {
   }, []);
 
   const handleCreateOrder = useCallback(async () => {
-    if (selectedItems.length === 0) {
+    if (selectedItems.length === 0 && !buyNowItem) {
       setError(t('errors.noItemsSelected'));
       return;
     }
@@ -420,7 +446,16 @@ export const CheckoutPage = () => {
       setError(null);
 
       // Create order payload
-      const orderPayload = {
+      const orderPayload = isBuyNow && buyNowItem ? {
+        productId: buyNowItem.productId,
+        quantity: buyNowItem.quantity,
+        paymentMethod,
+        note: orderNote || undefined,
+        voucherCode: appliedVoucher?.code || undefined,
+        shippingAddressId: shouldSendAddressObject ? undefined : selectedAddress.id,
+        shippingAddress: shouldSendAddressObject ? resolvedAddress : undefined,
+        saveShippingAddress: false,
+      } : {
         cartItemIds: selectedItems.map((item) => item.id),
         paymentMethod,
         note: orderNote || undefined,
@@ -444,7 +479,7 @@ export const CheckoutPage = () => {
     } finally {
       setIsProcessing(false);
     }
-  }, [selectedItems, paymentMethod, orderNote, appliedVoucher, selectedAddress, selectedAddressId, createOrderUseCase, router, t]);
+  }, [selectedItems, paymentMethod, orderNote, appliedVoucher, selectedAddress, selectedAddressId, createOrderUseCase, router, t, isBuyNow, buyNowItem]);
 
   if (isLoading || !cart) {
     return (
@@ -455,7 +490,7 @@ export const CheckoutPage = () => {
     );
   }
 
-  if (selectedItems.length === 0) {
+  if (selectedItems.length === 0 && !buyNowItem) {
     return (
       <div className="min-h-screen bg-gray-50 p-4">
         <div className="max-w-2xl mx-auto text-center py-16">
@@ -482,7 +517,7 @@ export const CheckoutPage = () => {
             onClick={() => router.back()}
             className="flex items-center gap-2 text-orange-500 hover:text-orange-600 mb-4"
           >
-            ← {t('backToCart')}
+            ← {isBuyNow ? t('backToProduct') : t('backToCart')}
           </button>
           <h1 className="text-2xl font-bold text-gray-800">{t('title')}</h1>
         </div>
