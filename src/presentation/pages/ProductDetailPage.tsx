@@ -592,7 +592,22 @@ export const ProductDetailPage: React.FC = () => {
                 >
                   {isCartMutating ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
                 </button>
-                <button className="py-3 rounded-xl border border-orange-500 text-orange-500 font-semibold hover:bg-orange-50 transition">
+                <button
+                  onClick={() => {
+                    const params = new URLSearchParams({
+                      buyNow: 'true',
+                      productId: product.id,
+                      quantity: quantity.toString(),
+                      price: product.price.toString(),
+                      title: product.name,
+                      thumbnail: (images[0] || product.image || '').toString(),
+                      unit: product.unit || '',
+                    });
+                    router.push(`/${locale}/main/checkout?${params.toString()}`);
+                  }}
+                  className="py-3 rounded-xl border border-orange-500 text-orange-500 font-semibold hover:bg-orange-50 transition"
+                  disabled={product.stock === 0}
+                >
                   Mua ngay
                 </button>
               </div>
