@@ -3,6 +3,7 @@ export interface CommunityPost {
   userId: string;
   userName: string;
   userAvatar: string;
+  userEmail?: string;
   content: string;
   images: string[];
   likes: number;

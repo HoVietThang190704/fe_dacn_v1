@@ -11,3 +11,5 @@ export { SupportPage } from './SupportPage';
 export { SettingsPage } from './SettingsPage';
 export { CartPage } from './CartPage';
 export { CheckoutPage } from './CheckoutPage';
+export { UserTargetPage } from './UserTargetPage';
+export { SearchPage } from './SearchPage';

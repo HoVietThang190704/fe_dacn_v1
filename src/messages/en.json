@@ -60,6 +60,9 @@
   "navbar": {
     "searchPlaceholder": "Search for Grocery, Stores, Vegetable or Meat...",
     "deliveryPromise": "Order now and get it within 15 mins!",
+    "searchButton": "Search",
+    "brand": "Fresh Market",
+    "logoAlt": "Fresh Market logo",
     "profile": "Profile",
     "orders": "My Orders", 
     "settings": "Settings",
@@ -763,6 +766,44 @@
       "noAddressSelected": "Please choose a shipping address.",
       "addressIncompleteForOrder": "Shipping address is incomplete.",
       "createOrder": "Could not create order. Please try again."
+    }
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Enter keyword...",
+    "button": "Search",
+    "tabs": {
+      "all": "All",
+      "products": "Products",
+      "posts": "Posts",
+      "users": "Users"
+    },
+    "results": {
+      "title": "Search Results",
+      "subtitle": "Results for \"{query}\"",
+      "products": "Products ({count})",
+      "posts": "Posts ({count})",
+      "users": "Users ({count})",
+      "noResultsTitle": "No matching results found.",
+      "noProductsDesc": "No matching products found.",
+      "noPostsDesc": "No matching posts found.",
+      "noUsersDesc": "No matching users found.",
+      "loadMore": "Load more"
+    },
+    "loading": "Loading...",
+    "error": "An error occurred. Please try again.",
+    "empty": {
+      "title": "Enter a keyword to start searching.",
+      "subtitle": "You can search by product name, category, or user.",
+      "cta": "Back to home"
+    },
+    "post": {
+      "likes": "❤",
+      "comments": "💬",
+      "shares": "🔁"
+    },
+    "user": {
+      "profile": "User profile"
     }
   }
 }

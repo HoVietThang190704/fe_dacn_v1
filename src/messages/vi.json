@@ -60,6 +60,9 @@
   "navbar": {
     "searchPlaceholder": "Tìm kiếm rau, trái cây, thịt hoặc thực phẩm...",
     "deliveryPromise": "Đặt hàng ngay và nhận trong 15 phút!",
+    "searchButton": "Tìm kiếm",
+    "brand": "Fresh Market",
+    "logoAlt": "Logo Fresh Market",
     "profile": "Hồ sơ cá nhân",
     "orders": "Đơn hàng của tôi",
     "settings": "Cài đặt",
@@ -767,6 +770,44 @@
       "noAddressSelected": "Vui lòng chọn địa chỉ giao hàng.",
       "addressIncompleteForOrder": "Địa chỉ giao hàng chưa đầy đủ.",
       "createOrder": "Không thể tạo đơn hàng. Vui lòng thử lại."
+    }
+  },
+  "search": {
+    "title": "Tìm kiếm",
+    "placeholder": "Nhập từ khóa...",
+    "button": "Tìm kiếm",
+    "tabs": {
+      "all": "Tất cả",
+      "products": "Sản phẩm",
+      "posts": "Bài viết",
+      "users": "Người dùng"
+    },
+    "results": {
+      "title": "Kết quả tìm kiếm",
+      "subtitle": "Kết quả cho \"{query}\"",
+      "products": "Sản phẩm ({count})",
+      "posts": "Bài viết ({count})",
+      "users": "Người dùng ({count})",
+      "noResultsTitle": "Không tìm thấy kết quả phù hợp.",
+      "noProductsDesc": "Không tìm thấy sản phẩm phù hợp.",
+      "noPostsDesc": "Không tìm thấy bài viết phù hợp.",
+      "noUsersDesc": "Không tìm thấy người dùng phù hợp.",
+      "loadMore": "Xem thêm"
+    },
+    "loading": "Đang tải...",
+    "error": "Có lỗi xảy ra. Vui lòng thử lại.",
+    "empty": {
+      "title": "Nhập từ khóa để bắt đầu tìm kiếm.",
+      "subtitle": "Bạn có thể tìm theo tên sản phẩm, danh mục hoặc người dùng.",
+      "cta": "Trở về trang chủ"
+    },
+    "post": {
+      "likes": "❤",
+      "comments": "💬",
+      "shares": "🔁"
+    },
+    "user": {
+      "profile": "Hồ sơ người dùng"
     }
   }
 }
