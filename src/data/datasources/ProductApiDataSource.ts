@@ -7,16 +7,16 @@ import {
   UpdateProductPayload,
 } from '@/domain/repositories/IProductRepository';
 
-const DEFAULT_PRODUCT_IMAGE = 'https://via.placeholder.com/400?text=No+Image';
+export const DEFAULT_PRODUCT_IMAGE = 'https://via.placeholder.com/400?text=No+Image';
 
-type ProductCategoryDto = {
+export type ProductCategoryDto = {
   id?: string;
   _id?: string;
   name?: string;
   slug?: string;
 };
 
-type ProductOwnerDto = {
+export type ProductOwnerDto = {
   id?: string;
   _id?: string;
   email?: string;
@@ -25,7 +25,7 @@ type ProductOwnerDto = {
   avatar?: string;
 };
 
-type ProductDto = {
+export type ProductDto = {
   id: string;
   name: string;
   nameEn?: string;
@@ -76,6 +76,74 @@ type CategoryDto = {
   children?: CategoryDto[];
 };
 
+export const mapProductDtoToDomain = (dto: ProductDto): Product => {
+  const images = Array.isArray(dto.images) ? dto.images.filter(Boolean) : [];
+  const image = images[0] || DEFAULT_PRODUCT_IMAGE;
+  const rawCategory = dto.category as ProductCategoryDto | string | undefined;
+  const category = rawCategory && typeof rawCategory === 'object'
+    ? {
+        id: rawCategory.id ?? rawCategory._id ?? '',
+        name: rawCategory.name,
+        slug: rawCategory.slug,
+      }
+    : {
+        id: typeof rawCategory === 'string' ? rawCategory : '',
+      };
+
+  const rawOwner = dto.owner as ProductOwnerDto | string | undefined;
+  const owner = rawOwner && typeof rawOwner === 'object'
+    ? {
+        id: rawOwner.id ?? rawOwner._id ?? '',
+        email: rawOwner.email,
+        userName: rawOwner.userName,
+        role: rawOwner.role,
+        avatar: rawOwner.avatar,
+      }
+    : {
+        id: typeof rawOwner === 'string' ? rawOwner : '',
+      };
+
+  const stockQuantity = dto.stockQuantity ?? 0;
+  const tags = Array.isArray(dto.tags) ? dto.tags.filter(Boolean) : [];
+
+  return {
+    id: dto.id,
+    name: dto.name,
+    nameEn: dto.nameEn,
+    price: dto.price,
+    originalPrice: undefined,
+    discount: undefined,
+    image,
+    images,
+    category,
+    owner,
+    unit: dto.unit,
+    stock: stockQuantity,
+    stockQuantity,
+    description: dto.description,
+    rating: dto.rating,
+    reviewCount: dto.reviewCount,
+    additionalImages: images.slice(1),
+    inStock: dto.inStock,
+    tags,
+    createdAt: dto.createdAt,
+    updatedAt: dto.updatedAt,
+    sold: dto.reviewCount,
+    isAvailable: dto.isAvailable,
+    isHighRated: dto.isHighRated,
+    isPopular: dto.isPopular,
+    hasValidPrice: dto.hasValidPrice,
+    isBestSeller: (dto.reviewCount ?? 0) > 100,
+    isNew: (() => {
+      if (!dto.createdAt) return false;
+      const date = new Date(dto.createdAt);
+      if (Number.isNaN(date.getTime())) return false;
+      const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+      return Date.now() - date.getTime() <= THIRTY_DAYS;
+    })()
+  };
+};
+
 export class ProductApiDataSource {
   private baseUrl: string;
 
@@ -107,7 +175,7 @@ export class ProductApiDataSource {
   const endpoint = `${API_ENDPOINTS.PRODUCTS}${suffix}`;
   const payload = await this.request<PaginatedProductResponse>(endpoint, { method: 'GET' });
 
-    const products = Array.isArray(payload.data) ? payload.data.map((item) => this.mapProduct(item)) : [];
+  const products = Array.isArray(payload.data) ? payload.data.map((item) => mapProductDtoToDomain(item)) : [];
     const pagination = payload.pagination || {};
 
     return {
@@ -124,7 +192,7 @@ export class ProductApiDataSource {
     if (!payload.data) {
       throw new Error(payload.message || 'Product data not available');
     }
-    return this.mapProduct(payload.data);
+  return mapProductDtoToDomain(payload.data);
   }
 
   async getProductsByCategory(categoryId: string): Promise<Product[]> {
@@ -184,7 +252,7 @@ export class ProductApiDataSource {
       throw new Error(response.message || 'Không thể tạo sản phẩm');
     }
 
-    return this.mapProduct(response.data);
+  return mapProductDtoToDomain(response.data);
   }
 
   async updateProduct(id: string, payload: UpdateProductPayload): Promise<Product> {
@@ -202,7 +270,7 @@ export class ProductApiDataSource {
       throw new Error(response.message || 'Không thể cập nhật sản phẩm');
     }
 
-    return this.mapProduct(response.data);
+  return mapProductDtoToDomain(response.data);
   }
 
   async deleteProduct(id: string): Promise<void> {
@@ -212,74 +280,6 @@ export class ProductApiDataSource {
       },
       true
     );
-  }
-
-  private mapProduct(dto: ProductDto): Product {
-    const images = Array.isArray(dto.images) ? dto.images.filter(Boolean) : [];
-    const image = images[0] || DEFAULT_PRODUCT_IMAGE;
-    const rawCategory = dto.category as ProductCategoryDto | string | undefined;
-    const category = rawCategory && typeof rawCategory === 'object'
-      ? {
-          id: rawCategory.id ?? rawCategory._id ?? '',
-          name: rawCategory.name,
-          slug: rawCategory.slug,
-        }
-      : {
-          id: typeof rawCategory === 'string' ? rawCategory : '',
-        };
-
-    const rawOwner = dto.owner as ProductOwnerDto | string | undefined;
-    const owner = rawOwner && typeof rawOwner === 'object'
-      ? {
-          id: rawOwner.id ?? rawOwner._id ?? '',
-          email: rawOwner.email,
-          userName: rawOwner.userName,
-          role: rawOwner.role,
-          avatar: rawOwner.avatar,
-        }
-      : {
-          id: typeof rawOwner === 'string' ? rawOwner : '',
-        };
-
-    const stockQuantity = dto.stockQuantity ?? 0;
-    const tags = Array.isArray(dto.tags) ? dto.tags.filter(Boolean) : [];
-
-    return {
-      id: dto.id,
-      name: dto.name,
-      nameEn: dto.nameEn,
-      price: dto.price,
-      image,
-      images,
-      category,
-      owner,
-      unit: dto.unit,
-      stock: stockQuantity,
-      stockQuantity,
-      description: dto.description,
-      rating: dto.rating,
-      reviewCount: dto.reviewCount,
-      additionalImages: images.slice(1),
-      inStock: dto.inStock,
-      tags,
-      createdAt: dto.createdAt,
-      updatedAt: dto.updatedAt,
-      sold: dto.reviewCount,
-      isAvailable: dto.isAvailable,
-      isHighRated: dto.isHighRated,
-      isPopular: dto.isPopular,
-      hasValidPrice: dto.hasValidPrice,
-      isBestSeller: (dto.reviewCount ?? 0) > 100,
-      isNew: this.isRecent(dto.createdAt),
-    };
-  }
-
-  private isRecent(createdAt?: string): boolean {
-    if (!createdAt) return false;
-    const date = new Date(createdAt);
-    if (Number.isNaN(date.getTime())) return false;
-    const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
-    return Date.now() - date.getTime() <= THIRTY_DAYS;
   }
 
   private flattenCategories(categories: CategoryDto[], parentId?: string | null): ProductCategory[] {

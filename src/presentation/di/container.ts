@@ -10,6 +10,7 @@ import { UserApiDataSource } from '@/data/datasources/UserApiDataSource';
 import { SupportApiDataSource } from '@/data/datasources/SupportApiDataSource';
 import { ProductReviewApiDataSource } from '@/data/datasources/ProductReviewApiDataSource';
 import { CartApiDataSource } from '@/data/datasources/CartApiDataSource';
+import { SearchApiDataSource } from '@/data/datasources/SearchApiDataSource';
 
 import { ProductRepositoryImpl } from '@/data/repositories/ProductRepositoryImpl';
 import { BannerRepositoryImpl } from '@/data/repositories/BannerRepositoryImpl';
@@ -21,6 +22,7 @@ import { UserRepositoryImpl } from '@/data/repositories/UserRepositoryImpl';
 import { SupportRepositoryImpl } from '@/data/repositories/SupportRepositoryImpl';
 import { ProductReviewRepositoryImpl } from '@/data/repositories/ProductReviewRepositoryImpl';
 import { CartRepositoryImpl } from '@/data/repositories/CartRepositoryImpl';
+import { SearchRepositoryImpl } from '@/data/repositories/SearchRepositoryImpl';
 
 import { GetProductsUseCase } from '@/domain/usecases/GetProductsUseCase';
 import { GetHomeDataUseCase } from '@/domain/usecases/GetHomeDataUseCase';
@@ -61,6 +63,7 @@ import { AddCartItemUseCase } from '@/domain/usecases/cart/AddCartItemUseCase';
 import { UpdateCartItemUseCase } from '@/domain/usecases/cart/UpdateCartItemUseCase';
 import { RemoveCartItemUseCase } from '@/domain/usecases/cart/RemoveCartItemUseCase';
 import { ClearCartUseCase } from '@/domain/usecases/cart/ClearCartUseCase';
+import { SearchUseCase } from '@/domain/usecases/SearchUseCase';
 
 class DIContainer {
   private static instance: DIContainer;
@@ -75,6 +78,7 @@ class DIContainer {
   private _supportApiDataSource?: SupportApiDataSource;
   private _productReviewApiDataSource?: ProductReviewApiDataSource;
   private _cartApiDataSource?: CartApiDataSource;
+  private _searchApiDataSource?: SearchApiDataSource;
 
   private _productRepository?: ProductRepositoryImpl;
   private _bannerRepository?: BannerRepositoryImpl;
@@ -86,6 +90,7 @@ class DIContainer {
   private _supportRepository?: SupportRepositoryImpl;
   private _productReviewRepository?: ProductReviewRepositoryImpl;
   private _cartRepository?: CartRepositoryImpl;
+  private _searchRepository?: SearchRepositoryImpl;
 
   private _getProductsUseCase?: GetProductsUseCase;
   private _getHomeDataUseCase?: GetHomeDataUseCase;
@@ -126,6 +131,7 @@ class DIContainer {
   private _updateCartItemUseCase?: UpdateCartItemUseCase;
   private _removeCartItemUseCase?: RemoveCartItemUseCase;
   private _clearCartUseCase?: ClearCartUseCase;
+  private _getSearchUseCase?: SearchUseCase;
 
   private constructor() {}
 
@@ -206,6 +212,13 @@ class DIContainer {
     return this._cartApiDataSource;
   }
 
+  get searchApiDataSource(): SearchApiDataSource {
+    if (!this._searchApiDataSource) {
+      this._searchApiDataSource = new SearchApiDataSource(API_CONFIG.BASE_URL);
+    }
+    return this._searchApiDataSource;
+  }
+
   get productRepository(): ProductRepositoryImpl {
     if (!this._productRepository) {
       this._productRepository = new ProductRepositoryImpl(this.productApiDataSource);
@@ -274,6 +287,13 @@ class DIContainer {
       this._cartRepository = new CartRepositoryImpl(this.cartApiDataSource);
     }
     return this._cartRepository;
+  }
+
+  get searchRepository(): SearchRepositoryImpl {
+    if (!this._searchRepository) {
+      this._searchRepository = new SearchRepositoryImpl(this.searchApiDataSource);
+    }
+    return this._searchRepository;
   }
 
   get getProductsUseCase(): GetProductsUseCase {
@@ -550,6 +570,13 @@ class DIContainer {
       this._clearCartUseCase = new ClearCartUseCase(this.cartRepository);
     }
     return this._clearCartUseCase;
+  }
+
+  get getSearchUseCase(): SearchUseCase {
+    if (!this._getSearchUseCase) {
+      this._getSearchUseCase = new SearchUseCase(this.searchRepository);
+    }
+    return this._getSearchUseCase;
   }
 }
 

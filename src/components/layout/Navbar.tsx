@@ -1,35 +1,66 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useAuth } from '@/shared/hooks/useAuth';
 import { MenuButton, UserDropdown } from '@/components/ui';
-import { Sidebar } from './Sidebar';
 import Image from 'next/image';
 import { ICONS } from '@/shared/constants/images';
 import { useCart } from '@/shared/hooks/useCart';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const t = useTranslations('navbar');
+  const router = useRouter();
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const locale = (params?.locale as string) ?? 'vi';
+  const _rawSubmit = t('searchButton');
+  // next-intl may return the key itself when a translation isn't available at runtime
+  // fall back to a sensible locale-aware default so the button never shows the key name
+  let submitLabel = _rawSubmit;
+  if (!_rawSubmit || _rawSubmit.includes('searchButton') || _rawSubmit.includes('navbar.searchButton')) {
+    submitLabel = locale === 'vi' ? 'Tìm kiếm' : 'Search';
+  }
+
+  useEffect(() => {
+    const current = searchParams.get('q') ?? '';
+    setSearchQuery(current);
+  }, [searchParams]);
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const keyword = searchQuery.trim();
+    const query = new URLSearchParams();
+    if (keyword) {
+      query.set('q', keyword);
+    }
+    router.push(`/${locale}/main/search${keyword ? `?${query.toString()}` : ''}`);
+  };
 
   return (
-    <div className="relative flex-1 max-w-3xl mx-2 sm:mx-4 md:mx-6">
+    <form onSubmit={handleSubmit} className="relative flex-1 max-w-3xl mx-2 sm:mx-4 md:mx-6">
       <div className="relative">
         <input
-          type="text"
+          type="search"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={t('searchPlaceholder')}
-          className="w-full px-3 sm:px-4 py-2 sm:py-2.5 pl-9 sm:pl-10 pr-3 sm:pr-4 text-sm sm:text-base text-foreground bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm"
+          className="w-full px-3 sm:px-4 py-2 sm:py-2.5 pl-9 sm:pl-10 pr-12 sm:pr-14 text-sm sm:text-base text-foreground bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm"
         />
-        <div className="absolute inset-y-0 left-0 flex items-center pl-2 sm:pl-3">
+        <div className="absolute inset-y-0 left-0 flex items-center pl-2 sm:pl-3 pointer-events-none">
           <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
+        <button
+          type="submit"
+          className="absolute inset-y-0 right-1 sm:right-2 my-1 px-3 sm:px-4 rounded-full bg-green-500 text-white text-sm font-medium hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400"
+        >
+          {submitLabel}
+        </button>
       </div>
-    </div>
+    </form>
   );
 };
 
@@ -37,10 +68,12 @@ const CartIcon = () => {
   const t = useTranslations('navbar');
   const { totalQuantity, isLoading, isMutating } = useCart();
   const displayCount = totalQuantity;
+  const params = useParams();
+  const locale = (params?.locale as string) ?? 'vi';
 
   return (
     <Link
-      href="/main/cart"
+      href={`/${locale}/main/cart`}
       className="relative p-1.5 sm:p-2 text-navbar-foreground hover:text-navbar-foreground/80 transition-colors"
       aria-label={t('cartAria')}
     >
@@ -72,6 +105,8 @@ interface NavbarProps {
 
 export default function Navbar({ onMenuToggle, isSidebarOpen }: NavbarProps) {
   const t = useTranslations('navbar');
+  const params = useParams();
+  const locale = (params?.locale as string) ?? 'vi';
 
   const handleMenuToggle = (isOpen: boolean) => {
     onMenuToggle?.(isOpen);
@@ -83,16 +118,16 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }: NavbarProps) {
         <div className="flex items-center justify-between h-14 sm:h-16 gap-1 sm:gap-2 md:gap-4">
           <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 min-w-fit">
             <MenuButton onToggle={handleMenuToggle} isOpen={isSidebarOpen} />
-            <Link href="/main" className="flex items-center space-x-1 sm:space-x-2">
+            <Link href={`/${locale}/main`} className="flex items-center space-x-1 sm:space-x-2">
               <Image
                 src="/img/logo.png"
-                alt="Logo"
+                alt={t('logoAlt')}
                 width={80}
                 height={50}
                 className="object-contain w-16 h-24 sm:w-18 sm:h-26 md:w-20 md:h-[80px]"
               />
               <span className="text-sm sm:text-base md:text-lg lg:text-xl font-bold whitespace-nowrap hidden sm:inline">
-                Fresh Market
+                {t('brand')}
               </span>
             </Link>
           </div>

@@ -123,11 +123,30 @@ const PostCard: React.FC<PostCardProps> = ({ post, t, onLike, onComment, onShare
       });
     }
   };
+
+    const profileHref = (() => {
+      const query = new URLSearchParams();
+      if (post.userName) {
+        query.set('userName', post.userName);
+      }
+      if (post.userEmail) {
+        query.set('email', post.userEmail);
+      }
+      if (post.userAvatar) {
+        query.set('avatar', post.userAvatar);
+      }
+      const queryString = query.toString();
+      return `/${locale}/main/users/${encodeURIComponent(post.userId)}${queryString ? `?${queryString}` : ''}`;
+    })();
   return (
     <div className="bg-white border-b border-gray-200">
       {/* Post Header */}
       <div className="p-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <Link
+          href={profileHref}
+          prefetch={false}
+          className="flex items-center gap-3 group"
+        >
           {post.userAvatar ? (
             <Image
               src={post.userAvatar}
@@ -142,12 +161,12 @@ const PostCard: React.FC<PostCardProps> = ({ post, t, onLike, onComment, onShare
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-sm text-gray-900 truncate">{post.userName}</h3>
+            <h3 className="font-semibold text-sm text-gray-900 truncate group-hover:text-orange-500 transition-colors">{post.userName}</h3>
             <p className="text-xs text-gray-500">
               {formatTimeAgo(post.createdAt)}
             </p>
           </div>
-        </div>
+        </Link>
         {/* Show three-dot menu only for post owner */}
         {user?.id === post.userId && onDelete && <PostOptionsMenu onDelete={onDelete} />}
       </div>

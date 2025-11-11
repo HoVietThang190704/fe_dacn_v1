@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { ICONS } from '@/shared/constants/images'
 
 type Category = {
@@ -13,12 +14,29 @@ type Category = {
 }
 
 export default function CategoriesCarousel({ categories }: { categories: Category[] }) {
+  const params = useParams();
+  const locale = (params?.locale as string) ?? 'vi'
   const [isExpanded, setIsExpanded] = useState(false)
   const [windowWidth, setWindowWidth] = useState(0)
 
   const slugToIcon: Record<string, string> = {
     'rau-cu': ICONS.VEGETABLE,
     'trai-cay': ICONS.FRUITS,
+    'rau_cu_qua': ICONS.RAU_CU_QUA,
+    'rau-la': ICONS.LEAFY_VEGETABLES,
+    'xa-lach-lo-lo': ICONS.ICEBERG_LETTUCE,
+    'san-pham-huu-co': ICONS.ORGANIC_PRODUCTS,
+    'sua': ICONS.MILK,
+    'eggs': ICONS.EGGS,
+    'rau-mam-hon-hop': ICONS.MIXED_SPROUTS,
+    'gao': ICONS.RICE,
+    'chuoi-gia': ICONS.RIPE_BANANA,
+    'hai-san': ICONS.SEAFOOD,
+    'cu-goc': ICONS.ROOT_VEGETABLES,
+    'rau-thom-gia-vi': ICONS.HERBS_SPICES,
+    'ngu-coc': ICONS.GRAINS,
+    'thit': ICONS.MEAT,
+    'ca-chua-bi': ICONS.CHERRY_TOMATO
   }
 
   // Update window width on mount and resize
@@ -53,10 +71,10 @@ export default function CategoriesCarousel({ categories }: { categories: Categor
 
           return (
             <Link
-              key={category.id}
-              href={`/main/products?category=${category.slug || category.id}`}
-              className="flex flex-col items-center group"
-            >
+                key={category.id}
+                href={`/${locale}/main/search?q=${encodeURIComponent(category.slug || category.name)}`}
+                className="flex flex-col items-center group"
+              >
               {/* Icon container với hover effect */}
               <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl flex items-center justify-center mb-2 transition-all duration-200 group-hover:shadow-md group-hover:scale-105 group-hover:from-orange-100 group-hover:to-orange-200">
                 <Image 

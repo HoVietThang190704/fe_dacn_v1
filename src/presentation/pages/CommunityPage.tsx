@@ -215,6 +215,7 @@ export const CommunityPage: React.FC = () => {
                   userId: post.userId,
                   userName: post.user?.userName || post.user?.email || 'Unknown User',
                   userAvatar: post.user?.avatar || '',
+                  userEmail: post.user?.email,
                   content: post.content,
                   images: post.images,
                   likes: post.likesCount,
