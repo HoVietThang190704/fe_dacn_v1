@@ -32,6 +32,10 @@ import { CancelOrderUseCase } from '@/domain/usecases/order/CancelOrderUseCase';
 import { GetOrderStatisticsUseCase } from '@/domain/usecases/order/GetOrderStatisticsUseCase';
 import { ApplyVoucherUseCase } from '@/domain/usecases/order/ApplyVoucherUseCase';
 import { PayOrderUseCase } from '@/domain/usecases/order/PayOrderUseCase';
+import { GetManagedOrdersUseCase } from '@/domain/usecases/order/GetManagedOrdersUseCase';
+import { GetManagedOrderByIdUseCase } from '@/domain/usecases/order/GetManagedOrderByIdUseCase';
+import { UpdateManagedOrderStatusUseCase } from '@/domain/usecases/order/UpdateManagedOrderStatusUseCase';
+import { ConfirmOrderDeliveredUseCase } from '@/domain/usecases/order/ConfirmOrderDeliveredUseCase';
 import { GetFavoritesUseCase } from '@/domain/usecases/GetFavoritesUseCase';
 import { AddFavoriteUseCase } from '@/domain/usecases/AddFavoriteUseCase';
 import { RemoveFavoriteUseCase } from '@/domain/usecases/RemoveFavoriteUseCase';
@@ -100,6 +104,10 @@ class DIContainer {
   private _getOrderStatisticsUseCase?: GetOrderStatisticsUseCase;
   private _applyVoucherUseCase?: ApplyVoucherUseCase;
   private _payOrderUseCase?: PayOrderUseCase;
+  private _getManagedOrdersUseCase?: GetManagedOrdersUseCase;
+  private _getManagedOrderByIdUseCase?: GetManagedOrderByIdUseCase;
+  private _updateManagedOrderStatusUseCase?: UpdateManagedOrderStatusUseCase;
+  private _confirmOrderDeliveredUseCase?: ConfirmOrderDeliveredUseCase;
   private _getFavoritesUseCase?: GetFavoritesUseCase;
   private _addFavoriteUseCase?: AddFavoriteUseCase;
   private _removeFavoriteUseCase?: RemoveFavoriteUseCase;
@@ -353,6 +361,34 @@ class DIContainer {
       this._payOrderUseCase = new PayOrderUseCase(this.orderRepository);
     }
     return this._payOrderUseCase;
+  }
+
+  get getManagedOrdersUseCase(): GetManagedOrdersUseCase {
+    if (!this._getManagedOrdersUseCase) {
+      this._getManagedOrdersUseCase = new GetManagedOrdersUseCase(this.orderRepository);
+    }
+    return this._getManagedOrdersUseCase;
+  }
+
+  get getManagedOrderByIdUseCase(): GetManagedOrderByIdUseCase {
+    if (!this._getManagedOrderByIdUseCase) {
+      this._getManagedOrderByIdUseCase = new GetManagedOrderByIdUseCase(this.orderRepository);
+    }
+    return this._getManagedOrderByIdUseCase;
+  }
+
+  get updateManagedOrderStatusUseCase(): UpdateManagedOrderStatusUseCase {
+    if (!this._updateManagedOrderStatusUseCase) {
+      this._updateManagedOrderStatusUseCase = new UpdateManagedOrderStatusUseCase(this.orderRepository);
+    }
+    return this._updateManagedOrderStatusUseCase;
+  }
+
+  get confirmOrderDeliveredUseCase(): ConfirmOrderDeliveredUseCase {
+    if (!this._confirmOrderDeliveredUseCase) {
+      this._confirmOrderDeliveredUseCase = new ConfirmOrderDeliveredUseCase(this.orderRepository);
+    }
+    return this._confirmOrderDeliveredUseCase;
   }
 
   get getFavoritesUseCase(): GetFavoritesUseCase {

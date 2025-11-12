@@ -128,26 +128,52 @@ export class PostApiDataSource {
   }
 
   async updatePost(data: UpdatePostData): Promise<Post> {
-    // Upload new images if any
-    let imageUrls: string[] | undefined;
-    let cloudinaryPublicIds: string[] | undefined;
+    const keptImages = data.existingImageUrls ? [...data.existingImageUrls] : undefined;
+    const newFiles = data.newImages ?? [];
 
-    if (data.images && data.images.length > 0) {
-      const uploadResult = await this.uploadImages(data.images);
-      imageUrls = uploadResult.urls;
-      cloudinaryPublicIds = uploadResult.publicIds;
+    let uploadedUrls: string[] = [];
+    let uploadedPublicIds: string[] = [];
+
+    if (newFiles.length > 0) {
+      const uploadResult = await this.uploadImages(newFiles);
+      uploadedUrls = uploadResult.urls;
+      uploadedPublicIds = uploadResult.publicIds;
+    }
+
+    const shouldUpdateImages = (typeof keptImages !== 'undefined') || uploadedUrls.length > 0;
+    const finalImages = shouldUpdateImages
+      ? [...(keptImages ?? []), ...uploadedUrls]
+      : undefined;
+
+    let cloudinaryPublicIds: string[] | undefined;
+    if (shouldUpdateImages) {
+      if ((keptImages?.length ?? 0) === 0 && uploadedPublicIds.length > 0) {
+        cloudinaryPublicIds = uploadedPublicIds;
+      } else if ((keptImages?.length ?? 0) === 0 && uploadedPublicIds.length === 0) {
+        cloudinaryPublicIds = [];
+      }
+      // When mixing existing and new images we skip sending cloudinary ids to avoid mismatch
+    }
+
+    const payload: Record<string, unknown> = {};
+    if (data.content !== undefined) {
+      payload.content = data.content;
+    }
+    if (data.visibility !== undefined) {
+      payload.visibility = data.visibility;
+    }
+    if (shouldUpdateImages) {
+      payload.images = finalImages;
+      if (cloudinaryPublicIds !== undefined) {
+        payload.cloudinaryPublicIds = cloudinaryPublicIds;
+      }
     }
 
     const url = this.getFullUrl(API_ENDPOINTS.UPDATE_POST(data.postId));
     const response = await fetch(url, {
       method: 'PUT',
       headers: this.getHeaders(),
-      body: JSON.stringify({
-        content: data.content,
-        images: imageUrls,
-        cloudinaryPublicIds,
-        visibility: data.visibility,
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {

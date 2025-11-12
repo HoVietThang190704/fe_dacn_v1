@@ -33,6 +33,14 @@ export const CommunityPage: React.FC = () => {
 
   const { user } = useAuth();
 
+  console.log('User in CommunityPage:', user);
+  console.log('User avatar:', user?.avatar);
+
+  // Force refresh user data
+  const refreshUser = () => {
+    window.location.reload();
+  };
+
   const getInitials = (name = '') => {
     return name
       .split(' ')
@@ -178,19 +186,11 @@ export const CommunityPage: React.FC = () => {
                   height={40}
                   className="rounded-full object-cover shadow-md flex-shrink-0"
                 />
-              ) : (posts[0]?.user?.avatar ? (
-                <Image
-                  src={posts[0]?.user?.avatar}
-                  alt={posts[0]?.user?.userName || 'User'}
-                  width={40}
-                  height={40}
-                  className="rounded-full object-cover shadow-md flex-shrink-0"
-                />
               ) : (
                 <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-md">
-                  {getInitials(user?.userName || posts[0]?.user?.userName || 'U') || 'U'}
+                  {getInitials(user?.userName || 'U') || 'U'}
                 </div>
-              ))}
+              )}
 
               <button
                 onClick={() => setIsPopupOpen(true)}

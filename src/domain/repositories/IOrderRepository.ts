@@ -5,6 +5,10 @@ export interface OrderListFilters {
   status?: OrderStatus;
   page?: number;
   limit?: number;
+  search?: string;
+  orderNumber?: string;
+  paymentStatus?: string;
+  managerId?: string;
 }
 
 export interface OrderPagination {
@@ -54,6 +58,13 @@ export interface VoucherApplicationResult {
   discount: number;
 }
 
+export interface UpdateManagedOrderStatusRequest {
+  status: OrderStatus;
+  trackingNumber?: string | null;
+  estimatedDelivery?: string | null;
+  note?: string | null;
+}
+
 export interface IOrderRepository {
   getOrders(filters?: OrderListFilters): Promise<OrderListResult>;
   getOrderById(orderId: string): Promise<Order>;
@@ -62,4 +73,8 @@ export interface IOrderRepository {
   getStatistics(): Promise<OrderStatistics>;
   applyVoucher(code: string, subtotal: number): Promise<VoucherApplicationResult>;
   updatePaymentStatus(orderId: string, paymentStatus: string): Promise<Order>;
+  getManagedOrders(filters?: OrderListFilters): Promise<OrderListResult>;
+  getManagedOrderById(orderId: string, managerId?: string): Promise<Order>;
+  updateManagedOrderStatus(orderId: string, payload: UpdateManagedOrderStatusRequest): Promise<Order>;
+  confirmOrderDelivered(orderId: string, note?: string): Promise<Order>;
 }

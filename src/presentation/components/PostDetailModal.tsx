@@ -11,6 +11,7 @@ type ApiUser = {
   userName?: string;
   avatar?: string;
   userAvatar?: string;
+  image?: string;
 };
 
 interface ApiPost {
@@ -28,7 +29,7 @@ interface Props {
 }
 
 export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
-  const { user } = useAuth();
+  useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [post, setPost] = useState<ApiPost | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -104,9 +105,26 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
         ) : (
           <div className="p-4">
             <div className="flex gap-3 items-center mb-4">
-              <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-white">
-                {post?.user?.userName?.charAt(0)?.toUpperCase() || 'U'}
-              </div>
+                {(() => {
+                  const avatar = post?.user ? (post.user.avatar || post.user.userAvatar || post.user.image) : undefined;
+                  if (avatar) {
+                    return (
+                      <Image
+                        src={avatar}
+                        alt={post?.user?.userName || 'User'}
+                        width={48}
+                        height={48}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                    );
+                  }
+
+                  return (
+                    <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-white">
+                      {post?.user?.userName?.charAt(0)?.toUpperCase() || 'U'}
+                    </div>
+                  );
+                })()}
               <div>
                 <div className="font-semibold">{post?.user?.userName || 'Unknown User'}</div>
                 <div className="text-xs text-gray-500">{new Date(post?.createdAt || Date.now()).toLocaleString()}</div>

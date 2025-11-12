@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/shared/hooks/useAuth';
+import { User } from '@/domain/entities/User';
 
 export type UserProfile = {
   id: string;
-  userName: string;
+  userName?: string;
   email: string;
   avatar?: string;
   phone?: string;
@@ -14,7 +15,7 @@ export type UserProfile = {
 };
 
 export type GetUserProfileUseCase = {
-  execute: (userId: string) => Promise<UserProfile>;
+  execute: (userId: string) => Promise<User>;
 };
 
 export const useProfileViewModel = (getUserProfileUseCase?: GetUserProfileUseCase) => {

@@ -106,7 +106,7 @@ export const UserTargetPage: React.FC<UserTargetPageProps> = ({ userId, fallback
             {profile.avatar ? (
               <Image
                 src={profile.avatar}
-                alt={profile.userName}
+                alt={profile.userName || profile.email || 'User'}
                 width={100}
                 height={100}
                 className="w-24 h-24 rounded-full object-cover"

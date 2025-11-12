@@ -201,10 +201,21 @@ export const ProductDetailPage: React.FC = () => {
       return;
     }
 
+    const availableStock = typeof product.stock === 'number'
+      ? product.stock
+      : typeof product.stockQuantity === 'number'
+        ? product.stockQuantity
+        : 0;
+    const canPurchase = product.inStock !== false && availableStock > 0;
+    if (!canPurchase) {
+      setCartError('Sản phẩm tạm thời hết hàng.');
+      return;
+    }
+
     setCartError(null);
     await addItem({
       productId: product.id,
-      quantity,
+      quantity: Math.min(quantity, availableStock),
       price: product.price,
       unit: product.unit,
       title: product.name,
@@ -285,6 +296,15 @@ export const ProductDetailPage: React.FC = () => {
   if (!product) {
     return <NotFoundState message="Sản phẩm không tồn tại hoặc đã bị xóa" />;
   }
+
+  const stockCount = typeof product.stock === 'number'
+    ? product.stock
+    : typeof product.stockQuantity === 'number'
+      ? product.stockQuantity
+      : 0;
+  const isProductAvailable = product.inStock !== false && stockCount > 0;
+  const stockStatusLabel = isProductAvailable ? 'Còn hàng' : 'Hết hàng';
+  const stockStatusWithCount = isProductAvailable ? `${stockStatusLabel} (${stockCount})` : stockStatusLabel;
 
   const images = Array.isArray(product.images) && product.images.length > 0
     ? product.images
@@ -502,7 +522,14 @@ export const ProductDetailPage: React.FC = () => {
                   <div className="flex items-center gap-3 text-sm text-gray-500">
                     <span>Mã sản phẩm: <strong className="text-gray-700">{product.id}</strong></span>
                     <span className="w-1 h-1 rounded-full bg-gray-300" />
-                    <span>Sẵn kho: <strong className="text-gray-700">{product.stock}</strong></span>
+                    <span>Sẵn kho: <strong className="text-gray-700">{stockCount}</strong></span>
+                    <span className="w-1 h-1 rounded-full bg-gray-300" />
+                    <span>
+                      Trạng thái:{' '}
+                      <strong className={isProductAvailable ? 'text-emerald-600' : 'text-red-600'}>
+                        {stockStatusLabel}
+                      </strong>
+                    </span>
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-3">
@@ -550,16 +577,16 @@ export const ProductDetailPage: React.FC = () => {
 
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <span className={`w-3 h-3 rounded-full ${product.stock > 0 ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                  <span className={`text-sm font-medium ${product.stock > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                    {product.stock > 0 ? `Còn hàng (${product.stock})` : 'Hết hàng'}
+                  <span className={`w-3 h-3 rounded-full ${isProductAvailable ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                  <span className={`text-sm font-medium ${isProductAvailable ? 'text-emerald-600' : 'text-red-600'}`}>
+                    {stockStatusWithCount}
                   </span>
                 </div>
 
                 <div className="border border-gray-100 rounded-2xl px-4 py-3 flex items-center justify-between bg-gray-50">
                   <div>
                     <p className="text-sm text-gray-500">Chọn số lượng</p>
-                    <p className="text-xs text-gray-400">Tối đa {product.stock} sản phẩm</p>
+                    <p className="text-xs text-gray-400">Tối đa {stockCount} sản phẩm</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
@@ -572,11 +599,12 @@ export const ProductDetailPage: React.FC = () => {
                     <button
                       onClick={() =>
                         setQuantity((prev) => {
-                          if (!product.stock) return prev;
-                          return Math.min(product.stock, prev + 1);
+                          if (!stockCount) return prev;
+                          return Math.min(stockCount, prev + 1);
                         })
                       }
-                      className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-lg text-gray-600 hover:bg-white"
+                      className={`w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-lg transition-colors ${isProductAvailable && quantity < stockCount ? 'text-gray-600 hover:bg-white' : 'text-gray-400 cursor-not-allowed bg-gray-100'}`}
+                      disabled={!isProductAvailable || quantity >= stockCount}
                     >
                       +
                     </button>
@@ -587,8 +615,8 @@ export const ProductDetailPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={handleAddToCart}
-                  className="py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-sm transition"
-                  disabled={product.stock === 0 || isCartMutating}
+                  className="py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-sm transition disabled:opacity-60 disabled:cursor-not-allowed"
+                  disabled={!isProductAvailable || isCartMutating}
                 >
                   {isCartMutating ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
                 </button>
@@ -597,7 +625,7 @@ export const ProductDetailPage: React.FC = () => {
                     const params = new URLSearchParams({
                       buyNow: 'true',
                       productId: product.id,
-                      quantity: quantity.toString(),
+                      quantity: Math.min(quantity, stockCount).toString(),
                       price: product.price.toString(),
                       title: product.name,
                       thumbnail: (images[0] || product.image || '').toString(),
@@ -605,8 +633,8 @@ export const ProductDetailPage: React.FC = () => {
                     });
                     router.push(`/${locale}/main/checkout?${params.toString()}`);
                   }}
-                  className="py-3 rounded-xl border border-orange-500 text-orange-500 font-semibold hover:bg-orange-50 transition"
-                  disabled={product.stock === 0}
+                  className="py-3 rounded-xl border border-orange-500 text-orange-500 font-semibold hover:bg-orange-50 transition disabled:opacity-60 disabled:cursor-not-allowed"
+                  disabled={!isProductAvailable}
                 >
                   Mua ngay
                 </button>
@@ -638,7 +666,11 @@ export const ProductDetailPage: React.FC = () => {
                 />
                 <InfoRow
                   label="Tồn kho"
-                  value={typeof product.stock === 'number' ? `${product.stock} ${product.unit || ''}`.trim() : '—'}
+                  value={isProductAvailable
+                    ? `${stockCount} ${product.unit || ''}`.trim()
+                    : stockCount > 0
+                      ? `Tạm ngưng bán (${`${stockCount} ${product.unit || ''}`.trim()})`
+                      : 'Hết hàng'}
                 />
               </div>
 
