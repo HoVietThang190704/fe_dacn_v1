@@ -31,13 +31,9 @@ export function useComments(postId: string) {
       const newComment = await postCommentContainer
         .createCommentUseCase
         .execute(data);
-
-      // Add comment to appropriate place in the tree
       if (!data.parentCommentId) {
-        // Top-level comment
         setComments((prev) => [newComment, ...prev]);
       } else {
-        // Reply - update parent comment's replies array
         setComments((prev) =>
           prev.map((c) => {
             if (c.id === data.parentCommentId) {
@@ -47,7 +43,6 @@ export function useComments(postId: string) {
                 repliesCount: c.repliesCount + 1,
               };
             }
-            // Check nested replies (level 2)
             if (c.replies) {
               return {
                 ...c,
@@ -79,10 +74,7 @@ export function useComments(postId: string) {
       await postCommentContainer
         .deleteCommentUseCase
         .execute(commentId);
-
-      // Remove comment from tree
       setComments((prev) => {
-        // Helper to recursively remove comment
         const removeFromTree = (comments: Comment[]): Comment[] => {
           return comments
             .filter((c) => c.id !== commentId)
@@ -104,8 +96,6 @@ export function useComments(postId: string) {
       const result = await postCommentContainer
         .toggleLikeCommentUseCase
         .execute(commentId);
-
-      // Update comment in tree
       setComments((prev) => {
         const updateInTree = (comments: Comment[]): Comment[] => {
           return comments.map((c) => {

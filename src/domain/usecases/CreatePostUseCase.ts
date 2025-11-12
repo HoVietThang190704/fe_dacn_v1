@@ -5,7 +5,6 @@ export class CreatePostUseCase {
   constructor(private postRepository: IPostRepository) {}
 
   async execute(data: CreatePostData): Promise<Post> {
-    // Validation - allow posts with only content OR only images OR both
     const hasContent = data.content && data.content.trim().length > 0;
     const hasImages = data.images && data.images.length > 0;
     

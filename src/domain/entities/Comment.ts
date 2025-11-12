@@ -1,6 +1,3 @@
-/**
- * Comment Entity - Frontend Domain Model
- */
 export interface Comment {
   id: string;
   postId: string;
@@ -13,56 +10,39 @@ export interface Comment {
   };
   content: string;
   images: string[];
-  
-  // Nested structure (3 levels)
   parentCommentId?: string;
-  level: number; // 0 = top-level, 1 = reply, 2 = nested reply
-  mentionedUserId?: string; // User being replied to
+  level: number; 
+  mentionedUserId?: string;
   mentionedUser?: {
     id: string;
     userName?: string;
     email: string;
     avatar?: string;
   };
-  replies?: Comment[]; // Nested replies
-  
-  // Engagement
+  replies?: Comment[]; 
   likesCount: number;
   repliesCount: number;
-  isLiked: boolean; // If current user has liked
-  
-  // Metadata
+  isLiked: boolean; 
   isEdited: boolean;
   editedAt?: Date;
-  
-  // Timestamps
   createdAt: Date;
   updatedAt: Date;
 }
 
-/**
- * Create Comment Data
- */
 export interface CreateCommentData {
   postId: string;
   content: string;
   images?: File[];
-  parentCommentId?: string; // For replies
-  mentionedUserId?: string; // User being replied to
+  parentCommentId?: string;
+  mentionedUserId?: string; 
 }
 
-/**
- * Update Comment Data
- */
 export interface UpdateCommentData {
   commentId: string;
   content?: string;
   images?: File[];
 }
 
-/**
- * Paginated Comments Response
- */
 export interface PaginatedComments {
   comments: Comment[];
   pagination: {
