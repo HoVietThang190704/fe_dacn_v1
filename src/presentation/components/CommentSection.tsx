@@ -30,10 +30,46 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
         .getCommentsByPostIdUseCase
         .execute(postId, p, limit, true);
 
+      // normalize comment user payloads (avatar/name) because backend may return different shapes
+      const normalizeComment = (c: CommentType): CommentType => {
+        const user = c.user as Record<string, unknown> | undefined;
+        if (user) {
+          // prefer avatar, then image, then avatarUrl
+          const avatar = (user['avatar'] || user['image'] || user['avatarUrl']) as string | undefined;
+          if (avatar && typeof avatar === 'string') {
+            const updated = { ...((c.user as unknown) as Record<string, unknown>), avatar } as CommentType['user'];
+            c.user = updated;
+          }
+          // normalize userName variants
+          if (!c.user?.userName) {
+            const name = (user['userName'] || user['username'] || user['name'] || user['fullName']) as string | undefined;
+            if (name && typeof name === 'string') {
+              const updated = { ...((c.user as unknown) as Record<string, unknown>), userName: name } as CommentType['user'];
+              c.user = updated;
+            }
+          }
+        }
+
+        if (c.mentionedUser) {
+          const mu = c.mentionedUser as Record<string, unknown>;
+          const mAvatar = (mu['avatar'] || mu['image'] || mu['avatarUrl']) as string | undefined;
+          if (mAvatar && typeof mAvatar === 'string') {
+            c.mentionedUser = { ...(c.mentionedUser || {}), avatar: mAvatar };
+          }
+        }
+
+        if (c.replies && c.replies.length > 0) {
+          c.replies = c.replies.map(r => normalizeComment(r));
+        }
+        return c;
+      };
+
+      const normalized = result.comments.map((c: CommentType) => normalizeComment(c));
+
       if (p === 1) {
-        setComments(result.comments);
+        setComments(normalized);
       } else {
-        setComments(prev => [...prev, ...result.comments]);
+        setComments(prev => [...prev, ...normalized]);
       }
 
       setPage(result.pagination.page);
@@ -315,9 +351,19 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
               onSubmit={handleSubmitComment}
               className="mt-2 flex items-start gap-2"
             >
-              <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
-                A
-              </div>
+              {user?.avatar ? (
+                <Image
+                  src={user.avatar}
+                  alt={user.userName || user.email || 'User'}
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                />
+              ) : (
+                <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                  {user?.userName?.charAt(0).toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'A'}
+                </div>
+              )}
               <div className="flex-1 flex gap-2">
                 <input
                   type="text"
@@ -362,9 +408,19 @@ export const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
       {!replyingTo && (
         <form onSubmit={handleSubmitComment} className="p-4">
           <div className="flex items-start gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
-              A
-            </div>
+            {user?.avatar ? (
+              <Image
+                src={user.avatar}
+                alt={user.userName || user.email || 'User'}
+                width={32}
+                height={32}
+                className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+              />
+            ) : (
+              <div className="w-8 h-8 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                {user?.userName?.charAt(0).toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'A'}
+              </div>
+            )}
             <div className="flex-1 flex gap-2">
               <input
                 type="text"

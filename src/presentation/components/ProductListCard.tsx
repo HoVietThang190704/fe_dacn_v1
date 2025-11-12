@@ -21,9 +21,14 @@ const ProductListCard: React.FC<{
   const priceLabel = product.price ? formatCurrency(product.price) : t('contact');
   const originalPriceLabel = product.originalPrice ? formatCurrency(product.originalPrice) : undefined;
   const soldCount = product.sold ?? 0;
-  const stockCount = product.stock ?? 0;
+  const stockCount = typeof product.stock === 'number'
+    ? product.stock
+    : typeof product.stockQuantity === 'number'
+      ? product.stockQuantity
+      : 0;
   const thumbnail = product.image || product.images?.[0];
   const sellerName = product.owner?.userName || product.owner?.email || tCard('seller');
+  const isInStock = product.inStock !== false && stockCount > 0;
 
   return (
     <div className="bg-white hover:shadow-md transition-shadow cursor-pointer border border-gray-100 rounded-lg overflow-hidden" onClick={handleClick}>
@@ -35,6 +40,13 @@ const ProductListCard: React.FC<{
           height={400}
           className="w-full h-full object-cover"
         />
+        {!isInStock && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+            <span className="bg-red-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+              {tCard('outOfStock')}
+            </span>
+          </div>
+        )}
         {product.discount && (
           <div className="absolute top-0 right-0 bg-yellow-400 text-xs font-bold px-1.5 py-0.5">
             {product.discount}% GIẢM
@@ -58,8 +70,12 @@ const ProductListCard: React.FC<{
         <div className="text-sm text-gray-700 mb-1.5 truncate">
           <span className="font-semibold text-blue-700"></span> <span className="font-medium">{sellerName}</span>
         </div>
-        <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600">
-          <span>{tCard('available')}: <span className="font-semibold text-green-600">{stockCount}</span></span>
+        <div className={`flex items-center justify-between text-xs sm:text-sm ${isInStock ? 'text-gray-600' : 'text-red-600 font-semibold'}`}>
+          {isInStock ? (
+            <span>{tCard('available')}: <span className="font-semibold text-green-600">{stockCount}</span></span>
+          ) : (
+            <span>{tCard('outOfStock')}</span>
+          )}
           <span>{tCard('sold')}: <span className="font-semibold text-blue-600">{soldCount}</span></span>
         </div>
       </div>

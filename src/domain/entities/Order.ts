@@ -14,6 +14,22 @@ export type PaymentMethod = 'cod' | 'momo' | 'zalopay' | 'vnpay' | 'card';
 
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 
+export type OrderStatusChangedBy = 'user' | 'manager' | 'system';
+
+export interface OrderStatusHistoryEntry {
+  status: OrderStatus;
+  changedAt: string;
+  changedBy: OrderStatusChangedBy;
+  note?: string;
+}
+
+export interface OrderCustomerSummary {
+  id: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+}
+
 export interface OrderItem {
   productId: string;
   productName: string;
@@ -37,6 +53,7 @@ export interface Order {
   id: string;
   orderNumber: string;
   userId: string;
+  managerId?: string;
   items: OrderItem[];
   totalItems: number;
   subtotal: number;
@@ -58,4 +75,7 @@ export interface Order {
   daysUntilDelivery?: number | null;
   note?: string;
   cancelReason?: string;
+  trackingNumber?: string | null;
+  statusHistory?: OrderStatusHistoryEntry[];
+  customer?: OrderCustomerSummary;
 }

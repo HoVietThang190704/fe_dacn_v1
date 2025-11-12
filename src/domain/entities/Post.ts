@@ -34,8 +34,9 @@ export interface CreatePostData {
 export interface UpdatePostData {
   postId: string;
   content?: string;
-  images?: File[];
   visibility?: 'public' | 'friends' | 'private';
+  existingImageUrls?: string[];
+  newImages?: File[];
 }
 export interface SharePostData {
   originalPostId: string;

@@ -5,6 +5,7 @@ import {
 	OrderListResult,
 	OrderStatistics,
 	VoucherApplicationResult,
+	UpdateManagedOrderStatusRequest,
 } from '@/domain/repositories/IOrderRepository';
 import { Voucher } from '@/domain/entities/Voucher';
 import { API_ENDPOINTS } from '@/shared/constants/api';
@@ -23,6 +24,7 @@ type OrderDto = {
 	id: string;
 	orderNumber: string;
 	userId: string;
+	managerId?: string;
 	items: OrderItemDto[];
 	totalItems: number;
 	subtotal: number;
@@ -44,6 +46,19 @@ type OrderDto = {
 	daysUntilDelivery?: number | null;
 	note?: string;
 	cancelReason?: string;
+	trackingNumber?: string | null;
+	statusHistory?: {
+		status: Order['status'];
+		changedAt: string;
+		changedBy: 'user' | 'manager' | 'system';
+		note?: string;
+	}[];
+	customer?: {
+		id: string;
+		name?: string;
+		email?: string;
+		phone?: string;
+	};
 };
 
 type OrderListApiResponse = {
@@ -89,8 +104,12 @@ export class OrderApiDataSource {
 		const params = new URLSearchParams();
 
 		if (filters.status) params.append('status', filters.status);
+		if (filters.paymentStatus) params.append('paymentStatus', filters.paymentStatus);
 		if (filters.page) params.append('page', filters.page.toString());
 		if (filters.limit) params.append('limit', filters.limit.toString());
+		if (filters.search) params.append('search', filters.search);
+		if (filters.orderNumber) params.append('orderNumber', filters.orderNumber);
+		if (filters.managerId) params.append('managerId', filters.managerId);
 
 		const query = params.toString();
 		return query ? `?${query}` : '';
@@ -101,6 +120,7 @@ export class OrderApiDataSource {
 			id: dto.id,
 			orderNumber: dto.orderNumber,
 			userId: dto.userId,
+			managerId: dto.managerId,
 			items: dto.items.map((item) => ({
 				productId: item.productId,
 				productName: item.productName,
@@ -128,7 +148,22 @@ export class OrderApiDataSource {
 			deliveredAt: dto.deliveredAt,
 			daysUntilDelivery: dto.daysUntilDelivery,
 			note: dto.note,
-			cancelReason: dto.cancelReason,
+				cancelReason: dto.cancelReason,
+				trackingNumber: dto.trackingNumber ?? undefined,
+				statusHistory: dto.statusHistory?.map((entry) => ({
+					status: entry.status,
+					changedAt: entry.changedAt,
+					changedBy: entry.changedBy,
+					note: entry.note,
+				})),
+				customer: dto.customer
+					? {
+						id: dto.customer.id,
+						name: dto.customer.name,
+						email: dto.customer.email,
+						phone: dto.customer.phone,
+					}
+					: undefined,
 		};
 	}
 
@@ -148,8 +183,35 @@ export class OrderApiDataSource {
 		};
 	}
 
+	async getManagedOrders(filters?: OrderListFilters): Promise<OrderListResult> {
+		const query = this.buildQuery(filters);
+		const response = await authApiClient.get<OrderListApiResponse>(`${API_ENDPOINTS.MANAGED_ORDERS}${query}`);
+
+		if (!response.success || !response.data?.data) {
+			throw new Error(response.error || response.data?.message || 'Không thể tải danh sách đơn hàng');
+		}
+
+		const { orders, pagination } = response.data.data;
+
+		return {
+			orders: orders.map((order) => this.mapOrder(order)),
+			pagination,
+		};
+	}
+
 	async getOrderById(orderId: string): Promise<Order> {
 		const response = await authApiClient.get<OrderDetailApiResponse>(API_ENDPOINTS.ORDER_DETAIL(orderId));
+
+		if (!response.success || !response.data?.data) {
+			throw new Error(response.error || response.data?.message || 'Không thể tải đơn hàng');
+		}
+
+		return this.mapOrder(response.data.data);
+	}
+
+	async getManagedOrderById(orderId: string, managerId?: string): Promise<Order> {
+		const query = managerId ? `?managerId=${managerId}` : '';
+		const response = await authApiClient.get<OrderDetailApiResponse>(`${API_ENDPOINTS.MANAGED_ORDER_DETAIL(orderId)}${query}`);
 
 		if (!response.success || !response.data?.data) {
 			throw new Error(response.error || response.data?.message || 'Không thể tải đơn hàng');
@@ -202,12 +264,44 @@ export class OrderApiDataSource {
 	}
 
 	async updatePaymentStatus(orderId: string, paymentStatus: string): Promise<Order> {
-		const response = await authApiClient.put<OrderDetailApiResponse>(`/api/orders/${orderId}/payment-status`, {
-			paymentStatus,
-		});
+		const response = await authApiClient.put<OrderDetailApiResponse>(
+			API_ENDPOINTS.ORDER_PAYMENT_STATUS(orderId),
+			{
+				paymentStatus,
+			}
+		);
 
 		if (!response.success || !response.data?.data) {
 			throw new Error(response.error || response.data?.message || 'Không thể cập nhật trạng thái thanh toán');
+		}
+
+		return this.mapOrder(response.data.data);
+	}
+
+	async updateManagedOrderStatus(orderId: string, payload: UpdateManagedOrderStatusRequest): Promise<Order> {
+		const response = await authApiClient.request<OrderDetailApiResponse>(
+			API_ENDPOINTS.MANAGED_ORDER_STATUS(orderId),
+			{
+				method: 'PATCH',
+				body: JSON.stringify(payload),
+			}
+		);
+
+		if (!response.success || !response.data?.data) {
+			throw new Error(response.error || response.data?.message || 'Không thể cập nhật trạng thái đơn hàng');
+		}
+
+		return this.mapOrder(response.data.data);
+	}
+
+	async confirmOrderDelivered(orderId: string, note?: string): Promise<Order> {
+		const response = await authApiClient.post<OrderDetailApiResponse>(
+			API_ENDPOINTS.CONFIRM_ORDER_DELIVERED(orderId),
+			note ? { note } : {}
+		);
+
+		if (!response.success || !response.data?.data) {
+			throw new Error(response.error || response.data?.message || 'Không thể xác nhận giao hàng');
 		}
 
 		return this.mapOrder(response.data.data);

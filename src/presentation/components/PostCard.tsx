@@ -9,7 +9,16 @@ import PostDetailModal from './PostDetailModal';
 import SharePostModal from './SharePostModal';
 import { useAuth } from '@/shared/hooks/useAuth';
 
-const PostOptionsMenu: React.FC<{ onDelete: () => void | Promise<void> }> = ({ onDelete }) => {
+interface PostOptionsMenuProps {
+  onDelete?: () => void | Promise<void>;
+  onEdit?: () => void | Promise<void>;
+  labels: {
+    edit: string;
+    delete: string;
+  };
+}
+
+const PostOptionsMenu: React.FC<PostOptionsMenuProps> = ({ onDelete, onEdit, labels }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -27,7 +36,19 @@ const PostOptionsMenu: React.FC<{ onDelete: () => void | Promise<void> }> = ({ o
 
   const handleDelete = async () => {
     try {
-      await onDelete();
+      if (onDelete) {
+        await onDelete();
+      }
+    } finally {
+      setOpen(false);
+    }
+  };
+
+  const handleEdit = async () => {
+    try {
+      if (onEdit) {
+        await onEdit();
+      }
     } finally {
       setOpen(false);
     }
@@ -49,12 +70,22 @@ const PostOptionsMenu: React.FC<{ onDelete: () => void | Promise<void> }> = ({ o
 
       {open && (
         <div className="absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-lg z-50">
-          <button
-            onClick={handleDelete}
-            className="w-full text-left px-4 py-2 hover:bg-red-50 hover:text-red-600 text-sm"
-          >
-            Xóa bài viết
-          </button>
+          {onEdit && (
+            <button
+              onClick={handleEdit}
+              className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
+            >
+              {labels.edit}
+            </button>
+          )}
+          {onDelete && (
+            <button
+              onClick={handleDelete}
+              className="w-full text-left px-4 py-2 hover:bg-red-50 hover:text-red-600 text-sm"
+            >
+              {labels.delete}
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -68,9 +99,10 @@ interface PostCardProps {
   onComment?: () => void | Promise<void>;
   onShare?: (content?: string) => void | Promise<void>;
   onDelete?: () => void | Promise<void>;
+  onEdit?: () => void | Promise<void>;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ post, t, onLike, onComment, onShare, onDelete }) => {
+const PostCard: React.FC<PostCardProps> = ({ post, t, onLike, onComment, onShare, onDelete, onEdit }) => {
   const params = useParams();
   const locale = params.locale as string || 'vi';
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -167,7 +199,16 @@ const PostCard: React.FC<PostCardProps> = ({ post, t, onLike, onComment, onShare
           </div>
         </Link>
         {/* Show three-dot menu only for post owner */}
-        {user?.id === post.userId && onDelete && <PostOptionsMenu onDelete={onDelete} />}
+        {user?.id === post.userId && (onDelete || onEdit) && (
+          <PostOptionsMenu
+            onDelete={onDelete}
+            onEdit={onEdit}
+            labels={{
+              edit: t('editPost'),
+              delete: t('deletePost'),
+            }}
+          />
+        )}
       </div>
 
       {/* Post Content */}

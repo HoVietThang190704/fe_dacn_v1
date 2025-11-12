@@ -10,6 +10,7 @@ import { CreatePostUseCase } from '@/domain/usecases/CreatePostUseCase';
 import { UpdatePostUseCase } from '@/domain/usecases/UpdatePostUseCase';
 import { DeletePostUseCase } from '@/domain/usecases/DeletePostUseCase';
 import { GetPostsFeedUseCase, GetPublicPostsUseCase, GetUserPostsUseCase, SearchPostsUseCase } from '@/domain/usecases/GetPostsUseCase';
+import { GetPostByIdUseCase } from '@/domain/usecases/GetPostByIdUseCase';
 import { ToggleLikePostUseCase } from '@/domain/usecases/ToggleLikePostUseCase';
 import { SharePostUseCase } from '@/domain/usecases/SharePostUseCase';
 
@@ -33,6 +34,7 @@ class PostCommentContainer {
 
   // Use Cases - Posts
   private _createPostUseCase?: CreatePostUseCase;
+  private _getPostByIdUseCase?: GetPostByIdUseCase;
   private _updatePostUseCase?: UpdatePostUseCase;
   private _deletePostUseCase?: DeletePostUseCase;
   private _getPostsFeedUseCase?: GetPostsFeedUseCase;
@@ -107,6 +109,13 @@ class PostCommentContainer {
       this._createPostUseCase = new CreatePostUseCase(this.postRepository);
     }
     return this._createPostUseCase;
+  }
+
+  get getPostByIdUseCase(): GetPostByIdUseCase {
+    if (!this._getPostByIdUseCase) {
+      this._getPostByIdUseCase = new GetPostByIdUseCase(this.postRepository);
+    }
+    return this._getPostByIdUseCase;
   }
 
   get updatePostUseCase(): UpdatePostUseCase {

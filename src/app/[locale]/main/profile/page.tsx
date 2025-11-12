@@ -4,10 +4,14 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { ProfilePage } from '@/presentation/pages/ProfilePage';
+import { useProfileViewModel } from '@/presentation/viewmodels/useProfileViewModel';
+import { container } from '@/presentation/di/container';
 
 export default function ProfileRoute() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+
+  const { profile, isLoading: isProfileLoading } = useProfileViewModel(container.getUserProfileUseCase);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -15,7 +19,7 @@ export default function ProfileRoute() {
     }
   }, [isAuthenticated, isLoading, router]);
 
-  if (isLoading) {
+  if (isLoading || isProfileLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="w-16 h-16 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
@@ -23,7 +27,7 @@ export default function ProfileRoute() {
     );
   }
 
-  if (!user) return null;
+  if (!user || !profile) return null;
 
-  return <ProfilePage profile={{ id: user.id, userName: user.userName, email: user.email, phone: user.phone, role: user.role, isVerified: user.isVerified }} />;
+  return <ProfilePage profile={profile} />;
 }
