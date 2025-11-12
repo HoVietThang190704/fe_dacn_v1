@@ -204,8 +204,8 @@ export const OrdersPage = () => {
         </div>
       </header>
 
-      <nav className="sticky top-0 z-20 -mx-3 mb-6 border-y border-gray-200 bg-white/95 backdrop-blur sm:mx-0 sm:rounded-2xl sm:border">
-        <div className="flex snap-x snap-mandatory gap-2 overflow-x-auto px-3 py-3 sm:px-4">
+      <nav className="sticky top-0 z-20 mb-6 border-y border-gray-200 bg-white/95 backdrop-blur mx-0 sm:mx-0 sm:rounded-2xl sm:border overflow-hidden">
+  <div className="flex flex-wrap gap-2 px-3 py-3 sm:flex-nowrap sm:snap-x sm:snap-mandatory sm:gap-2 sm:overflow-x-auto sm:px-4">
           {filterOptions.map((option) => (
             <FilterPill
               key={option.key}
@@ -256,7 +256,7 @@ const FilterPill: React.FC<{
 }> = ({ label, active, onClick, count, isLoading }) => (
   <button
     onClick={onClick}
-    className={`flex snap-start items-center gap-2 rounded-full border px-3 py-2 text-xs font-medium transition-colors sm:px-4 sm:text-sm ${
+    className={`inline-flex snap-start items-center gap-2 rounded-full border px-2 py-1 text-xs font-medium transition-colors sm:px-3 sm:py-1 sm:text-sm whitespace-nowrap ${
       active
         ? 'border-orange-500 bg-orange-50 text-orange-600 shadow-sm'
         : 'border-transparent bg-gray-100 text-gray-600 hover:bg-gray-200'

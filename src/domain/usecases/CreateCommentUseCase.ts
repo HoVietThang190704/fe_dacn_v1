@@ -5,7 +5,6 @@ export class CreateCommentUseCase {
   constructor(private commentRepository: ICommentRepository) {}
 
   async execute(data: CreateCommentData): Promise<Comment> {
-    // Validation
     if (!data.postId || data.postId.trim().length === 0) {
       throw new Error('Post ID không hợp lệ');
     }

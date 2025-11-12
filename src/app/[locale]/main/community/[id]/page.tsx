@@ -28,14 +28,10 @@ export default function PostDetailPage() {
   const loadPostAndComments = async () => {
     try {
       setIsLoading(true);
-      
-      // Load post
       const postData = await postCommentContainer
         .postRepository
         .getPostById(postId);
       setPost(postData);
-
-      // Load comments
       const commentsData = await postCommentContainer
         .getCommentsByPostIdUseCase
         .execute(postId, 1, 100);
@@ -81,8 +77,6 @@ export default function PostDetailPage() {
       
       setComments([comment, ...comments]);
       setNewComment('');
-      
-      // Update comment count
       if (post) {
         setPost({ ...post, commentsCount: post.commentsCount + 1 });
       }
@@ -151,7 +145,6 @@ export default function PostDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
           <button
@@ -167,9 +160,7 @@ export default function PostDetailPage() {
       </div>
 
       <div className="max-w-4xl mx-auto">
-        {/* Post Content */}
         <div className="bg-white mt-2">
-          {/* Post Header */}
           <div className="p-4 flex items-center gap-3">
             {post.user?.avatar ? (
               <Image
@@ -189,13 +180,9 @@ export default function PostDetailPage() {
               <p className="text-sm text-gray-500">{formatTimeAgo(post.createdAt)}</p>
             </div>
           </div>
-
-          {/* Post Content */}
           <div className="px-4 pb-4">
             <p className="text-base text-gray-800 whitespace-pre-wrap leading-relaxed">{post.content}</p>
           </div>
-
-          {/* Post Images */}
           {post.images && post.images.length > 0 && (
             <div className="mb-4">
               {post.images.length === 1 ? (
@@ -223,7 +210,6 @@ export default function PostDetailPage() {
             </div>
           )}
 
-          {/* Post Stats */}
           <div className="px-4 py-3 border-y border-gray-100 flex items-center justify-between text-sm text-gray-500">
             <div className="flex items-center gap-2">
               {post.likesCount > 0 && (
@@ -240,8 +226,6 @@ export default function PostDetailPage() {
               {post.sharesCount > 0 && <span>{post.sharesCount.toLocaleString()} chia sẻ</span>}
             </div>
           </div>
-
-          {/* Action Buttons */}
           <div className="px-2 py-2 flex gap-1 border-b border-gray-200">
             <button
               onClick={handleLike}
@@ -257,13 +241,10 @@ export default function PostDetailPage() {
           </div>
         </div>
 
-        {/* Comments Section */}
         <div className="bg-white mt-2 mb-4">
           <div className="p-4 border-b border-gray-200">
             <h3 className="font-semibold text-lg">Tất cả bình luận ({comments.length})</h3>
           </div>
-
-          {/* Comment Input */}
           <form onSubmit={handleSubmitComment} className="p-4 border-b border-gray-200 flex items-start gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
               A
@@ -286,8 +267,6 @@ export default function PostDetailPage() {
               </button>
             </div>
           </form>
-
-          {/* Comments List */}
           <div className="divide-y divide-gray-100">
             {comments.length === 0 ? (
               <div className="p-8 text-center text-gray-500">

@@ -13,13 +13,10 @@ const ProductCreateRoute = () => {
     const loadCategories = async () => {
       try {
         const items = await container.productRepository.getCategories();
-        // Debug: log categories received from repository
-        try {
-          console.debug('[ProductCreateRoute] loaded categories count:', items.length, items.slice(0, 6));
+        try {      
         } catch {}
         setCategories(items);
-      } catch (error) {
-        console.error('Failed to load categories for create product page:', error);
+      } catch{
       } finally {
         setIsLoading(false);
       }

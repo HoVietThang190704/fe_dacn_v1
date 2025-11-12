@@ -9,7 +9,6 @@ import PostDetailModal from './PostDetailModal';
 import SharePostModal from './SharePostModal';
 import { useAuth } from '@/shared/hooks/useAuth';
 
-// Options menu shown for post owner (three-dot menu with delete)
 const PostOptionsMenu: React.FC<{ onDelete: () => void | Promise<void> }> = ({ onDelete }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);

@@ -6,7 +6,6 @@ import { postCommentContainer } from '@/presentation/di/PostCommentContainer';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { CommentSection } from './CommentSection';
 
-// local API shapes (backend returns populated user objects)
 type ApiUser = {
   id?: string;
   userName?: string;
@@ -44,19 +43,16 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, postId]);
 
-  // Prevent background scrolling and focus modal when open
   useEffect(() => {
     if (!isOpen) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    // focus close button for accessibility
     setTimeout(() => closeBtnRef.current?.focus(), 50);
     return () => {
       document.body.style.overflow = prev || '';
     };
   }, [isOpen]);
 
-  // keyboard navigation for images (left/right)
   useEffect(() => {
     if (!isOpen) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -76,9 +72,7 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
       setIsLoading(true);
     const p = await postCommentContainer.postRepository.getPostById(postId);
     setPost(p as ApiPost);
-  // reset image index when new post loaded
   setCurrentImageIndex(0);
-    // comments will be loaded by CommentSection when it mounts
     } catch (err) {
       console.error('Error loading post detail:', err);
     } finally {
@@ -95,7 +89,6 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
       ref={overlayRef}
       onMouseDown={(e) => {
-        // close when clicking on overlay outside modal content
         if (e.target === overlayRef.current) {
           onClose();
         }
@@ -125,7 +118,6 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
             </div>
             {post?.images && post.images.length > 0 && (
               <div className="mb-4 relative">
-                {/* Single-image carousel: show one image at a time with prev/next controls */}
                 <div className="w-full flex items-center justify-center bg-black/5 rounded">
                   <div className="relative w-full">
                     <div
@@ -138,14 +130,12 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
                         if (startX == null) return;
                         const endX = e.changedTouches[0].clientX;
                         const diff = startX - endX;
-                        const threshold = 50; // px
+                        const threshold = 50;
                         if (diff > threshold) {
-                          // swipe left -> next
                           setIsAnimating(true);
                           setCurrentImageIndex((idx) => (idx + 1) % post!.images!.length);
                           setTimeout(() => setIsAnimating(false), 250);
                         } else if (diff < -threshold) {
-                          // swipe right -> prev
                           setIsAnimating(true);
                           setCurrentImageIndex((idx) => (idx - 1 + post!.images!.length) % post!.images!.length);
                           setTimeout(() => setIsAnimating(false), 250);
@@ -168,8 +158,6 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
                           }
                         }}
                       />
-
-                      {/* Prev button (SVG) */}
                       {post!.images!.length > 1 && (
                         <button
                           onClick={() => {
@@ -185,8 +173,6 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
                           </svg>
                         </button>
                       )}
-
-                      {/* Next button (SVG) */}
                       {post!.images!.length > 1 && (
                         <button
                           onClick={() => {
@@ -203,15 +189,12 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
                         </button>
                       )}
 
-                      {/* Counter */}
                       {post!.images!.length > 1 && (
                         <div className="absolute right-3 bottom-3 bg-black/60 text-white text-xs px-2 py-1 rounded">
                           {currentImageIndex + 1} / {post!.images!.length}
                         </div>
                       )}
                     </div>
-
-                    {/* Thumbnails */}
                     {post!.images!.length > 1 && (
                       <div className="mt-3 flex items-center gap-2 overflow-x-auto">
                         {post!.images!.map((src, idx) => (

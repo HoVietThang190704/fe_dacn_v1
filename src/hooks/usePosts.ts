@@ -10,7 +10,7 @@ export function usePosts() {
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
-  const limit = 10; // Load 10 posts at a time
+  const limit = 10; 
   const { user } = useAuth();
 
   const loadPosts = useCallback(async (pageNum: number = 1, append: boolean = false) => {
@@ -54,8 +54,6 @@ export function usePosts() {
       const newPost = await postCommentContainer
         .createPostUseCase
         .execute(data);
-
-      // Add new post to the beginning of the list
       setPosts((prev) => [newPost, ...prev]);
       return newPost;
     } catch (err: unknown) {
@@ -69,8 +67,6 @@ export function usePosts() {
       await postCommentContainer
         .deletePostUseCase
         .execute(postId);
-
-      // Remove post from list
       setPosts((prev) => prev.filter((p) => p.id !== postId));
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Lỗi khi xóa bài viết';
@@ -83,8 +79,6 @@ export function usePosts() {
       const result = await postCommentContainer
         .toggleLikePostUseCase
         .execute(postId);
-
-      // Update post in list
       setPosts((prev) =>
         prev.map((p) =>
           p.id === postId
@@ -105,11 +99,7 @@ export function usePosts() {
       const sharedPost = await postCommentContainer
         .sharePostUseCase
         .execute({ originalPostId, content });
-
-      // Add shared post to the beginning
       setPosts((prev) => [sharedPost, ...prev]);
-
-      // Update shares count on original post
       setPosts((prev) =>
         prev.map((p) =>
           p.id === originalPostId
@@ -128,8 +118,6 @@ export function usePosts() {
   const refresh = useCallback(async () => {
     await loadPosts(1, false);
   }, [loadPosts]);
-
-  // Reload posts when auth user changes so server can compute isLiked for current user
   useEffect(() => {
     loadPosts(1, false);
   }, [loadPosts, user?.id]);

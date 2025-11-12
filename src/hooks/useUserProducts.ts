@@ -16,7 +16,7 @@ export function useUserProducts(userId: string) {
 
       const result = await container.getProductsUseCase.execute({
         owner: userId,
-        limit: 100, // Load more for profile
+        limit: 100, 
       });
 
       setProducts(result.products);

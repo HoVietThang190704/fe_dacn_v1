@@ -67,6 +67,10 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
     } finally {
       setUploading(false);
       setProgress(0);
+      // Reset input để có thể chọn lại cùng file
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   }, [maxFiles, urls, notify]);
 
@@ -118,6 +122,11 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
 
   const remainingSlots = maxFiles - urls.length;
 
+  const handleClickUpload = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    fileInputRef.current?.click();
+  }, []);
+
   return (
     <div className="space-y-4">
       {remainingSlots > 0 && (
@@ -125,7 +134,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
+          onClick={handleClickUpload}
           className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all ${
             isDragging
               ? 'border-orange-500 bg-orange-50'
@@ -137,11 +146,14 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
             type="file"
             accept="image/*"
             multiple
-            onChange={(e) => handleFiles(e.target.files)}
+            onChange={(e) => {
+              handleFiles(e.target.files);
+              e.target.value = '';
+            }}
             className="hidden"
           />
 
-          <div className="flex flex-col items-center gap-3">
+          <div className="flex flex-col items-center gap-3" onClick={(e) => e.stopPropagation()}>
             <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
               isDragging ? 'bg-orange-100' : 'bg-gray-100'
             }`}>
@@ -183,7 +195,10 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
             {remainingSlots > 0 && (
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
                 className="text-xs px-3 py-1.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
               >
                 + Thêm ảnh

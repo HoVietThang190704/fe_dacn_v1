@@ -1,9 +1,3 @@
-/**
- * Dependency Injection Container for Posts & Comments
- * Manages all dependencies following Clean Architecture
- */
-
-// Data Sources
 import { PostApiDataSource } from '@/data/datasources/PostApiDataSource';
 import { CommentApiDataSource } from '@/data/datasources/CommentApiDataSource';
 

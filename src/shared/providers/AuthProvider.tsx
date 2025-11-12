@@ -3,14 +3,8 @@
 import { useEffect } from 'react';
 import { postCommentContainer } from '@/presentation/di/PostCommentContainer';
 
-/**
- * AuthProvider - Manages authentication state and token injection
- * This component ensures that the auth token is always available 
- * in the API data sources when the user is authenticated
- */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Function to load and set token
     const loadAuthToken = () => {
       try {
         const token = localStorage.getItem('authToken');
@@ -25,11 +19,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('[AuthProvider] Error loading auth token:', error);
       }
     };
-
-    // Load token on mount
     loadAuthToken();
 
-    // Listen for storage changes (e.g., login in another tab)
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'authToken') {
         if (e.newValue) {

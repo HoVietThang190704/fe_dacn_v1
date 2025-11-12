@@ -13,10 +13,7 @@ interface MockProduct extends Omit<Product, 'rating' | 'reviewCount' | 'descript
 const ProductCard: React.FC<{ product: MockProduct }> = ({ product }) => {
   const router = useRouter();
   const t = useTranslations('productCard');
-  
   const handleClick = () => router.push(`/main/products/${product.id}`);
-
-  // Prefer explicit owner info, fallback to localized label
   const sellerName = product.owner?.userName || product.owner?.email || t('seller');
   const soldCount = product.sold || 0;
   const stockCount = product.stock || 0;
@@ -41,12 +38,9 @@ const ProductCard: React.FC<{ product: MockProduct }> = ({ product }) => {
         />
       </div>
       <div className="p-2.5">
-        {/* Product name - larger and bolder */}
         <h3 className="text-sm sm:text-base mb-2 line-clamp-2 font-semibold text-gray-800 leading-tight" style={{ minHeight: '1rem' }}>
           {product.name}
         </h3>
-        
-        {/* Price */}
         <div className="flex items-center gap-1 mb-2">
           <span className="text-orange-500 text-base sm:text-lg font-bold">
             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(product.price)}
@@ -57,13 +51,9 @@ const ProductCard: React.FC<{ product: MockProduct }> = ({ product }) => {
             </span>
           )}
         </div>
-
-        {/* Seller info - larger and more prominent */}
         <div className="text-sm text-gray-700 mb-1 truncate">
           <span className="font-semibold text-blue-700"></span> <span className="font-medium">{sellerName}</span>
         </div>
-
-        {/* Stock and sold count - slightly larger */}
         <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600">
           <span>{t('available')}: <span className="font-semibold text-green-600">{stockCount}</span></span>
           <span>{t('sold')}: <span className="font-semibold text-blue-600">{soldCount}</span></span>

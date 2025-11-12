@@ -85,7 +85,6 @@ class AuthApiClient {
 
       if (result.success && result.accessToken) {
         this.setAuthToken(result.accessToken);
-        // Trigger storage event to notify other components
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new StorageEvent('storage', {
             key: 'authToken',
@@ -114,8 +113,6 @@ class AuthApiClient {
       'Content-Type': 'application/json',
       ...((options.headers as Record<string, string>) || {}),
     };
-
-    // Add auth token if not skipped
     if (!options.skipAuth) {
       const token = this.getAuthToken();
       if (token) {
@@ -130,15 +127,10 @@ class AuthApiClient {
     };
 
     let response = await fetch(url, requestOptions);
-
-    // If 401 and not already refreshing, try to refresh token
     if (response.status === 401 && !options.skipAuth && !this.isRefreshing) {
       console.log('[AuthApiClient] Got 401, attempting token refresh');
-
       const newToken = await this.refreshAccessToken();
-
       if (newToken) {
-        // Retry the request with new token
         headers.Authorization = `Bearer ${newToken}`;
         response = await fetch(url, {
           ...requestOptions,

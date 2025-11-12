@@ -34,13 +34,11 @@ const PreferencesSection: React.FC = () => {
   const handleLangChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newLocale = e.target.value;
     try {
-      // replace the first occurrence of the current locale in the path
       const newPath = pathname.startsWith(`/${locale}`)
         ? pathname.replace(`/${locale}`, `/${newLocale}`)
         : `/${newLocale}${pathname}`;
       router.push(newPath);
     } catch {
-      // fallback: navigate to root with new locale
       router.push(`/${newLocale}`);
     }
   };
