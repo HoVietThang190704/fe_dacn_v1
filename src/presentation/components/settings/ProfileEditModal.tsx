@@ -209,7 +209,6 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ open, onClos
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  {/* Hidden file input used to change avatar. Use ref to ensure we click exact input for accessibility and scope. */}
                   <input
                     ref={fileInputRef}
                     type="file"

@@ -178,6 +178,14 @@ class AuthApiClient {
     });
   }
 
+  async patch<T>(endpoint: string, data?: unknown, options?: RequestInit & { skipAuth?: boolean }): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      ...options,
+      method: 'PATCH',
+      body: data !== undefined ? JSON.stringify(data) : undefined,
+    });
+  }
+
   async delete<T>(endpoint: string, options?: RequestInit & { skipAuth?: boolean }): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { ...options, method: 'DELETE' });
   }

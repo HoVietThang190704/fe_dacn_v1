@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { ICONS } from '@/shared/constants/images';
 import { useTranslations } from 'next-intl';
 
 const StarIcon = () => (
@@ -41,7 +42,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   
   const sellerName = owner?.userName || owner?.email || seller || t('unknownSeller');
   const stockCount = stock || 0;
-  const displayImage = image || images?.[0] || 'https://placehold.co/400x400?text=Product';
+  const displayImage = image || images?.[0] || ICONS.GOODS;
   const ratingValue = typeof rating === 'number' ? rating : 0;
   const reviewTotal = typeof reviewCount === 'number' ? reviewCount : 0;
 

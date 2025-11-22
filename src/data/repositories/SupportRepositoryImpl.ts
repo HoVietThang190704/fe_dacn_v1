@@ -1,19 +1,19 @@
-import { ISupportRepository, CreateTicketDto } from '@/domain/repositories/ISupportRepository';
-import { SupportTicket, FAQ, TicketStatus } from '@/domain/entities/Support';
+import { ISupportRepository } from '@/domain/repositories/ISupportRepository';
+import { SupportTicket, FAQ, TicketStatus, CreateSupportTicketInput } from '@/domain/entities/Support';
 import { SupportApiDataSource } from '../datasources/SupportApiDataSource';
 
 export class SupportRepositoryImpl implements ISupportRepository {
   constructor(private apiDataSource: SupportApiDataSource) {}
 
-  async getTickets(userId: string): Promise<SupportTicket[]> {
-    return await this.apiDataSource.getTickets(userId);
+  async getTickets(): Promise<SupportTicket[]> {
+    return await this.apiDataSource.getTickets();
   }
 
   async getTicketById(id: string): Promise<SupportTicket> {
     return await this.apiDataSource.getTicketById(id);
   }
 
-  async createTicket(ticket: CreateTicketDto): Promise<SupportTicket> {
+  async createTicket(ticket: CreateSupportTicketInput): Promise<SupportTicket> {
     return await this.apiDataSource.createTicket(ticket);
   }
 
@@ -21,11 +21,15 @@ export class SupportRepositoryImpl implements ISupportRepository {
     return await this.apiDataSource.updateTicketStatus(ticketId, status);
   }
 
-  async getFAQs(category?: string): Promise<FAQ[]> {
-    return await this.apiDataSource.getFAQs(category);
+  async getFAQs(params?: { category?: string; locale?: string }): Promise<FAQ[]> {
+    return await this.apiDataSource.getFAQs(params);
   }
 
-  async searchFAQs(query: string): Promise<FAQ[]> {
-    return await this.apiDataSource.searchFAQs(query);
+  async searchFAQs(query: string, locale?: string): Promise<FAQ[]> {
+    return await this.apiDataSource.searchFAQs(query, locale);
+  }
+
+  async voteOnFAQ(faqId: string, vote: 'helpful' | 'not_helpful') {
+    return await this.apiDataSource.voteFaq(faqId, vote);
   }
 }

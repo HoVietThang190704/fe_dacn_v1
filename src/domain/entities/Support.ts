@@ -1,29 +1,50 @@
 export enum TicketStatus {
-  OPEN = 'OPEN',
-  IN_PROGRESS = 'IN_PROGRESS',
-  RESOLVED = 'RESOLVED',
-  CLOSED = 'CLOSED'
+  OPEN = 'open',
+  IN_PROGRESS = 'in_progress',
+  ON_HOLD = 'on_hold',
+  RESOLVED = 'resolved',
+  CLOSED = 'closed',
+  REJECTED = 'rejected'
 }
 
 export enum TicketPriority {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-  URGENT = 'URGENT'
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  URGENT = 'urgent'
+}
+
+export type TicketType = 'support' | 'bug' | 'feature' | 'question' | 'refund' | 'other';
+
+export interface SupportTicketAttachment {
+  url: string;
+  filename?: string;
+  mimeType?: string;
+  size?: number;
 }
 
 export interface SupportTicket {
   id: string;
-  userId: string;
-  subject: string;
-  description: string;
-  category: string;
-  status: TicketStatus;
+  ticketNumber?: string | null;
+  title: string;
+  description?: string;
+  type: TicketType;
   priority: TicketPriority;
-  attachments: string[];
+  status: TicketStatus;
+  createdBy: string;
+  assignedTo?: string | null;
+  relatedShopId?: string | null;
+  relatedShopReference?: string | null;
+  relatedOrderId?: string | null;
+  relatedOrderReference?: string | null;
+  tags?: string[];
+  attachments?: SupportTicketAttachment[];
+  commentsCount?: number;
+  isPublic?: boolean;
+  resolutionMessage?: string | null;
   createdAt: Date;
   updatedAt: Date;
-  resolvedAt?: Date;
+  resolvedAt?: Date | null;
 }
 
 export interface FAQ {
@@ -33,4 +54,18 @@ export interface FAQ {
   category: string;
   helpful: number;
   notHelpful: number;
+  userVote?: 'helpful' | 'not_helpful' | null;
+}
+
+export interface CreateSupportTicketInput {
+  title: string;
+  description?: string;
+  type?: TicketType;
+  priority?: TicketPriority;
+  relatedOrderId?: string;
+  relatedOrderReference?: string;
+  relatedShopId?: string;
+  relatedShopReference?: string;
+  attachments?: SupportTicketAttachment[];
+  isPublic?: boolean;
 }

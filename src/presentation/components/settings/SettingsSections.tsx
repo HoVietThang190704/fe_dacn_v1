@@ -103,7 +103,7 @@ const ProfileSection: React.FC<{ t: ReturnType<typeof useTranslations>; viewMode
         } catch (uploadError) {
           const message = uploadError instanceof Error
             ? uploadError.message
-            : t('uploadAvatarError') || 'Tải ảnh đại diện thất bại. Vui lòng thử lại.';
+            : t('uploadAvatarError') || '';
           setFeedback({ status: 'error', message });
           throw uploadError;
         }

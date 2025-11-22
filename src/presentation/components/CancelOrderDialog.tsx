@@ -2,15 +2,10 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { translateSafely } from '../utils/translate';
+import { ORDER_CONFIG } from '../config/orderConfig';
 
-const translateSafely = (translate: (key: string) => string, key: string, fallback: string) => {
-  try {
-    const value = translate(key);
-    return !value || value === key ? fallback : value;
-  } catch {
-    return fallback;
-  }
-};
+ 
 
 interface CancelOrderDialogProps {
   isOpen: boolean;
@@ -45,13 +40,13 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
       return;
     }
 
-    if (reason.length < 10) {
-      setLocalError(translateSafely(t, 'validation.reasonTooShort', 'Lý do hủy phải tối thiểu 10 ký tự'));
+    if (reason.length < ORDER_CONFIG.CANCEL_REASON_MIN_LENGTH) {
+      setLocalError(translateSafely(t, 'validation.reasonTooShort', `Lý do hủy phải tối thiểu ${ORDER_CONFIG.CANCEL_REASON_MIN_LENGTH} ký tự`));
       return;
     }
 
-    if (reason.length > 500) {
-      setLocalError(translateSafely(t, 'validation.reasonTooLong', 'Lý do hủy không được vượt quá 500 ký tự'));
+    if (reason.length > ORDER_CONFIG.CANCEL_REASON_MAX_LENGTH) {
+      setLocalError(translateSafely(t, 'validation.reasonTooLong', `Lý do hủy không được vượt quá ${ORDER_CONFIG.CANCEL_REASON_MAX_LENGTH} ký tự`));
       return;
     }
 
@@ -66,7 +61,7 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        {/* Header */}
+        
         <div className="mb-4">
           <h2 className="text-lg font-semibold text-gray-900">
             {translateSafely(t, 'dialog.cancelTitle', 'Hủy đơn hàng')}
@@ -76,14 +71,14 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
           </p>
         </div>
 
-        {/* Warning Message */}
+        
         <div className="mb-4 rounded-lg bg-orange-50 p-3">
           <p className="text-sm text-orange-700">
             ⚠️ {translateSafely(t, 'dialog.cancelWarning', 'Việc hủy đơn hàng không thể được hoàn tác. Vui lòng xác nhận lý do hủy.')}
           </p>
         </div>
 
-        {/* Reason Input */}
+        
         <div className="mb-4">
           <label htmlFor="cancel-reason" className="block text-sm font-medium text-gray-700">
             {translateSafely(t, 'dialog.reasonLabel', 'Lý do hủy đơn')} *
@@ -99,14 +94,14 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
             className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             rows={4}
             disabled={isLoading}
-            maxLength={500}
+            maxLength={ORDER_CONFIG.CANCEL_REASON_MAX_LENGTH}
           />
           <div className="mt-1 text-xs text-gray-500">
-            {reason.length}/500 {translateSafely(t, 'dialog.characters', 'ký tự')}
+            {reason.length}/{ORDER_CONFIG.CANCEL_REASON_MAX_LENGTH} {translateSafely(t, 'dialog.characters', 'ký tự')}
           </div>
         </div>
 
-        {/* Error Message */}
+        
         {(localError || error) && (
           <div className="mb-4 rounded-lg bg-red-50 p-3">
             <p className="text-sm text-red-600">
@@ -115,7 +110,7 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
           </div>
         )}
 
-        {/* Action Buttons */}
+        
         <div className="flex gap-3">
           <button
             onClick={handleClose}

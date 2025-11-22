@@ -41,5 +41,7 @@ export const ICONS = {
     RICE: '/icons/rice.png',
     RIPE_BANANA: '/icons/ripe-banana.png',
     SEAFOOD: '/icons/seafood.png',
-    MEAT: '/icons/meat.png'
+    MEAT: '/icons/meat.png',
+    PAYMENT_METHOD: '/icons/payment-method.png',
+    WALLET: '/icons/wallet.png',
 }

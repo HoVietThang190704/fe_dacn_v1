@@ -184,13 +184,7 @@ const ProfileProductCard: React.FC<ProfileProductCardProps> = ({
           <span className="text-2xl font-bold text-orange-500">
             {priceLabel}
           </span>
-          <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-            isInStock
-              ? 'bg-green-100 text-green-700'
-              : 'bg-red-100 text-red-700'
-          }`}>
-            {isInStock ? `Còn ${stockCount}` : 'Hết hàng'}
-          </div>
+          
         </div>
 
         {product.description && (
@@ -201,7 +195,13 @@ const ProfileProductCard: React.FC<ProfileProductCardProps> = ({
 
         <div className="flex items-center justify-between text-xs text-gray-500">
           <span>{product.category?.name || 'Danh mục'}</span>
-          <span>{product.unit}</span>
+          <div className={`px-1 py-1 rounded-full text-xs font-medium ${
+            isInStock
+              ? 'bg-green-100 text-green-700'
+              : 'bg-red-100 text-red-700'
+          }`}>
+            {isInStock ? `Còn ${stockCount}` : 'Hết hàng'}
+          </div>
         </div>
       </div>
     </div>

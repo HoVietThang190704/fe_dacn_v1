@@ -4,6 +4,7 @@ import Navbar from '@/components/layout/Navbar';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { AuthProvider } from '@/shared/providers/AuthProvider';
 import { CartProvider } from '@/shared/providers/CartProvider';
+import { NotificationsProvider } from '@/shared/providers/NotificationsProvider';
 import { useState, useEffect } from 'react';
 
 interface MainLayoutProps {
@@ -35,19 +36,21 @@ export default function MainLayout({ children }: MainLayoutProps) {
   return (
     <AuthProvider>
       <CartProvider>
-        <div className="min-h-screen bg-gray-50">
-          <Navbar onMenuToggle={handleMenuToggle} isSidebarOpen={isSidebarOpen} />
-          <div className="flex">
-            <Sidebar 
-              isOpen={isSidebarOpen}
-              isMobile={isMobile}
-              onClose={() => setIsSidebarOpen(false)} 
-            />
-            <main className="flex-1 transition-all duration-300">
-              {children}
-            </main>
+        <NotificationsProvider>
+          <div className="min-h-screen bg-gray-50">
+            <Navbar onMenuToggle={handleMenuToggle} isSidebarOpen={isSidebarOpen} />
+            <div className="flex">
+              <Sidebar 
+                isOpen={isSidebarOpen}
+                isMobile={isMobile}
+                onClose={() => setIsSidebarOpen(false)} 
+              />
+              <main className="flex-1 transition-all duration-300">
+                {children}
+              </main>
+            </div>
           </div>
-        </div>
+        </NotificationsProvider>
       </CartProvider>
     </AuthProvider>
   );

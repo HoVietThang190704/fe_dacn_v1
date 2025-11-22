@@ -1,11 +1,9 @@
 import { PostApiDataSource } from '@/data/datasources/PostApiDataSource';
 import { CommentApiDataSource } from '@/data/datasources/CommentApiDataSource';
 
-// Repositories
 import { PostRepository } from '@/data/repositories/PostRepository';
 import { CommentRepository } from '@/data/repositories/CommentRepository';
 
-// Use Cases - Posts
 import { CreatePostUseCase } from '@/domain/usecases/CreatePostUseCase';
 import { UpdatePostUseCase } from '@/domain/usecases/UpdatePostUseCase';
 import { DeletePostUseCase } from '@/domain/usecases/DeletePostUseCase';
@@ -14,25 +12,24 @@ import { GetPostByIdUseCase } from '@/domain/usecases/GetPostByIdUseCase';
 import { ToggleLikePostUseCase } from '@/domain/usecases/ToggleLikePostUseCase';
 import { SharePostUseCase } from '@/domain/usecases/SharePostUseCase';
 
-// Use Cases - Comments
 import { CreateCommentUseCase } from '@/domain/usecases/CreateCommentUseCase';
 import { DeleteCommentUseCase } from '@/domain/usecases/DeleteCommentUseCase';
 import { GetCommentsByPostIdUseCase, GetCommentRepliesUseCase } from '@/domain/usecases/GetCommentsUseCase';
 import { ToggleLikeCommentUseCase } from '@/domain/usecases/ToggleLikeCommentUseCase';
 
 class PostCommentContainer {
-  // Singleton instance
+  
   private static instance: PostCommentContainer;
 
-  // Data Sources
+  
   private _postApiDataSource?: PostApiDataSource;
   private _commentApiDataSource?: CommentApiDataSource;
 
-  // Repositories
+  
   private _postRepository?: PostRepository;
   private _commentRepository?: CommentRepository;
 
-  // Use Cases - Posts
+  
   private _createPostUseCase?: CreatePostUseCase;
   private _getPostByIdUseCase?: GetPostByIdUseCase;
   private _updatePostUseCase?: UpdatePostUseCase;
@@ -44,7 +41,7 @@ class PostCommentContainer {
   private _toggleLikePostUseCase?: ToggleLikePostUseCase;
   private _sharePostUseCase?: SharePostUseCase;
 
-  // Use Cases - Comments
+  
   private _createCommentUseCase?: CreateCommentUseCase;
   private _deleteCommentUseCase?: DeleteCommentUseCase;
   private _getCommentsByPostIdUseCase?: GetCommentsByPostIdUseCase;
@@ -55,7 +52,6 @@ class PostCommentContainer {
 
   private constructor() {
     this.baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
-    console.log('[PostCommentContainer] Base URL:', this.baseUrl);
   }
 
   static getInstance(): PostCommentContainer {
@@ -65,17 +61,16 @@ class PostCommentContainer {
     return PostCommentContainer.instance;
   }
 
-  // Set authentication token
+  
   setAuthToken(token: string) {
     this.postApiDataSource.setToken(token);
     this.commentApiDataSource.setToken(token);
   }
 
-  // Data Sources
+  
   get postApiDataSource(): PostApiDataSource {
     if (!this._postApiDataSource) {
       this._postApiDataSource = new PostApiDataSource();
-      console.log('[PostCommentContainer] Created PostApiDataSource (using centralized API_CONFIG)');
     }
     return this._postApiDataSource;
   }
@@ -83,12 +78,11 @@ class PostCommentContainer {
   get commentApiDataSource(): CommentApiDataSource {
     if (!this._commentApiDataSource) {
       this._commentApiDataSource = new CommentApiDataSource();
-      console.log('[PostCommentContainer] Created CommentApiDataSource (using centralized API_CONFIG)');
     }
     return this._commentApiDataSource;
   }
 
-  // Repositories
+  
   get postRepository(): PostRepository {
     if (!this._postRepository) {
       this._postRepository = new PostRepository(this.postApiDataSource);
@@ -103,7 +97,7 @@ class PostCommentContainer {
     return this._commentRepository;
   }
 
-  // Post Use Cases
+  
   get createPostUseCase(): CreatePostUseCase {
     if (!this._createPostUseCase) {
       this._createPostUseCase = new CreatePostUseCase(this.postRepository);
@@ -174,7 +168,7 @@ class PostCommentContainer {
     return this._sharePostUseCase;
   }
 
-  // Comment Use Cases
+  
   get createCommentUseCase(): CreateCommentUseCase {
     if (!this._createCommentUseCase) {
       this._createCommentUseCase = new CreateCommentUseCase(this.commentRepository);
@@ -211,5 +205,5 @@ class PostCommentContainer {
   }
 }
 
-// Export singleton instance
+ 
 export const postCommentContainer = PostCommentContainer.getInstance();

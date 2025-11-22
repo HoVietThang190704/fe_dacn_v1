@@ -58,12 +58,11 @@ export class LivestreamApiDataSource {
     const url = `${this.baseUrl}/api/livestreams`;
     console.log('[LivestreamApiDataSource] Creating livestream at:', url);
     console.log('[LivestreamApiDataSource] Data:', data);
+    const headers = this.buildAuthHeaders();
     
     const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(data),
     });
     
@@ -92,9 +91,7 @@ export class LivestreamApiDataSource {
   async updateLivestream(id: string, data: UpdateLivestreamDto): Promise<Livestream> {
     const response = await fetch(`${this.baseUrl}/api/livestreams/${id}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: this.buildAuthHeaders(),
       body: JSON.stringify(data),
     });
     
@@ -109,9 +106,7 @@ export class LivestreamApiDataSource {
   async updateLivestreamStatus(id: string, status: LivestreamStatus): Promise<Livestream> {
     const response = await fetch(`${this.baseUrl}/api/livestreams/${id}/status`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: this.buildAuthHeaders(),
       body: JSON.stringify({ status }),
     });
     
@@ -140,5 +135,28 @@ export class LivestreamApiDataSource {
     const data = await response.json();
     console.log('[LivestreamAPI] Agora token received:', { appId: data.appId, uid: data.uid });
     return data;
+  }
+
+  private buildAuthHeaders(): Record<string, string> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    const token = this.getAuthToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    return headers;
+  }
+
+  private getAuthToken(): string | undefined {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+    return (
+      localStorage.getItem('authToken') ||
+      localStorage.getItem('token') ||
+      localStorage.getItem('accessToken') ||
+      undefined
+    ) || undefined;
   }
 }

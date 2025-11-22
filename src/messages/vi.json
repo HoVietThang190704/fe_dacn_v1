@@ -71,12 +71,14 @@
     "register": "Đăng ký",
     "welcome": "Chào mừng!",
     "pleaseSignIn": "Vui lòng đăng nhập để tiếp tục",
-    "cartAria": "Xem giỏ hàng"
+    "cartAria": "Xem giỏ hàng",
+    "notificationsAria": "Xem thông báo"
   },
   "sidebar": {
     "home": "Trang chủ",
     "products": "Sản phẩm",
     "cart": "Giỏ hàng",
+    "notifications": "Thông báo",
     "livestream": "Livestream",
     "orders": "Đơn hàng",
     "favorites": "Yêu thích",
@@ -139,6 +141,7 @@
     "unit": "Đơn vị",
     "images": "Link ảnh (mỗi dòng một link)",
     "tags": "Thẻ (phân cách bằng dấu phẩy)",
+    "tagsInfo": "Nhập nhiều thẻ và phân tách bằng dấu phẩy hoặc xuống dòng.",
     "inventory": "Tồn kho & Chất lượng",
     "stockQuantity": "Số lượng tồn",
     "harvestDate": "Ngày thu hoạch",
@@ -163,6 +166,19 @@
   "loadError": "Không thể tải thông tin sản phẩm. Vui lòng thử lại.",
     "updateError": "Không thể cập nhật sản phẩm. Vui lòng thử lại.",
     "backToList": "Quay lại danh sách",
+    "chooseCategoryPlaceholder": "-- Chọn danh mục --",
+    "descriptionPlaceholder": "Mô tả ngắn gọn về sản phẩm...",
+    "imagesInfo": "Hệ thống upload ảnh lên Cloudinary; mỗi ảnh sẽ lưu đường dẫn và được gửi cùng payload.",
+    "tagsPlaceholder": "tươi, sạch, hữu cơ",
+    "unitPlaceholder": "kg, cái, bó...",
+    "defaultDescription": "Sản phẩm",
+    "validation": {
+      "nameRequired": "Tên sản phẩm là bắt buộc",
+      "categoryRequired": "Vui lòng chọn danh mục",
+      "unitRequired": "Vui lòng nhập đơn vị",
+      "invalidPrice": "Giá phải là số lớn hơn 0",
+      "invalidStock": "Số lượng phải là một số hợp lệ"
+    },
     "requiredSuffix": "là bắt buộc",
     "invalidNumberSuffix": "phải là số hợp lệ"
   },
@@ -229,6 +245,40 @@
     },
     "errors": {
       "maxStock": "Chỉ còn {count} sản phẩm trong kho"
+    }
+  },
+  "notificationsPage": {
+    "eyebrow": "Hộp thư",
+    "title": "Thông báo",
+    "subtitle": "Cập nhật nhanh đơn hàng, ưu đãi và các thay đổi quan trọng.",
+    "actions": {
+      "refresh": "Làm mới",
+      "search": "Tìm kiếm",
+      "close": "Đóng",
+      "markAll": "Đánh dấu đã đọc"
+    },
+    "filters": {
+      "all": "Tất cả",
+      "unread": "Chưa đọc",
+      "read": "Đã đọc"
+    },
+    "status": {
+      "new": "Mới",
+      "read": "Đã đọc"
+    },
+    "viewDetails": "Xem chi tiết",
+    "loadingMore": "Đang tải...",
+    "loadMore": "Xem thêm",
+    "empty": {
+      "title": "Bạn đã đọc hết",
+      "description": "Chúng tôi sẽ thông báo ngay khi có tin mới."
+    ,
+    "emoji": "✨"
+    }
+    ,
+    "errors": {
+      "openNotification": "Không thể mở thông báo",
+      "updateNotifications": "Không thể cập nhật thông báo"
     }
   },
   "home": {
@@ -313,12 +363,16 @@
       "cancelled": "Đã hủy",
       "refunded": "Đã hoàn tiền"
     },
+    "searchPlaceholder": "Tìm theo mã đơn, khách hàng, số điện thoại...",
+    "filterTitle": "Bộ lọc trạng thái",
+    "eachPage": "Mỗi trang",
+    "orderNumber": "Mã đơn",
+    "statusLabel": "Trạng thái",
+    "orderDate": "Ngày tạo",
+    "actionsLabel": "Thao tác",
     "payment": {
       "cod": "Thanh toán khi nhận hàng",
-      "momo": "Ví MoMo",
-      "zalopay": "ZaloPay",
-      "vnpay": "VNPay",
-      "card": "Thẻ ngân hàng"
+      "vnpay": "VNPay"
     },
     "labels": {
       "total": "Tổng cộng",
@@ -336,6 +390,8 @@
     "amountLabel": "Thành tiền",
     "actions": {
       "refresh": "Làm mới",
+      "update": "Cập nhật",
+      "updating": "Đang cập nhật...",
       "review": "Đánh giá",
       "buyAgain": "Mua lại",
       "contactSeller": "Liên hệ người bán",
@@ -414,6 +470,21 @@
       "descriptionPlaceholder": "Mô tả về nội dung livestream của bạn...",
       "thumbnail": "Ảnh thumbnail",
       "thumbnailPlaceholder": "https://example.com/thumbnail.jpg",
+      "uploadImage": "Tải ảnh lên",
+      "urlPlaceholder": "Hoặc nhập URL ảnh",
+      "scheduleLabel": "Lên lịch livestream cho sau",
+      "dateLabel": "Ngày",
+      "timeLabel": "Giờ",
+      "startTimePreview": "Livestream sẽ bắt đầu vào:",
+      "productsLabel": "Chọn sản phẩm để bán",
+      "productsHelper": "Người xem có thể mua trực tiếp các sản phẩm này trong khi bạn livestream.",
+      "productsLoading": "Đang tải danh sách sản phẩm...",
+      "productsEmpty": "Bạn chưa có sản phẩm nào. Hãy tạo sản phẩm trước khi livestream.",
+      "productSearchPlaceholder": "Tìm theo tên sản phẩm...",
+      "productsSearchEmpty": "Không tìm thấy sản phẩm phù hợp.",
+      "productsCounter": "{count}/{total} sản phẩm được chọn",
+      "productsRequired": "Vui lòng chọn ít nhất một sản phẩm",
+      "createProductCta": "Tạo sản phẩm mới",
       "cancel": "Hủy",
       "createAndStart": "Tạo và Bắt đầu",
       "creating": "Đang tạo..."
@@ -440,7 +511,12 @@
       "turnOffCamera": "Tắt camera",
       "turnOnCamera": "Bật camera",
       "turnOffMic": "Tắt mic",
-      "turnOnMic": "Bật mic"
+      "turnOnMic": "Bật mic",
+      "linkedProducts": "Sản phẩm trong livestream",
+      "linkedProductsHelper": "Nhấn để mở nhanh trang sản phẩm.",
+      "productsLoading": "Đang tải sản phẩm đính kèm...",
+      "productsError": "Không thể tải danh sách sản phẩm",
+      "noProductsSelected": "Chưa chọn sản phẩm nào cho livestream"
     },
     "watch": {
       "scheduled": "Livestream này đã được lên lịch",
@@ -452,18 +528,52 @@
       "chat": "Trò chuyện",
       "chatComingSoon": "Tính năng chat đang được phát triển",
       "products": "Sản phẩm",
-      "product": "Sản phẩm"
+      "product": "Sản phẩm",
+      "loadingProducts": "Đang tải sản phẩm...",
+      "productsError": "Không thể tải sản phẩm đi kèm",
+      "noProducts": "Chưa có sản phẩm nào được liên kết",
+      "viewProduct": "Xem sản phẩm",
+      "follow": "Theo dõi"
     },
     "errors": {
       "notAuthenticated": "Vui lòng đăng nhập để tạo livestream",
       "titleRequired": "Vui lòng nhập tiêu đề",
       "createFailed": "Không thể tạo livestream. Vui lòng thử lại",
+      "loadProductsFailed": "Không thể tải sản phẩm của bạn. Vui lòng thử lại.",
       "loadFailed": "Không thể tải livestream",
       "livestreamNotFound": "Không tìm thấy livestream",
       "notAuthorized": "Bạn không có quyền truy cập livestream này",
+      "roleNotAllowed": "Chỉ chủ shop hoặc quản trị viên mới có thể livestream.",
+      "roleNotAllowedHint": "Hãy liên hệ quản trị viên để được cấp quyền hoặc đăng ký trở thành chủ shop.",
       "streamInitFailed": "Không thể khởi tạo stream",
       "endStreamFailed": "Không thể kết thúc stream",
-      "joinFailed": "Không thể tham gia livestream"
+      "joinFailed": "Không thể tham gia livestream",
+      "browserNotSupported": "Trình duyệt không hỗ trợ camera/microphone. Vui lòng sử dụng trình duyệt hiện đại hoặc bật HTTPS.",
+      "permissionRequired": "Bạn cần cấp quyền truy cập camera và microphone để livestream. Vui lòng kiểm tra cài đặt trình duyệt."
+    },
+    "initializing": "Đang khởi động...",
+    "livestream": {
+      "initializing": "Đang khởi động...",
+      "back": "Quay lại"
+    },
+    "noDescription": "Chưa có mô tả",
+    "historyPage": {
+      "title": "Lịch sử Livestream",
+      "loading": "Đang tải lịch sử...",
+      "empty": "Bạn chưa có livestream nào đã kết thúc",
+      "error": "Không thể tải lịch sử livestream",
+      "table": {
+        "title": "Tên Livestream",
+        "date": "Ngày",
+        "startTime": "Giờ bắt đầu",
+        "endTime": "Giờ kết thúc",
+        "duration": "Thời lượng",
+        "viewers": "Lượt xem"
+      },
+      "duration": {
+        "hours": "giờ",
+        "minutes": "phút"
+      }
     }
   },
   "community": {
@@ -493,6 +603,11 @@
     "retry": "Thử lại",
     "emptyTitle": "Chưa có bài viết nào",
     "emptyDesc": "Hãy là người đầu tiên chia sẻ!"
+  ,
+    "confirmDelete": "Bạn có chắc muốn xóa bài viết này?",
+    "allDisplayed": "Đã hiển thị tất cả bài viết",
+    "unknownUser": "Người dùng chưa xác định",
+    "userFallback": "Người dùng"
   },
   "postEditor": {
     "title": "Chỉnh sửa bài viết",
@@ -511,6 +626,9 @@
     "addImages": "Thêm hình ảnh",
     "addImagesHint": "Có thể thêm tối đa 10 ảnh. Ảnh mới sẽ được đặt ở cuối danh sách.",
     "maxImagesWarning": "Bạn chỉ có thể tải tối đa 10 ảnh cho một bài viết.",
+    "existingImageAlt": "Ảnh hiện có",
+    "newImageAlt": "Ảnh xem trước mới",
+    "removeImageAria": "Gỡ ảnh",
     "updateButton": "Cập nhật bài viết",
     "updating": "Đang cập nhật...",
     "cancel": "Hủy",
@@ -526,16 +644,96 @@
     "faqsTab": "FAQs",
     "ticketsTab": "Yêu cầu ({count})",
     "createTicket": "Tạo yêu cầu",
+    "createNewTicket": "Tạo yêu cầu mới",
     "noTickets": "Chưa có yêu cầu hỗ trợ",
+    "noTicketsDesc": "Mọi yêu cầu của bạn sẽ hiển thị ở đây",
     "helpfulQuestion": "Câu trả lời này có hữu ích không?",
+    "faqsEmpty": "Chúng tôi đang cập nhật thêm câu hỏi thường gặp. Hãy tạo yêu cầu nếu bạn cần hỗ trợ ngay.",
     "yes": "Có",
     "no": "Không",
     "viewDetails": "Xem chi tiết →",
-    "createNewTicket": "Tạo yêu cầu mới",
-    "noTicketsDesc": "Mọi yêu cầu của bạn sẽ hiển thị ở đây",
     "loading": "Đang tải...",
     "error": "Có lỗi xảy ra",
-    "retry": "Thử lại"
+    "retry": "Thử lại",
+    "actions": {
+      "refresh": "Làm mới",
+      "newTicket": "Tạo yêu cầu mới",
+      "openEmail": "Soạn email",
+      "openChat": "Mở chat"
+    },
+    "quickActions": {
+      "hotlineNumber": "666666666",
+      "chatDescription": "Trò chuyện trực tiếp với chuyên viên CSKH"
+    },
+    "cta": {
+      "title": "Không tìm thấy câu trả lời bạn cần?",
+      "subtitle": "Hãy tạo yêu cầu mới và chúng tôi sẽ liên hệ trong thời gian sớm nhất."
+    },
+    "messages": {
+      "turnOffMic": "Tắt mic",
+      "turnOnMic": "Bật mic"
+    },
+    "chatBox": {
+      "title": "Chat với CSKH",
+      "subtitle": "Để lại tin nhắn và chúng tôi sẽ phản hồi sớm nhất có thể",
+      "betaTag": "Beta",
+      "greeting": "Xin chào! Đội ngũ CSKH Fresh Market rất vui được hỗ trợ bạn. Bạn cần giúp đỡ điều gì?",
+      "autoReply": "Cảm ơn bạn! Chúng tôi đã nhận được tin nhắn và sẽ phản hồi trong thời gian sớm nhất.",
+      "empty": "Chưa có cuộc hội thoại nào. Hãy gửi tin nhắn đầu tiên!",
+      "placeholder": "Nhập nội dung bạn cần hỗ trợ...",
+      "send": "Gửi tin nhắn",
+      "noteTitle": "Lưu ý",
+      "noteContent": "Tính năng chat hiện đang ở giai đoạn thử nghiệm. Đội ngũ CSKH sẽ phản hồi qua email hoặc điện thoại."
+    },
+    "statuses": {
+      "open": "Mới",
+      "in_progress": "Đang xử lý",
+      "on_hold": "Tạm dừng",
+      "resolved": "Đã giải quyết",
+      "closed": "Đã đóng",
+      "rejected": "Đã từ chối"
+    },
+    "priorities": {
+      "low": "Thấp",
+      "medium": "Trung bình",
+      "high": "Cao",
+      "urgent": "Khẩn cấp"
+    },
+    "types": {
+      "support": "Hỗ trợ chung",
+      "question": "Câu hỏi",
+      "refund": "Hoàn tiền",
+      "bug": "Lỗi hệ thống",
+      "feature": "Đề xuất tính năng",
+      "other": "Khác"
+    },
+    "tickets": {
+      "createdAt": "Tạo lúc {date}",
+      "updatedAt": "Cập nhật {date}",
+      "comments": "{count} trao đổi"
+    },
+    "form": {
+      "title": "Tạo yêu cầu hỗ trợ",
+      "subtitle": "Cung cấp chi tiết để chúng tôi có thể hỗ trợ bạn tốt nhất.",
+      "fields": {
+        "title": "Tiêu đề yêu cầu",
+        "type": "Loại yêu cầu",
+        "priority": "Mức độ ưu tiên",
+        "relatedOrder": "Mã đơn hàng (nếu có)",
+        "relatedShop": "Gian hàng liên quan (nếu có)",
+        "description": "Mô tả chi tiết"
+      },
+      "placeholders": {
+        "title": "Ví dụ: Đơn hàng giao thiếu sản phẩm",
+        "relatedOrder": "Nhập mã đơn hàng",
+        "relatedShop": "Nhập tên hoặc mã gian hàng",
+        "description": "Mô tả vấn đề bạn gặp phải, càng chi tiết càng tốt..."
+      },
+      "disclaimer": "Yêu cầu của bạn sẽ được xử lý trong vòng 24 giờ.",
+      "requiredHint": "* Thông tin bắt buộc",
+      "cancel": "Hủy",
+      "submit": "Gửi yêu cầu"
+    }
   },
   "settings": {
     "title": "Cài Đặt Tài Khoản",
@@ -683,10 +881,7 @@
     "payment": {
       "methods": {
         "cod": "Thanh toán khi nhận hàng",
-        "momo": "Ví MoMo",
-        "zalopay": "ZaloPay",
-        "vnpay": "VNPay",
-        "card": "Thẻ ngân hàng"
+        "vnpay": "VNPay"
       },
       "status": {
         "pending": "Chờ thanh toán",
@@ -775,10 +970,7 @@
       "title": "Phương thức thanh toán",
       "options": {
         "cod": "Thanh toán khi nhận hàng (COD)",
-        "momo": "Ví MoMo",
-        "zalopay": "ZaloPay",
-        "vnpay": "VNPay",
-        "card": "Thẻ ngân hàng"
+        "vnpay": "VNPay (khuyến nghị)"
       },
       "comingSoon": "Sắp ra mắt"
     },
@@ -803,6 +995,25 @@
       "noAddressSelected": "Vui lòng chọn địa chỉ giao hàng.",
       "addressIncompleteForOrder": "Địa chỉ giao hàng chưa đầy đủ.",
       "createOrder": "Không thể tạo đơn hàng. Vui lòng thử lại."
+    }
+  },
+  "paymentResult": {
+    "title": "Kết quả thanh toán",
+    "successTitle": "Thanh toán VNPay thành công!",
+    "successMessage": "Đơn hàng {orderNumber} đã được ghi nhận thanh toán.",
+    "failedTitle": "Thanh toán không thành công",
+    "failedMessage": "VNPay trả về mã {code}. Nếu tiền đã trừ, vui lòng liên hệ hỗ trợ để được kiểm tra.",
+    "unknownTitle": "Đang xác minh giao dịch",
+    "unknownMessage": "Chúng tôi đang kiểm tra phản hồi từ VNPay. Bạn có thể làm mới trang sau ít phút.",
+    "details": {
+      "orderNumber": "Mã đơn hàng",
+      "orderId": "ID hệ thống",
+      "responseCode": "Mã phản hồi"
+    },
+    "actions": {
+      "viewOrder": "Xem chi tiết đơn",
+      "backHome": "Về trang chủ",
+      "retryPayment": "Thử thanh toán lại"
     }
   },
   "search": {

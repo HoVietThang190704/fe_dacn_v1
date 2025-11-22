@@ -1,52 +1,30 @@
-'use client';
+"use client";
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import ImageUploader from '@/components/ImageUploader';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { ProductCategory } from '@/domain/entities/Product';
-import { container } from '@/presentation/di/container';
-import { CreateProductPayload } from '@/domain/repositories/IProductRepository';
+import { splitInput } from '@/presentation/utils/string';
+import { useProductForm } from '@/presentation/hooks/useProductForm';
+import { PRODUCT_FORM_CONFIG } from '@/presentation/config/productFormConfig';
 
 interface ProductCreatePageProps {
   categories: ProductCategory[];
 }
 
-interface FormState {
-  name: string;
-  description: string;
-  category: string;
-  price: string;
-  unit: string;
-  images: string;
-  stockQuantity: string;
-  tags: string;
-}
-
-const defaultState: FormState = {
-  name: '',
-  description: '',
-  category: '',
-  price: '',
-  unit: 'kg',
-  images: '',
-  stockQuantity: '1',
-  tags: '',
-};
-
-const splitInput = (value: string): string[] =>
-  value
-    .split(/[,\n]/)
-    .map((item) => item.trim())
-    .filter(Boolean);
-
 export const ProductCreatePage: React.FC<ProductCreatePageProps> = ({ categories }) => {
   const t = useTranslations('productForm');
   const router = useRouter();
-  const [formState, setFormState] = useState<FormState>(defaultState);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const {
+    formState,
+    setFormState,
+    handleInputChange,
+    isSubmitting,
+    error,
+    success,
+    handleSubmit,
+  } = useProductForm();
   const availableCategories = useMemo(() => {
     if (categories.length === 0) return [] as ProductCategory[];
 
@@ -67,7 +45,6 @@ export const ProductCreatePage: React.FC<ProductCreatePageProps> = ({ categories
 
     const unique = new Map<string, ProductCategory & { depth?: number; order?: number }>();
     categories.forEach((cat) => {
-      // prefer canonical `level` from backend when available, otherwise compute
       const raw = cat as unknown as RawCat;
       const d = typeof raw.level === 'number' ? raw.level : computeDepth(raw.id);
       unique.set(raw.id, { ...raw, depth: d, order: raw.order });
@@ -79,87 +56,12 @@ export const ProductCreatePage: React.FC<ProductCreatePageProps> = ({ categories
       icon: c.icon,
       slug: c.slug,
       parentId: c.parentId,
-      // expose level/order for rendering
       level: c.depth ?? 0,
       order: c.order,
     } as ProductCategory & { level?: number; order?: number }));
   }, [categories]);
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = event.target;
-    if (type === 'checkbox') {
-      setFormState((prev) => ({
-        ...prev,
-        [name]: (event.target as HTMLInputElement).checked,
-      }));
-      return;
-    }
-
-    setFormState((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const buildPayload = (): CreateProductPayload => {
-    const price = Number(formState.price);
-    const stockQuantity = Number(formState.stockQuantity);
-    const tags = splitInput(formState.tags);
-
-    if (!formState.name.trim()) {
-      throw new Error('Tên sản phẩm không được để trống');
-    }
-    if (!formState.category) {
-      throw new Error('Vui lòng chọn danh mục');
-    }
-    if (!formState.unit.trim()) {
-      throw new Error('Vui lòng nhập đơn vị');
-    }
-    if (Number.isNaN(price) || price <= 0) {
-      throw new Error('Giá phải lớn hơn 0');
-    }
-    if (Number.isNaN(stockQuantity) || stockQuantity < 0) {
-      throw new Error('Số lượng không hợp lệ');
-    }
-
-    return {
-      name: formState.name.trim(),
-      category: formState.category,
-      price,
-      unit: formState.unit.trim(),
-      description: formState.description.trim() || `Sản phẩm ${formState.name}`,
-      images: splitInput(formState.images),
-      stockQuantity,
-      tags,
-    };
-  };
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError(null);
-    setSuccess(null);
-    
-    try {
-      setIsSubmitting(true);
-      const payload = buildPayload();
-      const product = await container.createProductUseCase.execute(payload);
-      console.log('Product created:', product);
-      setSuccess(t('success'));
-      setFormState(defaultState);
-      setTimeout(() => {
-        router.push(`/main/products/${product.id}`);
-      }, 1500);
-    } catch (err) {
-      console.error('Create product error:', err);
-      if (err instanceof Error) {
-        setError(err.message);  
-      } else {
-        setError(t('error'));
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  
 
   return (
     <div className="bg-gray-50 min-h-screen py-6">
@@ -211,10 +113,10 @@ export const ProductCreatePage: React.FC<ProductCreatePageProps> = ({ categories
                   required
                   className="border border-gray-200 rounded px-3 py-2"
                 >
-                  <option value="">-- Chọn danh mục --</option>
+                  <option value="">{t('chooseCategoryPlaceholder')}</option>
                   {availableCategories.map((category) => {
                     const depth = (category as ProductCategory & { level?: number }).level ?? 0;
-                    const indent = depth > 0 ? `${'\u00A0'.repeat(depth * 2)} ` : '';
+                    const indent = depth > 0 ? `${'\u00A0'.repeat(depth * PRODUCT_FORM_CONFIG.categoryIndentSpaces)} ` : '';
                     return (
                       <option key={category.id} value={category.id}>
                         {indent}{category.name}
@@ -230,7 +132,7 @@ export const ProductCreatePage: React.FC<ProductCreatePageProps> = ({ categories
                   value={formState.unit}
                   onChange={handleInputChange}
                   required
-                  placeholder="kg, cái, bó..."
+                  placeholder={t('unitPlaceholder')}
                   className="border border-gray-200 rounded px-3 py-2"
                 />
               </label>
@@ -238,8 +140,8 @@ export const ProductCreatePage: React.FC<ProductCreatePageProps> = ({ categories
                 <span className="text-gray-700">{t('price')}</span>
                 <input
                   type="number"
-                  min="0"
-                  step="1000"
+                  min={PRODUCT_FORM_CONFIG.priceMin}
+                  step={PRODUCT_FORM_CONFIG.priceStep}
                   name="price"
                   value={formState.price}
                   onChange={handleInputChange}
@@ -254,7 +156,7 @@ export const ProductCreatePage: React.FC<ProductCreatePageProps> = ({ categories
                   value={formState.description}
                   onChange={handleInputChange}
                   rows={3}
-                  placeholder="Mô tả ngắn gọn về sản phẩm..."
+                  placeholder={t('descriptionPlaceholder')}
                   className="border border-gray-200 rounded px-3 py-2"
                 />
               </label>
@@ -265,7 +167,7 @@ export const ProductCreatePage: React.FC<ProductCreatePageProps> = ({ categories
                     initialUrls={splitInput(formState.images)}
                     onChange={(urls) => setFormState((prev) => ({ ...prev, images: urls.join('\n') }))}
                   />
-                  <p className="text-xs text-gray-500 mt-2">Hệ thống upload ảnh lên Cloudinary; mỗi ảnh sẽ lưu đường dẫn và gửi cùng payload.</p>
+                  <p className="text-xs text-gray-500 mt-2">{t('imagesInfo')}</p>
                 </div>
               </label>
             </div>
@@ -279,7 +181,7 @@ export const ProductCreatePage: React.FC<ProductCreatePageProps> = ({ categories
                 <input
                   type="number"
                   name="stockQuantity"
-                  min="0"
+                  min={PRODUCT_FORM_CONFIG.minStock}
                   value={formState.stockQuantity}
                   onChange={handleInputChange}
                   required
@@ -292,10 +194,10 @@ export const ProductCreatePage: React.FC<ProductCreatePageProps> = ({ categories
                   name="tags"
                   value={formState.tags}
                   onChange={handleInputChange}
-                  placeholder="tươi, sạch, hữu cơ"
+                  placeholder={t('tagsPlaceholder')}
                   className="border border-gray-200 rounded px-3 py-2"
                 />
-                <span className="text-xs text-gray-500">Nhập nhiều thẻ và phân tách bằng dấu phẩy hoặc xuống dòng.</span>
+                <span className="text-xs text-gray-500">{t('tagsInfo')}</span>
               </label>
             </div>
           </section>

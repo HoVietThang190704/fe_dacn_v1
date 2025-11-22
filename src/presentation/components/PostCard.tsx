@@ -182,8 +182,8 @@ const PostCard: React.FC<PostCardProps> = ({ post, t, onLike, onComment, onShare
             <Image
               src={post.userAvatar}
               alt={post.userName}
-              width={40}
-              height={40}
+              width={30}
+              height={30}
               className="w-10 h-10 rounded-full object-cover flex-shrink-0"
             />
           ) : (
@@ -226,7 +226,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, t, onLike, onComment, onShare
                 alt="Post image"
                 width={600}
                 height={400}
-                className="w-full max-h-96 object-cover cursor-pointer"
+                className="w-full max-h-[80vh] object-cover cursor-pointer"
                 onClick={() => openDetail()}
               />
             </div>

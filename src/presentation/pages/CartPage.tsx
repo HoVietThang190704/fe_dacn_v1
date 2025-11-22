@@ -1,26 +1,15 @@
 'use client';
 
 import { useEffect, useMemo } from 'react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useCart } from '@/shared/hooks/useCart';
-import { CartItem } from '@/domain/entities/Cart';
+import { CartItem } from '@/components/CartItem';
+import { CartEmptyState } from '@/components/CartEmptyState';
+import { CartLoading } from '@/components/CartLoading';
+import { CartSummary } from '@/components/CartSummary';
 
 export function CartPage() {
   const t = useTranslations('cart');
-  const locale = useLocale();
-  const formatCurrency = useMemo<(value: number) => string>(
-    () =>
-      (value: number) =>
-        new Intl.NumberFormat(locale, {
-          style: 'currency',
-          currency: 'VND',
-          maximumFractionDigits: 0,
-        }).format(value),
-    [locale]
-  );
-  const router = useRouter();
   const {
     cart,
     isLoading,
@@ -60,12 +49,12 @@ export function CartPage() {
       }
     });
 
-    // Only update if different
     if (next.size !== selectedIds.size || [...next].some(id => !selectedIds.has(id))) {
       setSelectedIds(next);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cart, selectedIds]);  const items = useMemo(() => cart?.items ?? [], [cart]);
+  }, [cart, selectedIds, setSelectedIds]);
+
+  const items = useMemo(() => cart?.items ?? [], [cart]);
   const allSelected = items.length > 0 && selectedIds.size === items.length;
 
   const selectedItems = useMemo(() => {
@@ -98,52 +87,6 @@ export function CartPage() {
     }
   };
 
-  const handleQuantityChange = async (item: CartItem, delta: number) => {
-    const parseStock = (v: unknown) => {
-      if (typeof v === 'number' && Number.isFinite(v) && v >= 0) {
-        return Math.floor(v);
-      }
-      return undefined;
-    };
-
-    const maxAvailable = parseStock(item.attrs?.stock) ?? 999;
-    const requested = item.quantity + delta;
-    const nextQuantity = Math.max(1, Math.min(maxAvailable, requested));
-    if (nextQuantity === item.quantity) {
-      // user tried to increase but reached maxAvailable
-      if (delta > 0) {
-        setError?.(t('errors.maxStock', { count: maxAvailable }));
-        window.setTimeout(() => setError?.(null), 2000);
-      }
-      return;
-    }
-
-    await updateItemQuantity(item.id, nextQuantity);
-  };
-
-  const handleQuantityInput = async (item: CartItem, value: string) => {
-    const parsed = Number(value);
-    if (!Number.isInteger(parsed) || parsed <= 0) {
-      return;
-    }
-    const parseStock = (v: unknown) => {
-      if (typeof v === 'number' && Number.isFinite(v) && v >= 0) {
-        return Math.floor(v);
-      }
-      return undefined;
-    };
-    const maxAvailable = parseStock(item.attrs?.stock) ?? 999;
-    const clamped = Math.max(1, Math.min(maxAvailable, parsed));
-    if (clamped === item.quantity) {
-      if (parsed > maxAvailable) {
-        setError?.(t('errors.maxStock', { count: maxAvailable }));
-        window.setTimeout(() => setError?.(null), 2000);
-      }
-      return;
-    }
-    await updateItemQuantity(item.id, clamped);
-  };
-
   const handleRemoveSelected = async () => {
     for (const id of selectedIds) {
       await removeItem(id);
@@ -152,27 +95,6 @@ export function CartPage() {
   };
 
   const handleClearErrors = () => setError(null);
-
-  const renderEmptyState = () => (
-    <div className="flex flex-col items-center justify-center py-16">
-      <Image src="/icons/shopping-cart.svg" alt={t('emptyAlt')} width={160} height={160} className="w-28 h-28 mb-6" />
-      <h2 className="text-xl font-semibold text-gray-800 mb-2">{t('emptyTitle')}</h2>
-      <p className="text-sm text-gray-500 mb-6 text-center max-w-md">{t('emptySubtitle')}</p>
-      <button
-        onClick={() => router.push('/main/products')}
-        className="px-6 py-2.5 bg-orange-500 text-white rounded-full text-sm font-semibold hover:bg-orange-600 transition"
-      >
-        {t('continueShopping')}
-      </button>
-    </div>
-  );
-
-  const renderLoading = () => (
-    <div className="flex items-center justify-center py-16">
-      <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" aria-hidden="true" />
-      <span className="sr-only">{t('loading')}</span>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gray-50 py-6 sm:py-10">
@@ -221,9 +143,9 @@ export function CartPage() {
         )}
 
         {isLoading ? (
-          renderLoading()
+          <CartLoading />
         ) : items.length === 0 ? (
-          renderEmptyState()
+          <CartEmptyState />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-[2fr,1fr] gap-6 lg:gap-8">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -246,117 +168,31 @@ export function CartPage() {
               <ul className="divide-y divide-gray-100">
                 {items.map((item) => {
                   const isSelected = selectedIds.has(item.id);
-                  const lineTotal = (item.price ?? 0) * (item.quantity || 0);
                   const isItemUpdating = pendingItemId === item.id && isMutating;
-                  const maxAvailable = typeof item.attrs?.stock === 'number' ? (item.attrs.stock as number) : 999;
 
                   return (
-                    <li key={item.id} className="p-4 sm:p-6">
-                      <div className="grid grid-cols-1 lg:grid-cols-12 items-center gap-4 lg:gap-6">
-                        <div className="lg:col-span-5 flex items-start gap-4">
-                          <input
-                            type="checkbox"
-                            checked={isSelected}
-                            onChange={() => handleSelect(item.id)}
-                            className="mt-2 h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-400"
-                          />
-                          <div className="flex items-center gap-4">
-                            <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
-                              <Image
-                                src={item.thumbnail || '/icons/shopping-cart.svg'}
-                                alt={item.title || 'Product'}
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                            <div className="space-y-1">
-                              <p className="font-medium text-gray-900 text-sm sm:text-base">{item.title || t('unknownProduct')}</p>
-                              <p className="text-xs text-gray-500">{t('sku', { id: item.productId })}</p>
-                              {item.unit && <p className="text-xs text-gray-400">{t('unitLabel', { unit: item.unit })}</p>}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="lg:col-span-2 text-sm font-semibold text-gray-900 text-left lg:text-center">
-                          {formatCurrency(item.price ?? 0)}
-                        </div>
-
-                        <div className="lg:col-span-2">
-                          <div className="inline-flex items-center border border-gray-200 rounded-full overflow-hidden">
-                            <button
-                              onClick={() => handleQuantityChange(item, -1)}
-                              disabled={item.quantity <= 1 || isItemUpdating}
-                              className="px-3 py-1.5 text-gray-600 hover:bg-gray-100 disabled:opacity-40"
-                              aria-label={t('decreaseQuantity')}
-                            >
-                              -
-                            </button>
-                            <input
-                              type="number"
-                              min={1}
-                              max={maxAvailable}
-                              value={item.quantity}
-                              onChange={(event) => handleQuantityInput(item, event.target.value)}
-                              className="w-12 text-center text-sm font-semibold text-gray-800 focus:outline-none"
-                            />
-                            <button
-                              onClick={() => handleQuantityChange(item, 1)}
-                              disabled={isItemUpdating || (item.quantity >= maxAvailable)}
-                              className="px-3 py-1.5 text-gray-600 hover:bg-gray-100 disabled:opacity-40"
-                              aria-label={t('increaseQuantity')}
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="lg:col-span-2 text-sm font-semibold text-orange-500 text-left lg:text-center">
-                          {formatCurrency(lineTotal)}
-                        </div>
-
-                        <div className="lg:col-span-1 text-right lg:text-center">
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            disabled={isItemUpdating}
-                            className="text-sm font-medium text-red-500 hover:text-red-600 disabled:opacity-40"
-                          >
-                            {t('remove')}
-                          </button>
-                        </div>
-                      </div>
-                    </li>
+                    <CartItem
+                      key={item.id}
+                      item={item}
+                      isSelected={isSelected}
+                      onSelect={handleSelect}
+                      onRemove={removeItem}
+                      isItemUpdating={isItemUpdating}
+                      updateItemQuantity={updateItemQuantity}
+                      setError={setError}
+                    />
                   );
                 })}
               </ul>
             </div>
 
-            <aside className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4 h-fit self-start">
-              <h2 className="text-lg font-semibold text-gray-900">{t('summaryTitle')}</h2>
-              <div className="space-y-3 text-sm text-gray-600">
-                <div className="flex items-center justify-between">
-                  <span>{t('itemsSelected')}</span>
-                  <span className="font-medium text-gray-800">{selectedQuantity}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>{t('itemsTotal')}</span>
-                  <span className="font-medium text-gray-800">{formatCurrency(selectedSubtotal)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>{t('cartSubtotal')}</span>
-                  <span className="font-semibold text-orange-500">{formatCurrency(subtotal)}</span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => router.push('/main/checkout')}
-                disabled={selectedIds.size === 0 || isMutating}
-                className="w-full py-3 rounded-full bg-orange-500 text-white font-semibold hover:bg-orange-600 transition disabled:opacity-60"
-              >
-                {t('checkout')}
-              </button>
-              <p className="text-xs text-gray-400 text-center">{t('checkoutNote')}</p>
-            </aside>
+            <CartSummary
+              selectedQuantity={selectedQuantity}
+              selectedSubtotal={selectedSubtotal}
+              subtotal={subtotal}
+              selectedIdsSize={selectedIds.size}
+              isMutating={isMutating}
+            />
           </div>
         )}
       </div>

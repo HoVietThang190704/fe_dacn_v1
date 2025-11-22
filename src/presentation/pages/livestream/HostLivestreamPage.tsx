@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
+import { ICONS } from '@/shared/constants/images';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { useAuth } from '@/shared/hooks/useAuth';
@@ -10,6 +12,9 @@ import type { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack } from '
 import { io, Socket } from 'socket.io-client';
 import { ChatBox, ChatMessage } from '@/components/livestream/ChatBox';
 import { API_CONFIG } from '@/shared/constants/api';
+import { LIVESTREAM_CONFIG } from '@/shared/constants/livestream';
+import { useLivestreamProducts } from '@/shared/hooks/useLivestreamProducts';
+import { Link } from '@/i18n/routing';
 
 interface HostLivestreamPageProps {
   livestreamId: string;
@@ -40,6 +45,72 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
   const localVideoRef = useRef<HTMLDivElement>(null);
   const hasCheckedAuthRef = useRef(false);
 
+  const {
+    products: linkedProducts,
+    isLoading: isLoadingLinkedProducts,
+    error: linkedProductsError,
+  } = useLivestreamProducts(livestream?.products ?? [], livestream?.productSummaries);
+
+  const priceFormatter = React.useMemo(
+    () =>
+      new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+        maximumFractionDigits: 0,
+      }),
+    []
+  );
+
+  const shouldShowLinkedProducts =
+    (livestream?.products && livestream.products.length > 0) || isLoadingLinkedProducts || Boolean(linkedProductsError);
+
+  const renderLinkedProducts = () => {
+    if (isLoadingLinkedProducts) {
+      return <p className="text-sm text-gray-300">{t('host.productsLoading')}</p>;
+    }
+    if (linkedProductsError) {
+      return <p className="text-sm text-red-400">{t('host.productsError')}</p>;
+    }
+    if (!linkedProducts.length) {
+      return <p className="text-sm text-gray-400">{t('host.noProductsSelected')}</p>;
+    }
+
+    return (
+      <div className="space-y-3">
+        {linkedProducts.map((product) => (
+          <Link
+            key={product.id}
+            href={`/main/products/${product.id}`}
+            className="flex items-center gap-3 bg-gray-700/60 hover:bg-gray-700 rounded-lg p-3 transition"
+          >
+            <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-600 relative flex-shrink-0">
+              {product.thumbnail ? (
+                <Image
+                  src={product.thumbnail}
+                  alt={product.name}
+                  fill
+                  unoptimized
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-2xl">
+                  <Image src={ICONS.GOODS} alt="product" width={40} height={40} unoptimized className="object-contain" />
+                </div>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm truncate">{product.name}</p>
+              <p className="text-xs text-gray-300">{priceFormatter.format(product.price ?? 0)}</p>
+            </div>
+            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        ))}
+      </div>
+    );
+  };
+
   const loadLivestream = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -49,7 +120,7 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
 
       if (data.hostId !== user?.id) {
         setError(t('errors.notAuthorized'));
-        setTimeout(() => router.push('/main/livestream'), 2000);
+        setTimeout(() => router.push('/main/livestream'), LIVESTREAM_CONFIG.REDIRECT_DELAY_MS);
       }
     } catch (err) {
       console.error('Load livestream error:', err);
@@ -96,7 +167,7 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
     try {
       // Check if getUserMedia is supported
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setError('Trình duyệt không hỗ trợ camera/microphone. Vui lòng sử dụng trình duyệt hiện đại hoặc bật HTTPS.');
+        setError(t('errors.browserNotSupported'));
         setIsInitializing(false);
         return;
       }
@@ -166,7 +237,7 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
         
         // Check for permission errors
         if (err.message.includes('Permission') || err.message.includes('NotAllowedError')) {
-          setError('Bạn cần cấp quyền truy cập camera và microphone để livestream. Vui lòng kiểm tra cài đặt trình duyệt.');
+          setError(t('errors.permissionRequired'));
         } else {
           setError(t('errors.streamInitFailed') + ': ' + err.message);
         }
@@ -476,8 +547,20 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
-                <span className="hidden sm:inline">Quay lại</span>
+                <span className="hidden sm:inline">{t('back')}</span>
               </button>
+              {livestream?.hostAvatar && (
+                <div className="hidden sm:flex items-center mr-3">
+                  <Image
+                    src={livestream.hostAvatar}
+                    alt={livestream.hostName}
+                    width={40}
+                    height={40}
+                    className="rounded-full object-cover"
+                    unoptimized
+                  />
+                </div>
+              )}
               <h1 className="text-lg sm:text-xl font-bold truncate">{livestream.title}</h1>
               {isStreaming && (
                 <span className="px-2 sm:px-3 py-1 bg-red-500 text-white rounded-full text-xs sm:text-sm font-semibold flex items-center gap-2 animate-pulse">
@@ -511,8 +594,16 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
                 {!isStreaming && (
                   <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
                     <div className="text-center px-4">
-                      <div className="text-4xl sm:text-6xl mb-4">📹</div>
-                      <p className="text-lg sm:text-xl mb-6">{isInitializing ? 'Đang khởi động...' : t('host.readyToStart')}</p>
+                      <div className="mb-4 flex justify-center">
+                        <Image
+                          src={ICONS.VIDEO_CAMERA_ALT}
+                          alt="livestream"
+                          width={64}
+                          height={64}
+                          className="w-12 h-12 sm:w-16 sm:h-16 mb-2"
+                        />
+                      </div>
+                      <p className="text-lg sm:text-xl mb-6">{isInitializing ? t('initializing') : t('host.readyToStart')}</p>
                       {error && (
                         <div className="mb-4 px-4 sm:px-6 py-3 bg-red-500/20 border border-red-500 rounded-lg text-red-200 max-w-md mx-auto">
                           <p className="text-sm">{error}</p>
@@ -528,7 +619,7 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
                         {isInitializing ? (
                           <>
                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                            Đang khởi động...
+                            {t('initializing')}
                           </>
                         ) : (
                           <>
@@ -594,9 +685,22 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
 
             {/* Stream Description (Mobile) */}
             <div className="xl:hidden bg-gray-800/50 rounded-xl p-4">
-              <h3 className="font-semibold mb-2">Thông tin livestream</h3>
-              <p className="text-sm text-gray-300">{livestream.description || 'Chưa có mô tả'}</p>
+              <h3 className="font-semibold mb-2">{t('host.streamInfo')}</h3>
+              <p className="text-sm text-gray-300">{livestream.description || t('noDescription')}</p>
             </div>
+
+            {shouldShowLinkedProducts && (
+              <div className="bg-gray-800/50 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="font-semibold">{t('host.linkedProducts')}</h3>
+                    <p className="text-xs text-gray-400">{t('host.linkedProductsHelper')}</p>
+                  </div>
+                  <span className="text-sm text-gray-300 font-medium">{linkedProducts.length}</span>
+                </div>
+                {renderLinkedProducts()}
+              </div>
+            )}
           </div>
           <div className="xl:col-span-1 space-y-4">
             <div className="h-[400px] sm:h-[500px]">

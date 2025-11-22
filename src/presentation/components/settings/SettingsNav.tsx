@@ -37,7 +37,6 @@ export const SettingsNav: React.FC<Props> = ({ tabs, active, onChange }) => {
   }, []);
   return (
     <>
-      {/* Desktop sidebar */}
       <aside className="hidden lg:block lg:w-1/4">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-6">
           <nav className="space-y-2">

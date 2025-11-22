@@ -3,6 +3,7 @@ import { API_CONFIG } from '@/shared/constants/api';
 import { ProductApiDataSource } from '@/data/datasources/ProductApiDataSource';
 import { BannerApiDataSource } from '@/data/datasources/BannerApiDataSource';
 import { OrderApiDataSource } from '@/data/datasources/OrderApiDataSource';
+import { PaymentApiDataSource } from '@/data/datasources/PaymentApiDataSource';
 import { FavoriteApiDataSource } from '@/data/datasources/FavoriteApiDataSource';
 import { LivestreamApiDataSource } from '@/data/datasources/LivestreamApiDataSource';
 import { CommunityApiDataSource } from '@/data/datasources/CommunityApiDataSource';
@@ -11,10 +12,12 @@ import { SupportApiDataSource } from '@/data/datasources/SupportApiDataSource';
 import { ProductReviewApiDataSource } from '@/data/datasources/ProductReviewApiDataSource';
 import { CartApiDataSource } from '@/data/datasources/CartApiDataSource';
 import { SearchApiDataSource } from '@/data/datasources/SearchApiDataSource';
+import { NotificationApiDataSource } from '@/data/datasources/NotificationApiDataSource';
 
 import { ProductRepositoryImpl } from '@/data/repositories/ProductRepositoryImpl';
 import { BannerRepositoryImpl } from '@/data/repositories/BannerRepositoryImpl';
 import { OrderRepositoryImpl } from '@/data/repositories/OrderRepositoryImpl';
+import { PaymentRepositoryImpl } from '@/data/repositories/PaymentRepositoryImpl';
 import { FavoriteRepositoryImpl } from '@/data/repositories/FavoriteRepositoryImpl';
 import { LivestreamRepositoryImpl } from '@/data/repositories/LivestreamRepositoryImpl';
 import { CommunityRepositoryImpl } from '@/data/repositories/CommunityRepositoryImpl';
@@ -23,6 +26,7 @@ import { SupportRepositoryImpl } from '@/data/repositories/SupportRepositoryImpl
 import { ProductReviewRepositoryImpl } from '@/data/repositories/ProductReviewRepositoryImpl';
 import { CartRepositoryImpl } from '@/data/repositories/CartRepositoryImpl';
 import { SearchRepositoryImpl } from '@/data/repositories/SearchRepositoryImpl';
+import { NotificationRepositoryImpl } from '@/data/repositories/NotificationRepositoryImpl';
 
 import { GetProductsUseCase } from '@/domain/usecases/GetProductsUseCase';
 import { GetHomeDataUseCase } from '@/domain/usecases/GetHomeDataUseCase';
@@ -31,7 +35,7 @@ import { CreateOrderUseCase } from '@/domain/usecases/order/CreateOrderUseCase';
 import { CancelOrderUseCase } from '@/domain/usecases/order/CancelOrderUseCase';
 import { GetOrderStatisticsUseCase } from '@/domain/usecases/order/GetOrderStatisticsUseCase';
 import { ApplyVoucherUseCase } from '@/domain/usecases/order/ApplyVoucherUseCase';
-import { PayOrderUseCase } from '@/domain/usecases/order/PayOrderUseCase';
+import { CreateVNPayPaymentSessionUseCase } from '@/domain/usecases/payment/CreateVNPayPaymentSessionUseCase';
 import { GetManagedOrdersUseCase } from '@/domain/usecases/order/GetManagedOrdersUseCase';
 import { GetManagedOrderByIdUseCase } from '@/domain/usecases/order/GetManagedOrderByIdUseCase';
 import { UpdateManagedOrderStatusUseCase } from '@/domain/usecases/order/UpdateManagedOrderStatusUseCase';
@@ -50,6 +54,8 @@ import { UploadUserAvatarUseCase } from '@/domain/usecases/UploadUserAvatarUseCa
 import { ChangePasswordUseCase } from '@/domain/usecases/user/ChangePasswordUseCase';
 import { GetOrderByIdUseCase } from '@/domain/usecases/GetOrderByIdUseCase';
 import { GetSupportDataUseCase } from '@/domain/usecases/GetSupportTicketsUseCase';
+import { CreateSupportTicketUseCase } from '@/domain/usecases/CreateSupportTicketUseCase';
+import { VoteSupportFaqUseCase } from '@/domain/usecases/VoteSupportFaqUseCase';
 import { CreateLivestreamUseCase } from '@/domain/usecases/CreateLivestreamUseCase';
 import { GetLivestreamByIdUseCase } from '@/domain/usecases/GetLivestreamByIdUseCase';
 import { UpdateLivestreamStatusUseCase } from '@/domain/usecases/UpdateLivestreamStatusUseCase';
@@ -68,6 +74,10 @@ import { UpdateCartItemUseCase } from '@/domain/usecases/cart/UpdateCartItemUseC
 import { RemoveCartItemUseCase } from '@/domain/usecases/cart/RemoveCartItemUseCase';
 import { ClearCartUseCase } from '@/domain/usecases/cart/ClearCartUseCase';
 import { SearchUseCase } from '@/domain/usecases/SearchUseCase';
+import { GetNotificationsUseCase } from '@/domain/usecases/notifications/GetNotificationsUseCase';
+import { MarkNotificationReadUseCase } from '@/domain/usecases/notifications/MarkNotificationReadUseCase';
+import { MarkAllNotificationsReadUseCase } from '@/domain/usecases/notifications/MarkAllNotificationsReadUseCase';
+import { GetNotificationSummaryUseCase } from '@/domain/usecases/notifications/GetNotificationSummaryUseCase';
 
 class DIContainer {
   private static instance: DIContainer;
@@ -75,6 +85,7 @@ class DIContainer {
   private _productApiDataSource?: ProductApiDataSource;
   private _bannerApiDataSource?: BannerApiDataSource;
   private _orderApiDataSource?: OrderApiDataSource;
+  private _paymentApiDataSource?: PaymentApiDataSource;
   private _favoriteApiDataSource?: FavoriteApiDataSource;
   private _livestreamApiDataSource?: LivestreamApiDataSource;
   private _communityApiDataSource?: CommunityApiDataSource;
@@ -83,10 +94,12 @@ class DIContainer {
   private _productReviewApiDataSource?: ProductReviewApiDataSource;
   private _cartApiDataSource?: CartApiDataSource;
   private _searchApiDataSource?: SearchApiDataSource;
+  private _notificationApiDataSource?: NotificationApiDataSource;
 
   private _productRepository?: ProductRepositoryImpl;
   private _bannerRepository?: BannerRepositoryImpl;
   private _orderRepository?: OrderRepositoryImpl;
+  private _paymentRepository?: PaymentRepositoryImpl;
   private _favoriteRepository?: FavoriteRepositoryImpl;
   private _livestreamRepository?: LivestreamRepositoryImpl;
   private _communityRepository?: CommunityRepositoryImpl;
@@ -95,6 +108,7 @@ class DIContainer {
   private _productReviewRepository?: ProductReviewRepositoryImpl;
   private _cartRepository?: CartRepositoryImpl;
   private _searchRepository?: SearchRepositoryImpl;
+  private _notificationRepository?: NotificationRepositoryImpl;
 
   private _getProductsUseCase?: GetProductsUseCase;
   private _getHomeDataUseCase?: GetHomeDataUseCase;
@@ -103,7 +117,7 @@ class DIContainer {
   private _cancelOrderUseCase?: CancelOrderUseCase;
   private _getOrderStatisticsUseCase?: GetOrderStatisticsUseCase;
   private _applyVoucherUseCase?: ApplyVoucherUseCase;
-  private _payOrderUseCase?: PayOrderUseCase;
+  private _createVNPayPaymentSessionUseCase?: CreateVNPayPaymentSessionUseCase;
   private _getManagedOrdersUseCase?: GetManagedOrdersUseCase;
   private _getManagedOrderByIdUseCase?: GetManagedOrderByIdUseCase;
   private _updateManagedOrderStatusUseCase?: UpdateManagedOrderStatusUseCase;
@@ -125,6 +139,8 @@ class DIContainer {
   private _changePasswordUseCase?: ChangePasswordUseCase;
   private _getOrderByIdUseCase?: GetOrderByIdUseCase;
   private _getSupportDataUseCase?: GetSupportDataUseCase;
+  private _createSupportTicketUseCase?: CreateSupportTicketUseCase;
+  private _voteSupportFaqUseCase?: VoteSupportFaqUseCase;
   private _createLivestreamUseCase?: CreateLivestreamUseCase;
   private _getLivestreamByIdUseCase?: GetLivestreamByIdUseCase;
   private _updateLivestreamStatusUseCase?: UpdateLivestreamStatusUseCase;
@@ -140,6 +156,10 @@ class DIContainer {
   private _removeCartItemUseCase?: RemoveCartItemUseCase;
   private _clearCartUseCase?: ClearCartUseCase;
   private _getSearchUseCase?: SearchUseCase;
+  private _getNotificationsUseCase?: GetNotificationsUseCase;
+  private _markNotificationReadUseCase?: MarkNotificationReadUseCase;
+  private _markAllNotificationsReadUseCase?: MarkAllNotificationsReadUseCase;
+  private _getNotificationSummaryUseCase?: GetNotificationSummaryUseCase;
 
   private constructor() {}
 
@@ -169,6 +189,13 @@ class DIContainer {
       this._orderApiDataSource = new OrderApiDataSource();
     }
     return this._orderApiDataSource;
+  }
+
+  get paymentApiDataSource(): PaymentApiDataSource {
+    if (!this._paymentApiDataSource) {
+      this._paymentApiDataSource = new PaymentApiDataSource();
+    }
+    return this._paymentApiDataSource;
   }
 
   get favoriteApiDataSource(): FavoriteApiDataSource {
@@ -227,6 +254,13 @@ class DIContainer {
     return this._searchApiDataSource;
   }
 
+  get notificationApiDataSource(): NotificationApiDataSource {
+    if (!this._notificationApiDataSource) {
+      this._notificationApiDataSource = new NotificationApiDataSource();
+    }
+    return this._notificationApiDataSource;
+  }
+
   get productRepository(): ProductRepositoryImpl {
     if (!this._productRepository) {
       this._productRepository = new ProductRepositoryImpl(this.productApiDataSource);
@@ -246,6 +280,13 @@ class DIContainer {
       this._orderRepository = new OrderRepositoryImpl(this.orderApiDataSource);
     }
     return this._orderRepository;
+  }
+
+  get paymentRepository(): PaymentRepositoryImpl {
+    if (!this._paymentRepository) {
+      this._paymentRepository = new PaymentRepositoryImpl(this.paymentApiDataSource);
+    }
+    return this._paymentRepository;
   }
 
   get favoriteRepository(): FavoriteRepositoryImpl {
@@ -304,6 +345,13 @@ class DIContainer {
     return this._searchRepository;
   }
 
+  get notificationRepository(): NotificationRepositoryImpl {
+    if (!this._notificationRepository) {
+      this._notificationRepository = new NotificationRepositoryImpl(this.notificationApiDataSource);
+    }
+    return this._notificationRepository;
+  }
+
   get getProductsUseCase(): GetProductsUseCase {
     if (!this._getProductsUseCase) {
       this._getProductsUseCase = new GetProductsUseCase(this.productRepository);
@@ -356,11 +404,11 @@ class DIContainer {
     return this._applyVoucherUseCase;
   }
 
-  get payOrderUseCase(): PayOrderUseCase {
-    if (!this._payOrderUseCase) {
-      this._payOrderUseCase = new PayOrderUseCase(this.orderRepository);
+  get createVNPayPaymentSessionUseCase(): CreateVNPayPaymentSessionUseCase {
+    if (!this._createVNPayPaymentSessionUseCase) {
+      this._createVNPayPaymentSessionUseCase = new CreateVNPayPaymentSessionUseCase(this.paymentRepository);
     }
-    return this._payOrderUseCase;
+    return this._createVNPayPaymentSessionUseCase;
   }
 
   get getManagedOrdersUseCase(): GetManagedOrdersUseCase {
@@ -510,6 +558,20 @@ class DIContainer {
     return this._getSupportDataUseCase;
   }
 
+  get createSupportTicketUseCase(): CreateSupportTicketUseCase {
+    if (!this._createSupportTicketUseCase) {
+      this._createSupportTicketUseCase = new CreateSupportTicketUseCase(this.supportRepository);
+    }
+    return this._createSupportTicketUseCase;
+  }
+
+  get voteSupportFaqUseCase(): VoteSupportFaqUseCase {
+    if (!this._voteSupportFaqUseCase) {
+      this._voteSupportFaqUseCase = new VoteSupportFaqUseCase(this.supportRepository);
+    }
+    return this._voteSupportFaqUseCase;
+  }
+
   get createLivestreamUseCase(): CreateLivestreamUseCase {
     if (!this._createLivestreamUseCase) {
       this._createLivestreamUseCase = new CreateLivestreamUseCase(this.livestreamRepository);
@@ -613,6 +675,34 @@ class DIContainer {
       this._getSearchUseCase = new SearchUseCase(this.searchRepository);
     }
     return this._getSearchUseCase;
+  }
+
+  get getNotificationsUseCase(): GetNotificationsUseCase {
+    if (!this._getNotificationsUseCase) {
+      this._getNotificationsUseCase = new GetNotificationsUseCase(this.notificationRepository);
+    }
+    return this._getNotificationsUseCase;
+  }
+
+  get markNotificationReadUseCase(): MarkNotificationReadUseCase {
+    if (!this._markNotificationReadUseCase) {
+      this._markNotificationReadUseCase = new MarkNotificationReadUseCase(this.notificationRepository);
+    }
+    return this._markNotificationReadUseCase;
+  }
+
+  get markAllNotificationsReadUseCase(): MarkAllNotificationsReadUseCase {
+    if (!this._markAllNotificationsReadUseCase) {
+      this._markAllNotificationsReadUseCase = new MarkAllNotificationsReadUseCase(this.notificationRepository);
+    }
+    return this._markAllNotificationsReadUseCase;
+  }
+
+  get getNotificationSummaryUseCase(): GetNotificationSummaryUseCase {
+    if (!this._getNotificationSummaryUseCase) {
+      this._getNotificationSummaryUseCase = new GetNotificationSummaryUseCase(this.notificationRepository);
+    }
+    return this._getNotificationSummaryUseCase;
   }
 }
 

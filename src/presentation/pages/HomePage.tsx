@@ -1,7 +1,3 @@
-/**
- * Presentation Layer: Home Page
- * Pure UI component that receives data from ViewModel
- */
 'use client';
 
 import React, { useMemo } from 'react';
@@ -62,12 +58,26 @@ export const HomePage: React.FC = () => {
   }, [data, t]);
 
   const displayedBestSellers = useMemo(
-    () => (data?.bestSellingProducts ?? []).slice(0, 8),
+    () => {
+      const list = data?.bestSellingProducts ?? [];
+      return [...list].sort((a, b) => (b.sold ?? 0) - (a.sold ?? 0)).slice(0, 5);
+    },
     [data?.bestSellingProducts]
   );
 
   const displayedNewProducts = useMemo(
-    () => (data?.newProducts ?? []).slice(0, 8),
+    () => {
+      const list = data?.newProducts ?? [];
+      const isToday = (value?: string) => {
+        if (!value) return false;
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return false;
+        const now = new Date();
+        return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+      };
+
+  return list.filter((p) => isToday((p as Product & { harvestDate?: string }).harvestDate ?? (p as Product).createdAt));
+    },
     [data?.newProducts]
   );
 
@@ -370,7 +380,7 @@ const SectionHeader: React.FC<{ title: string; subtitle?: string; href?: string;
         className="text-xs sm:text-sm font-medium text-orange-500 hover:text-orange-600 inline-flex items-center gap-1 self-start sm:self-auto whitespace-nowrap transition-colors"
       >
         {ctaLabel}
-        <span aria-hidden className="text-base">→</span>
+        <span aria-hidden className="text-base"></span>
       </Link>
     )}
   </div>

@@ -1,11 +1,14 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { container } from '@/presentation/di/container';
 import { Livestream } from '@/domain/entities/Livestream';
+import { LIVESTREAM_CONFIG } from '@/shared/constants/livestream';
 
 const LivestreamHistoryPage: React.FC = () => {
+  const t = useTranslations('livestream');
   const { user } = useAuth();
   const [history, setHistory] = useState<Livestream[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,14 +26,14 @@ const LivestreamHistoryPage: React.FC = () => {
         setHistory(data);
       } catch (err) {
         console.error('[LivestreamHistory] Error:', err);
-        setError(err instanceof Error ? err.message : 'Không thể tải lịch sử livestream');
+        setError(err instanceof Error ? err.message : t('historyPage.error'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchHistory();
-  }, [user]);
+  }, [user, t]);
 
   const formatDate = (date: Date | string) => {
     const d = typeof date === 'string' ? new Date(date) : date;
@@ -53,19 +56,19 @@ const LivestreamHistoryPage: React.FC = () => {
     const startDate = typeof start === 'string' ? new Date(start) : start;
     const endDate = typeof end === 'string' ? new Date(end) : end;
     const diff = endDate.getTime() - startDate.getTime();
-    const hours = Math.floor(diff / 3600000);
-    const minutes = Math.floor((diff % 3600000) / 60000);
+    const hours = Math.floor(diff / LIVESTREAM_CONFIG.MILLISECONDS_PER_HOUR);
+    const minutes = Math.floor((diff % LIVESTREAM_CONFIG.MILLISECONDS_PER_HOUR) / LIVESTREAM_CONFIG.MILLISECONDS_PER_MINUTE);
     
     if (hours > 0) {
-      return `${hours} giờ ${minutes} phút`;
+      return `${hours} ${t('historyPage.duration.hours')} ${minutes} ${t('historyPage.duration.minutes')}`;
     }
-    return `${minutes} phút`;
+    return `${minutes} ${t('historyPage.duration.minutes')}`;
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Đang tải lịch sử...</div>
+        <div className="text-lg">{t('historyPage.loading')}</div>
       </div>
     );
   }
@@ -81,36 +84,36 @@ const LivestreamHistoryPage: React.FC = () => {
   if (history.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-gray-500">Bạn chưa có livestream nào đã kết thúc</div>
+        <div className="text-gray-500">{t('historyPage.empty')}</div>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Lịch sử Livestream</h1>
+      <h1 className="text-3xl font-bold mb-6">{t('historyPage.title')}</h1>
       
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Tên Livestream
+                {t('historyPage.table.title')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Ngày
+                {t('historyPage.table.date')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Giờ bắt đầu
+                {t('historyPage.table.startTime')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Giờ kết thúc
+                {t('historyPage.table.endTime')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Thời lượng
+                {t('historyPage.table.duration')}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Lượt xem
+                {t('historyPage.table.viewers')}
               </th>
             </tr>
           </thead>

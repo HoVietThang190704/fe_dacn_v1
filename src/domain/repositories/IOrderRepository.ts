@@ -41,6 +41,8 @@ export interface CreateOrderPayload {
     isDefault?: boolean;
   };
   saveShippingAddress?: boolean;
+  productId?: string; // buy now
+  quantity?: number; // buy now
 }
 
 export interface OrderStatistics {

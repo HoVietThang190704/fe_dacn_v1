@@ -51,6 +51,7 @@ export const API_ENDPOINTS = {
   MANAGED_ORDER_STATUS: (id: string) => `/api/users/me/manage/orders/${id}/status`,
   USER_VOUCHERS: '/api/users/me/vouchers',
   APPLY_VOUCHER: '/api/users/me/vouchers/apply',
+  PAYMENT_VNPAY_CREATE: '/api/payments/vnpay/create',
   
   BANNERS: '/api/banners/active',
   PROMOTIONS: '/api/promotions/active',
@@ -105,4 +106,18 @@ export const API_ENDPOINTS = {
   CART: '/api/cart',
   CART_ITEMS: '/api/cart/items',
   CART_ITEM: (itemId: string) => `/api/cart/items/${itemId}`,
+
+  // Support
+  SUPPORT_TICKETS: '/api/tickets',
+  SUPPORT_TICKET_DETAIL: (id: string) => `/api/tickets/${id}`,
+  SUPPORT_TICKET_STATUS: (id: string) => `/api/tickets/${id}/status`,
+  SUPPORT_FAQS: '/api/support/faqs',
+  SUPPORT_FAQ_SEARCH: '/api/support/faqs/search',
+  SUPPORT_FAQ_VOTE: (id: string) => `/api/support/faqs/${id}/vote`,
+
+  // Notifications
+  NOTIFICATIONS: '/api/notifications',
+  NOTIFICATION_MARK_READ: (id: string) => `/api/notifications/${id}/read`,
+  NOTIFICATIONS_READ_ALL: '/api/notifications/read-all',
+  NOTIFICATIONS_SUMMARY: '/api/notifications/summary',
 } as const;

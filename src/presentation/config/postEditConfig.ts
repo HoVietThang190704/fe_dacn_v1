@@ -1,0 +1,9 @@
+export const POST_EDIT_CONFIG = {
+  MAX_IMAGES: 10,
+  MAX_CONTENT_LENGTH: 10000,
+  IMAGE_PREVIEW_SIZE: {
+    width: 400,
+    height: 400,
+  },
+  REDIRECT_DELAY_MS: 1200,
+};
