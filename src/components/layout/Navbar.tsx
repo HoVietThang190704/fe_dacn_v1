@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { ICONS } from '@/shared/constants/images';
 import { useCart } from '@/shared/hooks/useCart';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useNotificationsSummary } from '@/shared/hooks/useNotificationsSummary';
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const t = useTranslations('navbar');
@@ -43,6 +44,29 @@ const SearchBar = () => {
         />
       </div>
     </form>
+  );
+};
+
+const NotificationBell = () => {
+  const t = useTranslations('navbar');
+  const { summary, isLoading } = useNotificationsSummary();
+  const params = useParams();
+  const locale = (params?.locale as string) ?? 'vi';
+  const unreadCount = summary?.unread ?? 0;
+
+  return (
+    <Link
+      href={`/${locale}/main/notifications`}
+      className="relative p-1.5 sm:p-2 text-navbar-foreground hover:text-navbar-foreground/80 transition-colors"
+      aria-label={t('notificationsAria')}
+    >
+      <Image src={ICONS.BELL} alt="notifications" width={16} height={16} className="w-4 h-4 xl:w-6 xl:h-6" />
+      {(isLoading || unreadCount > 0) && (
+        <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-orange-500 text-white text-[10px] sm:text-xs rounded-full h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center font-bold" aria-live="polite">
+          {isLoading ? '…' : unreadCount > 99 ? '99+' : unreadCount}
+        </span>
+      )}
+    </Link>
   );
 };
 
@@ -125,6 +149,7 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }: NavbarProps) {
               />
               <span className="font-medium">{t('deliveryPromise')}</span>
             </div>
+            <NotificationBell />
             <CartIcon />
             
             <UserDropdown />

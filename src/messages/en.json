@@ -71,12 +71,14 @@
     "register": "Sign Up",
     "welcome": "Welcome!",
     "pleaseSignIn": "Please sign in to continue",
-    "cartAria": "View shopping cart"
+    "cartAria": "View shopping cart",
+    "notificationsAria": "View notifications"
   },
   "sidebar": {
     "home": "Home",
     "products": "Products",
     "cart": "Shopping Cart",
+    "notifications": "Notifications",
     "livestream": "Livestream",
     "orders": "Orders",
     "favorites": "Favorites",
@@ -138,6 +140,7 @@
     "unit": "Unit",
     "images": "Image URLs (one per line)",
     "tags": "Tags (comma separated)",
+    "tagsInfo": "Enter multiple tags separated by commas or new lines.",
     "inventory": "Inventory & Quality",
     "stockQuantity": "Stock quantity",
     "harvestDate": "Harvest date",
@@ -162,6 +165,19 @@
   "loadError": "Unable to load product information. Please try again.",
     "updateError": "Failed to update product. Please try again.",
     "backToList": "Back to products",
+    "chooseCategoryPlaceholder": "-- Choose category --",
+    "descriptionPlaceholder": "Short product description...",
+    "imagesInfo": "Images are uploaded to Cloudinary; each image will be stored as a URL and included in the payload.",
+    "tagsPlaceholder": "fresh, organic",
+    "unitPlaceholder": "kg, pcs, bundle...",
+    "defaultDescription": "Product",
+    "validation": {
+      "nameRequired": "Product name is required",
+      "categoryRequired": "Please choose a category",
+      "unitRequired": "Please enter a unit",
+      "invalidPrice": "Price must be a number greater than 0",
+      "invalidStock": "Stock quantity must be a valid number"
+    },
     "requiredSuffix": "is required",
     "invalidNumberSuffix": "must be a valid number"
   },
@@ -230,11 +246,50 @@
       "maxStock": "Only {count} items left in stock"
     }
   },
+  "notificationsPage": {
+    "eyebrow": "Inbox",
+    "title": "Notifications",
+    "subtitle": "Stay up-to-date with orders, promotions and important account updates.",
+    "actions": {
+      "refresh": "Refresh",
+      "search": "Search",
+      "close": "Close",
+      "markAll": "Mark all as read"
+    },
+    "filters": {
+      "all": "All",
+      "unread": "Unread",
+      "read": "Read"
+    },
+    "status": {
+      "new": "New",
+      "read": "Read"
+    },
+    "viewDetails": "View details",
+    "loadingMore": "Loading...",
+    "loadMore": "Load more",
+    "empty": {
+      "title": "You're all caught up",
+      "description": "We'll let you know as soon as there's something new."
+    ,
+    "emoji": "✨"
+    }
+    ,
+    "errors": {
+      "openNotification": "Failed to open notification",
+      "updateNotifications": "Failed to update notifications"
+    }
+  },
   "home": {
     "heroTitle": "Fresh Market - Fresh Produce",
     "heroSubtitle": "Fast delivery - Great prices every day",
-    "heroCta": "Buy Now",
-    "flashSale": "FLASH SALE",
+    "turnOffMic": "Turn off microphone",
+    "turnOnMic": "Turn on microphone",
+    "linkedProducts": "Linked products",
+    "linkedProductsHelper": "Tap to open the product page instantly.",
+    "productsLoading": "Loading linked products...",
+    "productsError": "Unable to load products",
+    "noProductsSelected": "No products selected for this livestream",
     "suggestions": "Suggestions for you",
     "seeAll": "See all →",
     "loading": "Loading home feed...",
@@ -312,12 +367,16 @@
       "cancelled": "Cancelled",
       "refunded": "Refunded"
     },
+    "searchPlaceholder": "Search by order ID, customer name, phone number...",
+    "filterTitle": "Status filter",
+    "eachPage": "Each page",
+    "orderNumber": "Order ID",
+    "statusLabel": "Status",
+    "orderDate": "Order date",
+    "actionsLabel": "Actions",
     "payment": {
       "cod": "Cash on Delivery",
-      "momo": "MoMo Wallet",
-      "zalopay": "ZaloPay",
-      "vnpay": "VNPay",
-      "card": "Bank Card"
+      "vnpay": "VNPay"
     },
     "labels": {
       "total": "Total",
@@ -335,6 +394,8 @@
     "amountLabel": "Amount",
     "actions": {
       "refresh": "Refresh",
+      "update": "Update",
+      "updating": "Updating...",
       "review": "Review",
       "buyAgain": "Buy again",
       "contactSeller": "Contact seller",
@@ -412,6 +473,21 @@
       "descriptionPlaceholder": "Describe your livestream content...",
       "thumbnail": "Thumbnail Image",
       "thumbnailPlaceholder": "https://example.com/thumbnail.jpg",
+      "uploadImage": "Upload image",
+      "urlPlaceholder": "Or enter image URL",
+      "scheduleLabel": "Schedule livestream for later",
+      "dateLabel": "Date",
+      "timeLabel": "Time",
+      "startTimePreview": "Livestream will start at:",
+      "productsLabel": "Select products to feature",
+      "productsHelper": "Viewers can tap these products to purchase directly during your stream.",
+      "productsLoading": "Loading your products...",
+      "productsEmpty": "You haven't published any products yet. Create one before going live.",
+      "productSearchPlaceholder": "Search by product name...",
+      "productsSearchEmpty": "No products match your search.",
+      "productsCounter": "{count}/{total} products selected",
+      "productsRequired": "Please select at least one product",
+      "createProductCta": "Create product",
       "cancel": "Cancel",
       "createAndStart": "Create and Start",
       "creating": "Creating..."
@@ -438,7 +514,12 @@
       "turnOffCamera": "Turn off camera",
       "turnOnCamera": "Turn on camera",
       "turnOffMic": "Turn off microphone",
-      "turnOnMic": "Turn on microphone"
+      "turnOnMic": "Turn on microphone",
+      "linkedProducts": "Linked products",
+      "linkedProductsHelper": "Tap to open the product page instantly.",
+      "productsLoading": "Loading linked products...",
+      "productsError": "Unable to load products",
+      "noProductsSelected": "No products selected for this livestream"
     },
     "watch": {
       "scheduled": "This livestream is scheduled",
@@ -450,18 +531,52 @@
       "chat": "Chat",
       "chatComingSoon": "Chat feature is under development",
       "products": "Products",
-      "product": "Product"
+      "product": "Product",
+      "loadingProducts": "Loading products...",
+      "productsError": "Couldn't load linked products",
+      "noProducts": "No linked products yet",
+      "viewProduct": "View product",
+      "follow": "Follow"
     },
     "errors": {
       "notAuthenticated": "Please login to create livestream",
       "titleRequired": "Please enter a title",
       "createFailed": "Failed to create livestream. Please try again",
+      "loadProductsFailed": "Couldn't load your products. Please try again.",
       "loadFailed": "Failed to load livestream",
       "livestreamNotFound": "Livestream not found",
       "notAuthorized": "You are not authorized to access this livestream",
+      "roleNotAllowed": "Only shop owners or admins can start a livestream.",
+      "roleNotAllowedHint": "Contact an administrator or upgrade to a shop owner account to go live.",
       "streamInitFailed": "Failed to initialize stream",
       "endStreamFailed": "Failed to end stream",
-      "joinFailed": "Failed to join livestream"
+      "joinFailed": "Failed to join livestream",
+      "browserNotSupported": "Your browser does not support camera/microphone. Please use a modern browser or enable HTTPS.",
+      "permissionRequired": "You need to grant camera and microphone permissions to livestream. Please check your browser settings."
+    },
+    "initializing": "Initializing...",
+    "livestream": {
+      "initializing": "Initializing...",
+      "back": "Back"
+    },
+    "noDescription": "No description yet",
+    "historyPage": {
+      "title": "Livestream History",
+      "loading": "Loading history...",
+      "empty": "You haven't completed any livestreams yet",
+      "error": "Unable to load livestream history",
+      "table": {
+        "title": "Livestream Title",
+        "date": "Date",
+        "startTime": "Start Time",
+        "endTime": "End Time",
+        "duration": "Duration",
+        "viewers": "Views"
+      },
+      "duration": {
+        "hours": "hours",
+        "minutes": "minutes"
+      }
     }
   },
   "community": {
@@ -490,6 +605,12 @@
     "retry": "Retry",
     "emptyTitle": "No posts yet",
     "emptyDesc": "Be the first to share!"
+  ,
+    "confirmDelete": "Are you sure you want to delete this post?",
+    "allDisplayed": "All posts displayed",
+    "userFallback": "User"
+  ,
+    "unknownUser": "Unknown User"
   },
   "postEditor": {
     "title": "Edit post",
@@ -508,6 +629,9 @@
     "addImages": "Add images",
     "addImagesHint": "You can attach up to 10 images. New uploads will appear at the end of the list.",
     "maxImagesWarning": "You can only upload up to 10 images per post.",
+    "existingImageAlt": "Existing image",
+    "newImageAlt": "New image preview",
+    "removeImageAria": "Remove image",
     "updateButton": "Update post",
     "updating": "Updating...",
     "cancel": "Cancel",
@@ -523,16 +647,95 @@
     "faqsTab": "FAQs",
     "ticketsTab": "Tickets ({count})",
     "createTicket": "Create ticket",
+    "createNewTicket": "Create new ticket",
     "noTickets": "No support tickets",
+    "noTicketsDesc": "All your requests will appear here",
     "helpfulQuestion": "Was this answer helpful?",
+    "faqsEmpty": "We're updating our FAQs. Create a ticket if you need help right away.",
     "yes": "Yes",
     "no": "No",
     "viewDetails": "View details →",
-    "createNewTicket": "Create new ticket",
-    "noTicketsDesc": "All your requests will appear here",
     "loading": "Loading...",
     "error": "An error occurred",
-    "retry": "Retry"
+    "retry": "Retry",
+    "actions": {
+      "refresh": "Refresh",
+      "newTicket": "Create new ticket",
+      "openEmail": "Compose email",
+      "openChat": "Open chat"
+    },
+    "quickActions": {
+      "hotlineNumber": "666666666",
+      "chatDescription": "Chat live with our support specialists"
+    },
+    "cta": {
+      "title": "Can't find the answer you need?",
+      "subtitle": "Create a new ticket and we'll get back to you as soon as possible."
+    },
+    "messages": {
+      "ticketCreated": "Your support request has been submitted successfully!"
+    },
+    "chatBox": {
+      "title": "Chat with Support",
+      "subtitle": "Leave a message and we'll reply as soon as possible",
+      "betaTag": "Beta",
+      "greeting": "Hi there! The Fresh Market support team is happy to help. What can we assist you with?",
+      "autoReply": "Thanks! We've received your message and will respond shortly.",
+      "empty": "No conversations yet. Send your first message!",
+      "placeholder": "Type what you need help with...",
+      "send": "Send message",
+      "noteTitle": "Note",
+      "noteContent": "Chat is currently in beta. Our support team will follow up via email or phone."
+    },
+    "statuses": {
+      "open": "New",
+      "in_progress": "In progress",
+      "on_hold": "On hold",
+      "resolved": "Resolved",
+      "closed": "Closed",
+      "rejected": "Rejected"
+    },
+    "priorities": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "types": {
+      "support": "General support",
+      "question": "Question",
+      "refund": "Refund",
+      "bug": "System bug",
+      "feature": "Feature request",
+      "other": "Other"
+    },
+    "tickets": {
+      "createdAt": "Created {date}",
+      "updatedAt": "Updated {date}",
+      "comments": "{count} replies"
+    },
+    "form": {
+      "title": "Create support request",
+      "subtitle": "Share the details so we can help you faster.",
+      "fields": {
+        "title": "Request title",
+        "type": "Request type",
+        "priority": "Priority",
+        "relatedOrder": "Order ID (optional)",
+        "relatedShop": "Related shop (optional)",
+        "description": "Description"
+      },
+      "placeholders": {
+        "title": "Example: Missing items from my order",
+        "relatedOrder": "Enter order ID",
+        "relatedShop": "Enter shop name or ID",
+        "description": "Describe the issue you're experiencing in as much detail as possible..."
+      },
+      "disclaimer": "We'll review your request within 24 hours.",
+      "requiredHint": "* Required information",
+      "cancel": "Cancel",
+      "submit": "Submit request"
+    }
   },
   "settings": {
     "title": "Account Settings",
@@ -679,10 +882,7 @@
     "payment": {
       "methods": {
         "cod": "Cash on Delivery",
-        "momo": "MoMo Wallet",
-        "zalopay": "ZaloPay",
-        "vnpay": "VNPay",
-        "card": "Bank Card"
+        "vnpay": "VNPay"
       },
       "status": {
         "pending": "Awaiting payment",
@@ -771,10 +971,7 @@
       "title": "Payment Method",
       "options": {
         "cod": "Cash on Delivery (COD)",
-        "momo": "MoMo Wallet",
-        "zalopay": "ZaloPay",
-        "vnpay": "VNPay",
-        "card": "Credit Card"
+        "vnpay": "VNPay (recommended)"
       },
       "comingSoon": "Coming soon"
     },
@@ -799,6 +996,25 @@
       "noAddressSelected": "Please choose a shipping address.",
       "addressIncompleteForOrder": "Shipping address is incomplete.",
       "createOrder": "Could not create order. Please try again."
+    }
+  },
+  "paymentResult": {
+    "title": "Payment Result",
+    "successTitle": "VNPay payment successful!",
+    "successMessage": "Order {orderNumber} has been marked as paid.",
+    "failedTitle": "Payment unsuccessful",
+    "failedMessage": "VNPay returned code {code}. If the charge was made, please contact support for assistance.",
+    "unknownTitle": "Verifying transaction",
+    "unknownMessage": "We are still verifying the payment with VNPay. Please refresh the page after a minute.",
+    "details": {
+      "orderNumber": "Order number",
+      "orderId": "Order ID",
+      "responseCode": "Response code"
+    },
+    "actions": {
+      "viewOrder": "View order",
+      "backHome": "Back to home",
+      "retryPayment": "Retry payment"
     }
   },
   "search": {

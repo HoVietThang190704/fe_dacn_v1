@@ -59,7 +59,6 @@ export const useManagedOrdersViewModel = ({
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Không thể tải danh sách đơn hàng';
       setError(message);
-      console.error('[useManagedOrdersViewModel] load error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -108,7 +107,6 @@ export const useManagedOrdersViewModel = ({
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Không thể cập nhật trạng thái đơn hàng';
         setUpdateError(message);
-        console.error('[useManagedOrdersViewModel] update status error:', err);
       } finally {
         setUpdatingOrderId(null);
       }

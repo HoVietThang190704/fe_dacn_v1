@@ -1,18 +1,16 @@
-import { SupportTicket, FAQ, TicketStatus } from '../entities/Support';
+import { SupportTicket, FAQ, TicketStatus, CreateSupportTicketInput } from '../entities/Support';
 
 export interface ISupportRepository {
-  getTickets(userId: string): Promise<SupportTicket[]>;
+  getTickets(): Promise<SupportTicket[]>;
   getTicketById(id: string): Promise<SupportTicket>;
-  createTicket(ticket: CreateTicketDto): Promise<SupportTicket>;
+  createTicket(ticket: CreateSupportTicketInput): Promise<SupportTicket>;
   updateTicketStatus(ticketId: string, status: TicketStatus): Promise<SupportTicket>;
-  getFAQs(category?: string): Promise<FAQ[]>;
-  searchFAQs(query: string): Promise<FAQ[]>;
-}
-
-export interface CreateTicketDto {
-  userId: string;
-  subject: string;
-  description: string;
-  category: string;
-  attachments?: string[];
+  getFAQs(params?: { category?: string; locale?: string }): Promise<FAQ[]>;
+  searchFAQs(query: string, locale?: string): Promise<FAQ[]>;
+  voteOnFAQ(faqId: string, vote: 'helpful' | 'not_helpful'): Promise<{
+    faqId: string;
+    helpful: number;
+    notHelpful: number;
+    userVote?: 'helpful' | 'not_helpful' | null;
+  }>;
 }

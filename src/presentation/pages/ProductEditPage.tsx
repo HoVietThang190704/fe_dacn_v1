@@ -7,6 +7,7 @@ import ImageUploader from '@/components/ImageUploader';
 import { Product, ProductCategory } from '@/domain/entities/Product';
 import { UpdateProductPayload } from '@/domain/repositories/IProductRepository';
 import { container } from '@/presentation/di/container';
+import { splitInput } from '@/presentation/utils/string';
 
 interface ProductEditPageProps {
   productId: string;
@@ -23,11 +24,7 @@ interface FormState {
   tags: string;
 }
 
-const splitInput = (value: string): string[] =>
-  value
-    .split(/[\n,]/)
-    .map((item) => item.trim())
-    .filter(Boolean);
+// splitInput imported from shared utils
 
 const toFormState = (product: Product): FormState => {
   const imageList = Array.isArray(product.images) && product.images.length > 0

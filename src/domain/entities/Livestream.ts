@@ -19,18 +19,25 @@ export interface Livestream {
   endTime?: Date;
   products: string[];
   channelName: string;
+  productSummaries?: LivestreamProductSummary[];
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface LivestreamProductSummary {
+  id: string;
+  name: string;
+  price: number;
+  unit?: string;
+  thumbnail?: string;
+  stockQuantity?: number;
 }
 
 export interface CreateLivestreamDto {
   title: string;
   description?: string;
   thumbnail?: string;
-  hostId: string;
-  hostName: string;
-  hostAvatar?: string;
-  products?: string[];
+  products: string[];
   startTime?: Date;
 }
 

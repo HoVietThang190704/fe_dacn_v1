@@ -23,6 +23,7 @@ export interface Product {
   shelfLife?: number; // in days, optional
   createdAt?: string;
   updatedAt?: string;
+  harvestDate?: string;
   sold?: number;
   isAvailable?: boolean;
   isHighRated?: boolean;

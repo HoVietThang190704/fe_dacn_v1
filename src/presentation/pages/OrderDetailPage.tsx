@@ -1,37 +1,32 @@
-'use client';
+"use client";
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
 import { useOrderDetailViewModel } from '../viewmodels/useOrderDetailViewModel';
 import { container } from '../di/container';
-import { ORDER_STATUS, OrderStatus, PaymentMethod, PaymentStatus } from '@/domain/entities/Order';
+import { ORDER_STATUS, OrderStatus } from '@/domain/entities/Order';
+import { ORDER_CONFIG } from '@/presentation/config/orderConfig';
+import useCurrency from '@/presentation/hooks/useCurrency';
+import useOrderStatus from '@/presentation/hooks/useOrderStatus';
+import LoadingState from '@/presentation/components/ui/LoadingState';
+import ErrorState from '@/presentation/components/ui/ErrorState';
+import NotFoundState from '@/presentation/components/ui/NotFoundState';
 
 interface OrderDetailPageProps {
   orderId: string;
 }
 
-const FALLBACK_IMAGE = '/img/Background.png';
-
 export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => {
   const t = useTranslations('order');
+  
+  const { formatCurrency } = useCurrency();
   const locale = useLocale();
-  const formatCurrency = useCallback(
-    (value: number) =>
-      new Intl.NumberFormat(locale, {
-        style: 'currency',
-        currency: 'VND',
-        maximumFractionDigits: 0,
-      }).format(value),
-    [locale]
-  );
+  const { getStatusColor } = useOrderStatus();
   const paymentMethodLabels = useMemo(
     () => ({
       cod: t('payment.methods.cod'),
-      momo: t('payment.methods.momo'),
-      zalopay: t('payment.methods.zalopay'),
       vnpay: t('payment.methods.vnpay'),
-      card: t('payment.methods.card'),
     }),
     [t]
   );
@@ -46,58 +41,49 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
     [t]
   );
   const viewModel = useOrderDetailViewModel(container.getOrderByIdUseCase, orderId);
+  const currentOrderId = viewModel.order?.id;
   const [isPaying, setIsPaying] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
-  const handlePayOrder = React.useCallback(async () => {
-    if (!viewModel.order) return;
+  const handlePayOrder = useCallback(async () => {
+    if (!currentOrderId) return;
 
     try {
       setIsPaying(true);
-      await container.payOrderUseCase.execute({ orderId: viewModel.order.id });
-      // Refresh order data
-      viewModel.refresh();
+      setPaymentError(null);
+
+      const frontendRedirectUrl = typeof window !== 'undefined'
+        ? `${window.location.origin}/${locale}/payment/vnpay/result`
+        : undefined;
+      const vnPayLocale = locale?.toLowerCase().startsWith('vi') ? 'vn' : 'en';
+
+      const session = await container.createVNPayPaymentSessionUseCase.execute({
+        orderId: currentOrderId,
+        frontendRedirectUrl,
+        locale: vnPayLocale,
+      });
+
+      window.location.href = session.paymentUrl;
     } catch (error) {
-      console.error('Payment failed:', error);
-      alert(t('errors.paymentFailed'));
+      setPaymentError(error instanceof Error ? error.message : t('errors.paymentFailed'));
     } finally {
       setIsPaying(false);
     }
-  }, [t, viewModel]);
+  }, [currentOrderId, locale, t]);
 
   if (viewModel.isLoading) {
-    return <LoadingState />;
+    return <LoadingState message={t('loading')} />;
   }
 
   if (viewModel.error) {
-    return <ErrorState error={viewModel.error} onRetry={viewModel.refresh} t={t} />;
+    return <ErrorState message={viewModel.error} onRetry={viewModel.refresh} retryLabel={t('retry')} />;
   }
 
   if (!viewModel.order) {
-    return <NotFoundState t={t} />;
+    return <NotFoundState title={t('notFound')} message={t('notFoundMessage')} />;
   }
 
   const order = viewModel.order;
-
-  const getStatusColor = (status: OrderStatus) => {
-    switch (status) {
-      case ORDER_STATUS.PENDING:
-        return 'bg-yellow-100 text-yellow-800';
-      case ORDER_STATUS.CONFIRMED:
-        return 'bg-blue-100 text-blue-800';
-      case ORDER_STATUS.PREPARING:
-        return 'bg-indigo-100 text-indigo-800';
-      case ORDER_STATUS.SHIPPING:
-        return 'bg-purple-100 text-purple-800';
-      case ORDER_STATUS.DELIVERED:
-        return 'bg-green-100 text-green-800';
-      case ORDER_STATUS.CANCELLED:
-        return 'bg-red-100 text-red-800';
-      case ORDER_STATUS.REFUNDED:
-        return 'bg-purple-100 text-purple-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
 
   const getStatusText = (status: OrderStatus) => {
     switch (status) {
@@ -133,48 +119,47 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
 
   return (
     <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
+          <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <button
             onClick={() => window.history.back()}
             className="flex items-center gap-2 text-orange-500 hover:text-orange-600 mb-4"
           >
-            ← {t('backToOrders', { defaultValue: 'Quay lại đơn hàng' })}
+            ← {t('backToOrders')}
           </button>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('orderDetails', { defaultValue: 'Chi tiết đơn hàng' })}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{t('orderDetails')}</h1>
         </div>
 
-        {/* Order Info Card */}
+        
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-1">{t('orderNumber', { defaultValue: 'Mã đơn hàng' })}</h3>
+              <h3 className="text-sm font-medium text-gray-500 mb-1">{t('orderNumber')}</h3>
               <p className="text-base sm:text-lg font-semibold text-gray-900">{order.orderNumber}</p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-1">{t('orderDate', { defaultValue: 'Ngày đặt' })}</h3>
+              <h3 className="text-sm font-medium text-gray-500 mb-1">{t('orderDate')}</h3>
               <p className="text-base sm:text-lg font-semibold text-gray-900">
-                {new Date(order.createdAt).toLocaleString('vi-VN')}
+                {new Date(order.createdAt).toLocaleString(locale)}
               </p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-1">{t('status', { defaultValue: 'Trạng thái' })}</h3>
+              <h3 className="text-sm font-medium text-gray-500 mb-1">{t('status')}</h3>
               <span className={`inline-flex px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-medium ${getStatusColor(order.status)}`}>
                 {order.statusDisplay || getStatusText(order.status)}
               </span>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-1">{t('totalAmount', { defaultValue: 'Tổng tiền' })}</h3>
+              <h3 className="text-sm font-medium text-gray-500 mb-1">{t('totalAmount')}</h3>
               <p className="text-base sm:text-lg font-semibold text-orange-500">
                 {formatCurrency(order.total)}
               </p>
             </div>
           </div>
 
-          {/* Shipping Address Section */}
+          
           <div className="mt-4 border-t pt-4">
-            <h3 className="text-sm font-medium text-gray-500 mb-2">{t('shippingAddress', { defaultValue: 'Địa chỉ giao hàng' })}</h3>
+            <h3 className="text-sm font-medium text-gray-500 mb-2">{t('shippingAddress')}</h3>
             <div className="space-y-1">
               {recipientName && (
                 <p className="text-gray-900 text-sm sm:text-base font-medium">
@@ -185,16 +170,16 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
             </div>
           </div>
 
-          {/* Payment Info */}
+          
           <div className="mt-4 border-t pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-1">{t('paymentMethod', { defaultValue: 'Phương thức thanh toán' })}</h3>
+              <h3 className="text-sm font-medium text-gray-500 mb-1">{t('paymentMethod')}</h3>
               <p className="text-gray-900 text-sm sm:text-base">
                 {paymentMethodLabels[order.paymentMethod as keyof typeof paymentMethodLabels] ?? order.paymentMethod}
               </p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-1">{t('paymentStatus', { defaultValue: 'Trạng thái thanh toán' })}</h3>
+              <h3 className="text-sm font-medium text-gray-500 mb-1">{t('paymentStatus')}</h3>
               <p className="text-gray-900 text-sm sm:text-base">
                 {paymentStatusLabels[order.paymentStatus as keyof typeof paymentStatusLabels] ?? order.paymentStatus}
               </p>
@@ -203,76 +188,76 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
 
           {order.note && (
             <div className="mt-4 border-t pt-4">
-              <h3 className="text-sm font-medium text-gray-500 mb-1">{t('note', { defaultValue: 'Ghi chú' })}</h3>
+              <h3 className="text-sm font-medium text-gray-500 mb-1">{t('note')}</h3>
               <p className="text-gray-900 text-sm sm:text-base">{order.note}</p>
             </div>
           )}
 
           {order.cancelReason && (
             <div className="mt-4 border-t pt-4">
-              <h3 className="text-sm font-medium text-red-500 mb-1">{t('cancelReason', { defaultValue: 'Lý do hủy' })}</h3>
+              <h3 className="text-sm font-medium text-red-500 mb-1">{t('cancelReason')}</h3>
               <p className="text-red-600 text-sm sm:text-base">{order.cancelReason}</p>
             </div>
           )}
         </div>
 
-        {/* Order Items */}
+        
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-6">
-          <h2 className="text-lg sm:text-xl font-semibold mb-4">{t('items', { defaultValue: 'Sản phẩm' })}</h2>
+          <h2 className="text-lg sm:text-xl font-semibold mb-4">{t('items')}</h2>
 
           <div className="space-y-4">
             {order.items.map((item, index) => (
               <div key={index} className="flex flex-col sm:flex-row gap-3 sm:gap-4 p-3 sm:p-4 border border-gray-200 rounded-lg hover:border-orange-300 transition-colors">
                 <div className="flex-shrink-0 mx-auto sm:mx-0">
                   <Image
-                    src={item.productImage || FALLBACK_IMAGE}
+                    src={item.productImage || ORDER_CONFIG.FALLBACK_IMAGE}
                     alt={item.productName}
-                    width={80}
-                    height={80}
-                    className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg"
+                    width={ORDER_CONFIG.IMAGE_WIDTH}
+                    height={ORDER_CONFIG.IMAGE_HEIGHT}
+                    className={`${ORDER_CONFIG.IMAGE_SIZE_CLASS} object-cover rounded-lg`}
                   />
                 </div>
 
                 <div className="flex-1 min-w-0 text-center sm:text-left">
                   <h3 className="text-sm sm:text-base lg:text-lg font-medium text-gray-900 mb-2">{item.productName}</h3>
                   <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
-                    <span>{t('quantity', { defaultValue: 'Số lượng' })}: <span className="font-medium text-gray-900">{item.quantity}</span></span>
-                    <span>{t('price', { defaultValue: 'Đơn giá' })}: <span className="font-medium text-gray-900">{formatCurrency(item.price)}</span></span>
+                    <span>{t('quantity')}: <span className="font-medium text-gray-900">{item.quantity}</span></span>
+                    <span>{t('price')}: <span className="font-medium text-gray-900">{formatCurrency(item.price)}</span></span>
                   </div>
                 </div>
 
                 <div className="text-center sm:text-right flex-shrink-0">
-                  <p className="text-xs text-gray-500 mb-1">{t('subtotal', { defaultValue: 'Thành tiền' })}</p>
+                  <p className="text-xs text-gray-500 mb-1">{t('subtotal')}</p>
                   <p className="text-base sm:text-lg font-semibold text-orange-500">{formatCurrency(item.subtotal)}</p>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Order Summary */}
+          
           <div className="mt-6 pt-6 border-t border-gray-200 space-y-3">
             <div className="flex justify-between items-center text-sm text-gray-600">
-              <span>{t('subtotalLabel', { defaultValue: 'Tạm tính' })}</span>
+              <span>{t('subtotalLabel')}</span>
               <span className="font-medium">{formatCurrency(order.subtotal)}</span>
             </div>
             <div className="flex justify-between items-center text-sm text-gray-600">
-              <span>{t('shippingFee', { defaultValue: 'Phí vận chuyển' })}</span>
+              <span>{t('shippingFee')}</span>
               <span className="font-medium">{formatCurrency(order.shippingFee)}</span>
             </div>
             {order.discount > 0 && (
               <div className="flex justify-between items-center text-sm text-green-600">
-                <span>{t('discount', { defaultValue: 'Giảm giá' })}</span>
+                <span>{t('discount')}</span>
                 <span className="font-medium">-{formatCurrency(order.discount)}</span>
               </div>
             )}
             <div className="flex justify-between items-center text-lg sm:text-xl font-bold pt-3 border-t">
-              <span>{t('totalAmount', { defaultValue: 'Tổng cộng' })}</span>
+              <span>{t('totalAmount')}</span>
               <span className="text-orange-500">{formatCurrency(order.total)}</span>
             </div>
           </div>
         </div>
 
-        {/* Action Buttons */}
+        
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row gap-3 justify-end">
             {order.paymentStatus === 'pending' && order.paymentMethod !== 'cod' && (
@@ -293,57 +278,10 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
               </button>
             )}
           </div>
+          {paymentError && <div className="mt-3 text-sm text-red-600">{paymentError}</div>}
         </div>
       </div>
     </div>
   );
 };
 
-const LoadingState = () => {
-  return (
-    <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="h-20 bg-gray-200 rounded"></div>
-              <div className="h-20 bg-gray-200 rounded"></div>
-            </div>
-            <div className="h-32 bg-gray-200 rounded"></div>
-            <div className="h-32 bg-gray-200 rounded"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const ErrorState: React.FC<{ error: string; onRetry: () => void; t: (key: string, options?: Record<string, string>) => string }> = ({ error, onRetry, t }) => (
-  <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6 flex items-center justify-center">
-    <div className="text-center">
-      <div className="text-red-500 text-5xl mb-4">⚠️</div>
-      <h2 className="text-xl font-semibold mb-2">{t('error', { defaultValue: 'Đã xảy ra lỗi' })}</h2>
-      <p className="text-gray-600 mb-4">{error}</p>
-      <button onClick={onRetry} className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
-        {t('retry', { defaultValue: 'Thử lại' })}
-      </button>
-    </div>
-  </div>
-);
-
-const NotFoundState: React.FC<{ t: (key: string, options?: Record<string, string>) => string }> = ({ t }) => (
-  <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6 flex items-center justify-center">
-    <div className="text-center">
-      <div className="text-gray-400 text-6xl mb-4">📦</div>
-      <h2 className="text-xl font-semibold mb-2">{t('notFound', { defaultValue: 'Không tìm thấy đơn hàng' })}</h2>
-      <p className="text-gray-600 mb-4">{t('notFoundMessage', { defaultValue: 'Đơn hàng này không tồn tại hoặc đã bị xóa' })}</p>
-      <button
-        onClick={() => window.history.back()}
-        className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-      >
-        {t('backToOrders', { defaultValue: 'Quay lại đơn hàng' })}
-      </button>
-    </div>
-  </div>
-);

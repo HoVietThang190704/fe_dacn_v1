@@ -40,10 +40,14 @@ export function Sidebar({ isOpen, isMobile = false, onClose }: SidebarProps) {
       href: '/main/cart',
     },
     {
+      icon: <Image src={ICONS.BELL} alt="notifications" width={20} height={20} className="w-5 h-5" />,
+      label: t('notifications') || 'Thông báo',
+      href: '/main/notifications',
+    },
+    {
       icon: <Image src={ICONS.VIDEO_CAMERA_ALT} alt="livestream" width={20} height={20} className="w-5 h-5" />,
       label: t('livestream') || 'Livestream',
       href: '/main/livestream',
-      badge: 3,
     },
     {
       icon: <Image src={ICONS.TRUCK_SIDE || ICONS.SHOPPING_CART} alt="orders" width={20} height={20} className="w-5 h-5" />,

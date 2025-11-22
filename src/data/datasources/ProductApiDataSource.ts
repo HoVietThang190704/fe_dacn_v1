@@ -39,6 +39,7 @@ export type ProductDto = {
   stockQuantity?: number;
   rating?: number;
   reviewCount?: number;
+  harvestDate?: string;
   tags?: string[];
   createdAt?: string;
   updatedAt?: string;
@@ -123,6 +124,7 @@ export const mapProductDtoToDomain = (dto: ProductDto): Product => {
     description: dto.description,
     rating: dto.rating,
     reviewCount: dto.reviewCount,
+  harvestDate: (dto as ProductDto & { harvestDate?: string }).harvestDate ?? dto.createdAt ?? undefined,
     additionalImages: images.slice(1),
     inStock: dto.inStock,
     tags,

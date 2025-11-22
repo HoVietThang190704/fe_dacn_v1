@@ -1,75 +1,28 @@
 "use client";
 
-import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { formatCurrency } from '@/presentation/lib/formatters';
+import { PRODUCT_CONFIG } from '@/presentation/config/productConfig';
+import { useProductFavorite } from '@/presentation/hooks/useProductFavorite';
+import { useQuantity } from '@/presentation/hooks/useQuantity';
+import { InfoRow } from '@/presentation/components/ui/InfoRow';
+import LoadingState from '@/presentation/components/ui/LoadingState';
+import ErrorState from '@/presentation/components/ui/ErrorState';
+import NotFoundState from '@/presentation/components/ui/NotFoundState';
+import { StarRatingDisplay } from '@/presentation/components/ui/StarRating';
 import { container } from '@/presentation/di/container';
 import { useProductDetailViewModel } from '@/presentation/viewmodels/useProductDetailViewModel';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { ProductReview } from '@/domain/entities/ProductReview';
+import ProductReviewItem from '@/presentation/components/ProductReviewItem';
 import { useCart } from '@/shared/hooks/useCart';
 
-const formatCurrency = (value?: number) => {
-  if (!value && value !== 0) return '—';
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
-};
 
-const formatRelativeTime = (isoDate: string) => {
-  const now = new Date();
-  const target = new Date(isoDate);
-  const diff = (now.getTime() - target.getTime()) / 1000;
-
-  if (diff < 60) return 'Vừa xong';
-  if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
-  if (diff < 86400 * 30) return `${Math.floor(diff / 86400)} ngày trước`;
-  return target.toLocaleDateString('vi-VN');
-};
-
-type StarProps = {
-  fillPercentage: number;
-  sizeClass: string;
-};
-
-const StarIcon: React.FC<StarProps> = ({ fillPercentage, sizeClass }) => (
-  <span className={`relative inline-block ${sizeClass}`}>
-    <svg
-      viewBox="0 0 24 24"
-      className="absolute inset-0 text-gray-200"
-      fill="currentColor"
-    >
-      <path d="M12 17.27 18.18 21 16.54 13.97 22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-    </svg>
-    <span
-      className="absolute inset-0 overflow-hidden text-orange-500"
-      style={{ width: `${fillPercentage}%` }}
-    >
-      <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
-        <path d="M12 17.27 18.18 21 16.54 13.97 22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-      </svg>
-    </span>
-  </span>
-);
-
-const StarRatingDisplay: React.FC<{ rating: number; size?: 'sm' | 'md' | 'lg' }> = ({ rating, size = 'md' }) => {
-  const sizeMap: Record<'sm' | 'md' | 'lg', string> = {
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5',
-    lg: 'w-7 h-7'
-  };
-
-  return (
-    <div className="flex items-center gap-1">
-      {Array.from({ length: 5 }).map((_, index) => {
-        const starValue = index + 1;
-        const rawFill = Math.max(0, Math.min(1, rating - index));
-        return <StarIcon key={starValue} fillPercentage={rawFill * 100} sizeClass={sizeMap[size]} />;
-      })}
-    </div>
-  );
-};
+ 
 
 export const ProductDetailPage: React.FC = () => {
   const params = useParams() as { id?: string; locale?: string };
@@ -79,7 +32,9 @@ export const ProductDetailPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   const cartTranslations = useTranslations('cart');
   const translateCart = cartTranslations as unknown as (key: string, values?: Record<string, unknown>) => string;
+  const tProducts = useTranslations('products');
   const tFav = useTranslations('favorites');
+  const t = useTranslations('product');
   const {
     addItem,
     isMutating: isCartMutating,
@@ -114,118 +69,37 @@ export const ProductDetailPage: React.FC = () => {
     productId
   );
 
-  const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [newReviewRating, setNewReviewRating] = useState(5);
+  const [newReviewRating, setNewReviewRating] = useState(PRODUCT_CONFIG.DEFAULT_RATING);
   const [newReviewContent, setNewReviewContent] = useState('');
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState('');
   const cartActionMessage = cartMessage ? translateCart(`messages.${cartMessage}`) : null;
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
-  const [favoriteError, setFavoriteError] = useState<string | null>(null);
-  const [favoriteStatusMessage, setFavoriteStatusMessage] = useState<string | null>(null);
-  const favoriteStatusTimeoutRef = useRef<number | null>(null);
+  const {
+    isFavorite: isFavoriteHook,
+    isLoading: isFavoriteLoadingHook,
+    error: favoriteHookError,
+    statusMessage: favoriteStatusMessageFromHook,
+    toggleFavorite: handleToggleFavorite
+  } = useProductFavorite(productId, isAuthenticated, user?.id);
+  const stockCount = typeof product?.stock === 'number'
+    ? product.stock
+    : typeof product?.stockQuantity === 'number'
+      ? product.stockQuantity
+      : 0;
 
-  const clearFavoriteStatusTimeout = useCallback(() => {
-    if (favoriteStatusTimeoutRef.current) {
-      window.clearTimeout(favoriteStatusTimeoutRef.current);
-      favoriteStatusTimeoutRef.current = null;
-    }
-  }, []);
-
-  const scheduleFavoriteStatusClear = useCallback(() => {
-    clearFavoriteStatusTimeout();
-    favoriteStatusTimeoutRef.current = window.setTimeout(() => {
-      setFavoriteStatusMessage(null);
-      favoriteStatusTimeoutRef.current = null;
-    }, 3000);
-  }, [clearFavoriteStatusTimeout]);
-
-  const loadFavoriteStatus = useCallback(async () => {
-    if (!productId || !isAuthenticated || !user?.id) {
-      setIsFavorite(false);
-      return;
-    }
-
-    try {
-      setIsFavoriteLoading(true);
-      setFavoriteError(null);
-      setFavoriteStatusMessage(null);
-      const favorites = await container.getFavoritesUseCase.execute(user.id);
-      setIsFavorite(favorites.some((item) => item.productId === productId));
-    } catch (error) {
-      console.error('Error loading favorite status:', error);
-      setFavoriteError(tFav('cannotLoadFavoriteStatus'));
-    } finally {
-      setIsFavoriteLoading(false);
-    }
-  }, [isAuthenticated, productId, user?.id, tFav]);
+  const { quantity, setQuantity: setQuantityHook, increment, decrement } = useQuantity(stockCount, PRODUCT_CONFIG.MIN_QUANTITY);
 
   useEffect(() => {
-    loadFavoriteStatus();
-    return () => {
-      clearFavoriteStatusTimeout();
-    };
-  }, [loadFavoriteStatus, clearFavoriteStatusTimeout]);
-
-  const handleToggleFavorite = async () => {
-    if (!productId) {
-      return;
+    
+    const localStockCount = product
+      ? (typeof product.stock === 'number' ? product.stock : typeof product.stockQuantity === 'number' ? product.stockQuantity : 0)
+      : undefined;
+    if (typeof localStockCount === 'number') {
+      setQuantityHook(Math.max(PRODUCT_CONFIG.MIN_QUANTITY, Math.min(localStockCount, quantity)));
     }
-
-    if (!isAuthenticated || !user?.id) {
-      router.push('/auth/login');
-      return;
-    }
-
-    try {
-      setIsFavoriteLoading(true);
-      setFavoriteError(null);
-      const favorites = await container.toggleFavoriteUseCase.execute(productId);
-      const nextIsFavorite = favorites.some((item) => item.productId === productId);
-      setIsFavorite(nextIsFavorite);
-      setFavoriteStatusMessage(nextIsFavorite ? tFav('addedToFavorites') : tFav('removedFromFavorites'));
-      scheduleFavoriteStatusClear();
-    } catch (error) {
-      console.error('Error toggling favorite:', error);
-      clearFavoriteStatusTimeout();
-      setFavoriteStatusMessage(null);
-      setFavoriteError(tFav('cannotUpdateFavorite'));
-    } finally {
-      setIsFavoriteLoading(false);
-    }
-  };
-  const handleAddToCart = async () => {
-    if (!product) {
-      return;
-    }
-
-    const availableStock = typeof product.stock === 'number'
-      ? product.stock
-      : typeof product.stockQuantity === 'number'
-        ? product.stockQuantity
-        : 0;
-    const canPurchase = product.inStock !== false && availableStock > 0;
-    if (!canPurchase) {
-      setCartError('Sản phẩm tạm thời hết hàng.');
-      return;
-    }
-
-    setCartError(null);
-    await addItem({
-      productId: product.id,
-      quantity: Math.min(quantity, availableStock),
-      price: product.price,
-      unit: product.unit,
-      title: product.name,
-      thumbnail: images[0] || product.image,
-    });
-  };
-
-  const onSelectImage = (index: number) => {
-    setSelectedImageIndex(index);
-  };
+  }, [product, quantity, setQuantityHook]);
+  const [reviewFormError, setReviewFormError] = useState<string | null>(null);
 
   const ratingBuckets = useMemo(() => {
     const buckets: Record<number, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
@@ -240,68 +114,81 @@ export const ProductDetailPage: React.FC = () => {
 
   const handleSubmitReview = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setReviewFormError(null);
     if (!isAuthenticated) {
-      alert('Bạn cần đăng nhập để đánh giá sản phẩm.');
+      setReviewFormError(tFav('loginToFavorite') || 'Bạn cần đăng nhập để đánh giá sản phẩm.');
       return;
     }
     if (!newReviewContent.trim()) {
-      alert('Vui lòng nhập nội dung đánh giá.');
+      setReviewFormError('Vui lòng nhập nội dung đánh giá.');
       return;
     }
 
-    await submitReview({
-      rating: newReviewRating,
-      content: newReviewContent.trim()
-    });
-
+    await submitReview({ rating: newReviewRating, content: newReviewContent.trim() });
     setNewReviewContent('');
-    setNewReviewRating(5);
+    setNewReviewRating(PRODUCT_CONFIG.DEFAULT_RATING);
   };
 
   const handleSubmitReply = async (event: React.FormEvent<HTMLFormElement>, parent: ProductReview) => {
     event.preventDefault();
     if (!activeReplyId) return;
     if (!replyContent.trim()) {
-      alert('Vui lòng nhập nội dung phản hồi.');
+      setReviewFormError('Vui lòng nhập nội dung phản hồi.');
       return;
     }
 
-    await submitReply({
-      parentReviewId: activeReplyId,
-      content: replyContent.trim(),
-      mentionedUserId: parent.userId
-    });
-
+    await submitReply({ parentReviewId: activeReplyId, content: replyContent.trim(), mentionedUserId: parent.userId });
     setReplyContent('');
     setActiveReplyId(null);
   };
 
   const handleDeleteReview = async (reviewId: string) => {
-    if (!confirm('Bạn có chắc muốn xóa đánh giá này?')) return;
+    if (!confirm(tProducts('confirmDelete') || 'Bạn có chắc muốn xóa đánh giá này?')) return;
     await deleteReview(reviewId);
   };
+  const onSelectImage = (index: number) => setSelectedImageIndex(index);
 
-  if (!productId) {
-    return <NotFoundState message="Không tìm thấy sản phẩm" />;
-  }
+  const handleAddToCart = async () => {
+    if (!product) {
+      return;
+    }
+
+    const availableStock = typeof product.stock === 'number'
+      ? product.stock
+      : typeof product.stockQuantity === 'number'
+        ? product.stockQuantity
+        : 0;
+    const canPurchase = product.inStock !== false && availableStock > 0;
+    if (!canPurchase) {
+      setCartError(t('outOfStock') || 'Sản phẩm tạm thời hết hàng.');
+      return;
+    }
+
+    setCartError(null);
+    await addItem({
+      productId: product.id,
+      quantity: Math.min(quantity, availableStock),
+      price: product.price,
+      unit: product.unit,
+      title: product.name,
+      thumbnail: images[0] || product.image,
+    });
+  };
+  // use dedicated ReviewItem component
 
   if (isLoadingProduct) {
-    return <LoadingState />;
+    return <LoadingState message={tProducts('loading') || 'Đang tải sản phẩm...'} />;
   }
 
   if (productError) {
-    return <ErrorState error={productError} onRetry={refreshProduct} />;
+    return <ErrorState message={productError} onRetry={refreshProduct} retryLabel={tProducts('retry') || 'Thử lại'} />;
   }
 
   if (!product) {
-    return <NotFoundState message="Sản phẩm không tồn tại hoặc đã bị xóa" />;
+    return <NotFoundState message={t('notFoundMessage') || 'Sản phẩm không tồn tại hoặc đã bị xóa'} />;
   }
 
-  const stockCount = typeof product.stock === 'number'
-    ? product.stock
-    : typeof product.stockQuantity === 'number'
-      ? product.stockQuantity
-      : 0;
+  
   const isProductAvailable = product.inStock !== false && stockCount > 0;
   const stockStatusLabel = isProductAvailable ? 'Còn hàng' : 'Hết hàng';
   const stockStatusWithCount = isProductAvailable ? `${stockStatusLabel} (${stockCount})` : stockStatusLabel;
@@ -314,109 +201,7 @@ export const ProductDetailPage: React.FC = () => {
 
   const mainImage = images[selectedImageIndex] || images[0];
 
-  const renderReview = (review: ProductReview, level: number = 0) => {
-    const isOwner = user?.id === review.userId;
-    const canReply = level < 2;
-
-    return (
-      <div key={review.id} className={`flex gap-3 ${level > 0 ? 'pl-8 border-l border-gray-100' : ''}`}>
-        <div className="flex-shrink-0">
-          {review.user?.avatar ? (
-            <Image
-              src={review.user.avatar}
-              alt={review.user.userName || 'user avatar'}
-              width={40}
-              height={40}
-              className="w-10 h-10 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 text-white flex items-center justify-center font-semibold">
-              {(review.user?.userName || 'U').charAt(0).toUpperCase()}
-            </div>
-          )}
-        </div>
-        <div className="flex-1 space-y-2">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div>
-              <p className="font-semibold text-gray-900 text-sm sm:text-base">{review.user?.userName || 'Người dùng ẩn danh'}</p>
-              <p className="text-xs text-gray-500">{formatRelativeTime(review.createdAt)}</p>
-            </div>
-            {level === 0 && review.rating !== undefined && (
-              <div className="flex items-center gap-2">
-                <StarRatingDisplay rating={review.rating} size="sm" />
-                <span className="text-sm font-medium text-orange-500">{review.rating.toFixed(1)}</span>
-              </div>
-            )}
-          </div>
-          <div className="bg-white border border-gray-100 rounded-xl px-4 py-3 text-sm text-gray-700 leading-relaxed shadow-sm">
-            {review.content}
-          </div>
-          <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
-            {canReply && (
-              <button
-                onClick={() => {
-                  setActiveReplyId(review.id);
-                  setReplyContent('');
-                }}
-                className="font-medium text-orange-500 hover:text-orange-600"
-              >
-                Trả lời
-              </button>
-            )}
-            {isOwner && (
-              <button
-                onClick={() => handleDeleteReview(review.id)}
-                className="font-medium text-red-500 hover:text-red-600"
-              >
-                Xóa
-              </button>
-            )}
-          </div>
-
-          {activeReplyId === review.id && (
-            <form
-              onSubmit={(event) => handleSubmitReply(event, review)}
-              className="mt-2 flex flex-col gap-2"
-            >
-              <textarea
-                value={replyContent}
-                onChange={(event) => setReplyContent(event.target.value)}
-                rows={3}
-                placeholder="Viết phản hồi của bạn..."
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-                disabled={isSubmittingReview}
-              />
-              <div className="flex items-center gap-2">
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 disabled:opacity-50"
-                  disabled={isSubmittingReview}
-                >
-                  {isSubmittingReview ? 'Đang gửi...' : 'Gửi phản hồi'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveReplyId(null);
-                    setReplyContent('');
-                  }}
-                  className="px-4 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50"
-                >
-                  Hủy
-                </button>
-              </div>
-            </form>
-          )}
-
-          {Array.isArray(review.replies) && review.replies.length > 0 && (
-            <div className="mt-4 space-y-4">
-              {review.replies.map((child) => renderReview(child, level + 1))}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 py-8">
@@ -430,7 +215,7 @@ export const ProductDetailPage: React.FC = () => {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Quay lại
+            {t('backToProducts') || 'Quay lại'}
           </button>
         </div>
 
@@ -446,10 +231,10 @@ export const ProductDetailPage: React.FC = () => {
                     className="object-contain object-center"
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-full text-gray-400">Không có hình ảnh</div>
+                  <div className="flex items-center justify-center h-full text-gray-400">{t('noImage') || 'Không có hình ảnh'}</div>
                 )}
                 <span className="absolute top-4 left-4 bg-orange-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                  {product.isAvailable ? 'Sẵn sàng' : 'Tạm hết'}
+                  {product.isAvailable ? (t('inStock') || 'Còn hàng') : (t('outOfStock') || 'Hết hàng')}
                 </span>
               </div>
               {images.length > 1 && (
@@ -472,7 +257,7 @@ export const ProductDetailPage: React.FC = () => {
               
               {product.owner && (
                 <div className="pt-4 border-t border-gray-100">
-                  <p className="text-xs text-gray-500 mb-2">Người đăng sản phẩm</p>
+                  <p className="text-xs text-gray-500 mb-2">{tProducts('seller') || 'Người đăng sản phẩm'}</p>
                   <Link
                     href={`/${locale}/main/users/${encodeURIComponent(product.owner.id)}?userName=${encodeURIComponent(product.owner.userName || '')}&email=${encodeURIComponent(product.owner.email || '')}&avatar=${encodeURIComponent(product.owner.avatar || '')}`}
                     className="flex items-center gap-3 p-3 rounded-lg hover:bg-orange-50 transition-colors group"
@@ -522,28 +307,21 @@ export const ProductDetailPage: React.FC = () => {
                   <div className="flex items-center gap-3 text-sm text-gray-500">
                     <span>Mã sản phẩm: <strong className="text-gray-700">{product.id}</strong></span>
                     <span className="w-1 h-1 rounded-full bg-gray-300" />
-                    <span>Sẵn kho: <strong className="text-gray-700">{stockCount}</strong></span>
-                    <span className="w-1 h-1 rounded-full bg-gray-300" />
-                    <span>
-                      Trạng thái:{' '}
-                      <strong className={isProductAvailable ? 'text-emerald-600' : 'text-red-600'}>
-                        {stockStatusLabel}
-                      </strong>
-                    </span>
+                    
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-3">
                   <button
                     type="button"
-                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors ${isFavorite ? 'border-red-500 bg-red-50 text-red-600 hover:bg-red-100' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                    className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-medium transition-colors ${isFavoriteHook ? 'border-red-500 bg-red-50 text-red-600 hover:bg-red-100' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
                     onClick={handleToggleFavorite}
-                    aria-pressed={isFavorite}
-                    disabled={isFavoriteLoading}
+                    aria-pressed={isFavoriteHook}
+                    disabled={isFavoriteLoadingHook}
                   >
                     <svg
-                      className={`w-4 h-4 ${isFavorite ? 'text-red-500' : 'text-gray-400'}`}
+                      className={`w-4 h-4 ${isFavoriteHook ? 'text-red-500' : 'text-gray-400'}`}
                       viewBox="0 0 24 24"
-                      fill={isFavorite ? 'currentColor' : 'none'}
+                      fill={isFavoriteHook ? 'currentColor' : 'none'}
                       stroke="currentColor"
                       strokeWidth={1.5}
                       aria-hidden
@@ -585,24 +363,19 @@ export const ProductDetailPage: React.FC = () => {
 
                 <div className="border border-gray-100 rounded-2xl px-4 py-3 flex items-center justify-between bg-gray-50">
                   <div>
-                    <p className="text-sm text-gray-500">Chọn số lượng</p>
+                    <p className="text-sm text-gray-500">{t('quantity') || 'Chọn số lượng'}</p>
                     <p className="text-xs text-gray-400">Tối đa {stockCount} sản phẩm</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                      onClick={decrement}
                       className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-lg text-gray-600 hover:bg-white"
                     >
                       –
                     </button>
                     <span className="w-10 text-center font-semibold text-gray-700">{quantity}</span>
                     <button
-                      onClick={() =>
-                        setQuantity((prev) => {
-                          if (!stockCount) return prev;
-                          return Math.min(stockCount, prev + 1);
-                        })
-                      }
+                      onClick={increment}
                       className={`w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-lg transition-colors ${isProductAvailable && quantity < stockCount ? 'text-gray-600 hover:bg-white' : 'text-gray-400 cursor-not-allowed bg-gray-100'}`}
                       disabled={!isProductAvailable || quantity >= stockCount}
                     >
@@ -618,7 +391,7 @@ export const ProductDetailPage: React.FC = () => {
                   className="py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold shadow-sm transition disabled:opacity-60 disabled:cursor-not-allowed"
                   disabled={!isProductAvailable || isCartMutating}
                 >
-                  {isCartMutating ? 'Đang thêm...' : 'Thêm vào giỏ hàng'}
+                  {isCartMutating ? (t('adding') || 'Đang thêm...') : (t('addToCart') || 'Thêm vào giỏ hàng')}
                 </button>
                 <button
                   onClick={() => {
@@ -636,15 +409,15 @@ export const ProductDetailPage: React.FC = () => {
                   className="py-3 rounded-xl border border-orange-500 text-orange-500 font-semibold hover:bg-orange-50 transition disabled:opacity-60 disabled:cursor-not-allowed"
                   disabled={!isProductAvailable}
                 >
-                  Mua ngay
+                  {t('buyNow') || 'Mua ngay'}
                 </button>
               </div>
-              {(cartActionMessage || cartError || favoriteStatusMessage || favoriteError) && (
+              {(cartActionMessage || cartError || favoriteStatusMessageFromHook || favoriteHookError) && (
                 <div className="mt-2 text-sm space-y-1">
                   {cartActionMessage && <p className="text-emerald-600">{cartActionMessage}</p>}
                   {cartError && <p className="text-red-500">{cartError}</p>}
-                  {favoriteStatusMessage && <p className="text-orange-500">{favoriteStatusMessage}</p>}
-                  {favoriteError && <p className="text-red-500">{favoriteError}</p>}
+                  {favoriteStatusMessageFromHook && <p className="text-orange-500">{favoriteStatusMessageFromHook}</p>}
+                  {favoriteHookError && <p className="text-red-500">{favoriteHookError}</p>}
                 </div>
               )}
             </section>
@@ -684,7 +457,7 @@ export const ProductDetailPage: React.FC = () => {
 
               {product.description && (
                 <div className="text-sm text-gray-700 leading-relaxed">
-                  <h3 className="font-semibold text-gray-800 mb-2">Mô tả chi tiết</h3>
+                  <h3 className="font-semibold text-gray-800 mb-2">{t('productDetails') || 'Mô tả chi tiết'}</h3>
                   <p>{product.description}</p>
                 </div>
               )}
@@ -698,7 +471,7 @@ export const ProductDetailPage: React.FC = () => {
               <div className="flex items-center gap-4">
                 <div>
                   <p className="text-4xl font-bold text-gray-900">{reviewSummary.average.toFixed(1)}</p>
-                  <p className="text-sm text-gray-500">Trên {reviewSummary.totalReviews} lượt đánh giá</p>
+                  <p className="text-sm text-gray-500">Trên {reviewSummary.totalReviews} {t('reviews') || 'lượt đánh giá'}</p>
                 </div>
                 <StarRatingDisplay rating={reviewSummary.average} size="lg" />
               </div>
@@ -724,8 +497,9 @@ export const ProductDetailPage: React.FC = () => {
             </div>
 
             <div className="lg:flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Viết đánh giá của bạn</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">{tProducts('writeReview') || 'Viết đánh giá của bạn'}</h3>
               <form onSubmit={handleSubmitReview} className="space-y-4">
+                {reviewFormError && <p className="text-sm text-red-500">{reviewFormError}</p>}
                 <div className="bg-gray-50 border border-gray-100 rounded-2xl px-4 py-3">
                   <p className="text-sm font-medium text-gray-700 mb-2">Chọn số sao ({newReviewRating.toFixed(1)})</p>
                   <div className="flex items-center gap-4">
@@ -754,15 +528,15 @@ export const ProductDetailPage: React.FC = () => {
                 <div className="flex items-center justify-between text-xs text-gray-500">
                   <span>
                     {isAuthenticated
-                      ? 'Đánh giá của bạn sẽ giúp khách hàng khác lựa chọn dễ dàng hơn.'
-                      : 'Bạn cần đăng nhập để gửi đánh giá.'}
+                      ? tProducts('reviewHint') || 'Đánh giá của bạn sẽ giúp khách hàng khác lựa chọn dễ dàng hơn.'
+                      : tFav('loginToFavorite') || 'Bạn cần đăng nhập để gửi đánh giá.'}
                   </span>
                   <button
                     type="submit"
                     className="px-5 py-2 bg-orange-500 text-white rounded-xl text-sm font-semibold hover:bg-orange-600 disabled:opacity-50"
                     disabled={isSubmittingReview || !isAuthenticated}
                   >
-                    {isSubmittingReview ? 'Đang gửi...' : 'Gửi đánh giá'}
+                    {isSubmittingReview ? (tProducts('loading') || 'Đang gửi...') : (tProducts('submit') || 'Gửi đánh giá')}
                   </button>
                 </div>
               </form>
@@ -800,12 +574,28 @@ export const ProductDetailPage: React.FC = () => {
             )}
 
             {isLoadingReviews ? (
-              <div className="text-center py-8 text-sm text-gray-500">Đang tải đánh giá...</div>
+              <div className="text-center py-8 text-sm text-gray-500">{tProducts('loading') || 'Đang tải đánh giá...'}</div>
             ) : reviews.length === 0 ? (
-              <div className="text-center py-8 text-sm text-gray-500">Chưa có đánh giá nào cho sản phẩm này.</div>
+              <div className="text-center py-8 text-sm text-gray-500">{t('noReviewsYet') || 'Chưa có đánh giá nào cho sản phẩm này.'}</div>
             ) : (
               <div className="space-y-6">
-                {reviews.map((review) => renderReview(review))}
+                  {reviews.map((review) => (
+                    <ProductReviewItem
+                      key={review.id}
+                      review={review}
+                      level={0}
+                      userId={user?.id}
+                      activeReplyId={activeReplyId}
+                      setActiveReplyId={setActiveReplyId}
+                      replyContent={replyContent}
+                      setReplyContent={setReplyContent}
+                      isSubmittingReview={isSubmittingReview}
+                      onSubmitReply={handleSubmitReply}
+                      onDeleteReview={handleDeleteReview}
+                      tProducts={tProducts}
+                      tFav={tFav}
+                    />
+                  ))}
               </div>
             )}
           </div>
@@ -815,59 +605,4 @@ export const ProductDetailPage: React.FC = () => {
   );
 };
 
-const InfoRow: React.FC<{ label: string; value: string; compact?: boolean }> = ({ label, value, compact }) => (
-  <div className={`flex flex-col ${compact ? 'text-xs' : 'text-sm'}`}>
-    <span className="text-gray-400">{label}</span>
-    <span className="font-medium text-gray-700">{value || '—'}</span>
-  </div>
-);
-
-const LoadingState = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
-    <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-8 p-6">
-      <div className="aspect-square bg-white/60 rounded-3xl animate-pulse" />
-      <div className="space-y-4">
-        <div className="h-12 bg-white/60 rounded-2xl animate-pulse" />
-        <div className="h-10 bg-white/60 rounded-2xl animate-pulse" />
-        <div className="h-24 bg-white/60 rounded-2xl animate-pulse" />
-        <div className="h-20 bg-white/60 rounded-2xl animate-pulse" />
-      </div>
-    </div>
-  </div>
-);
-
-const ErrorState: React.FC<{ error: string; onRetry: () => void }> = ({ error, onRetry }) => (
-  <div className="min-h-screen flex items-center justify-center bg-red-50">
-    <div className="bg-white shadow-xl rounded-3xl px-8 py-10 text-center max-w-md">
-      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 text-red-500 flex items-center justify-center text-3xl">
-        !
-      </div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">Có lỗi xảy ra</h2>
-      <p className="text-sm text-gray-600 mb-6">{error}</p>
-      <button
-        onClick={onRetry}
-        className="px-6 py-2 bg-red-500 text-white rounded-full text-sm font-medium hover:bg-red-600"
-      >
-        Thử lại
-      </button>
-    </div>
-  </div>
-);
-
-const NotFoundState: React.FC<{ message: string }> = ({ message }) => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
-    <div className="bg-white shadow-lg rounded-3xl px-8 py-10 text-center max-w-md">
-      <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center text-4xl">
-        📦
-      </div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">Không tìm thấy sản phẩm</h2>
-      <p className="text-sm text-gray-600 mb-6">{message}</p>
-      <button
-        onClick={() => window.history.back()}
-        className="px-6 py-2 bg-gray-900 text-white rounded-full text-sm font-medium hover:bg-gray-800"
-      >
-        Quay lại
-      </button>
-    </div>
-  </div>
-);
+ 

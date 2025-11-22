@@ -87,7 +87,7 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 "
       ref={overlayRef}
       onMouseDown={(e) => {
         if (e.target === overlayRef.current) {
@@ -95,8 +95,8 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
         }
       }}
     >
-      <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-auto rounded-lg shadow-xl relative">
-        <button ref={closeBtnRef} onClick={onClose} className="absolute top-3 right-3 rounded-full p-2 hover:bg-gray-100">
+  <div className="bg-white w-full max-w-4xl max-h-[80vh] lg:max-h-[100vh] overflow-auto rounded-lg shadow-xl relative scrollbar-hide">
+        <button ref={closeBtnRef} onClick={onClose} className="absolute top-3 right-3 rounded-full p-2 hover:bg-gray-100 ">
           ✕
         </button>
 

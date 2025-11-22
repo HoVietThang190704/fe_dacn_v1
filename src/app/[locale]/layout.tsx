@@ -1,6 +1,7 @@
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages} from 'next-intl/server';
 import { LanguageSwitcher } from '@/components/ui';
+import EmotionProvider from '@/shared/providers/EmotionProvider';
 
 export default async function LocaleLayout({
   children,
@@ -10,9 +11,11 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <NextIntlClientProvider messages={messages}>
-      {/* <LanguageSwitcher /> */}
-      {children}
-    </NextIntlClientProvider>
+    <EmotionProvider>
+      <NextIntlClientProvider messages={messages}>
+        {/* <LanguageSwitcher /> */}
+        {children}
+      </NextIntlClientProvider>
+    </EmotionProvider>
   );
 }

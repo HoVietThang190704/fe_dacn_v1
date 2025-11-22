@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { container } from '@/presentation/di/container';
 import { CreateLivestreamDto } from '@/domain/entities/Livestream';
+import { Product } from '@/domain/entities/Product';
 
 export const CreateLivestreamPage: React.FC = () => {
   const t = useTranslations('livestream');
@@ -13,6 +15,11 @@ export const CreateLivestreamPage: React.FC = () => {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [avatarFailed, setAvatarFailed] = useState(false);
+  const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [productSearch, setProductSearch] = useState('');
+  const [productError, setProductError] = useState('');
 
   const [formData, setFormData] = useState({
     title: '',
@@ -24,15 +31,72 @@ export const CreateLivestreamPage: React.FC = () => {
     scheduleTime: '',
   });
 
+  const canHostLivestream = Boolean(user && ['shop_owner', 'admin'].includes(user.role));
+
   React.useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       router.push('/auth/login');
     }
   }, [authLoading, isAuthenticated, router]);
 
+  React.useEffect(() => {
+    if (!authLoading && isAuthenticated && user && canHostLivestream) {
+      let isMounted = true;
+      const loadProducts = async () => {
+        setIsLoadingProducts(true);
+        setProductError('');
+        try {
+          const getProductsUseCase = container.getProductsUseCase;
+          const result = await getProductsUseCase.execute({ owner: user.id, limit: 200 });
+          if (!isMounted) return;
+          setAvailableProducts(result.products || []);
+        } catch (err) {
+          if (!isMounted) return;
+          console.error('[CreateLivestream] Failed to load products', err);
+          setProductError(t('errors.loadProductsFailed'));
+        } finally {
+          if (isMounted) {
+            setIsLoadingProducts(false);
+          }
+        }
+      };
+
+      loadProducts();
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, [authLoading, canHostLivestream, isAuthenticated, t, user]);
+
+  const filteredProducts = React.useMemo(() => {
+    if (!productSearch.trim()) return availableProducts;
+    const keyword = productSearch.trim().toLowerCase();
+    return availableProducts.filter((product) => product.name.toLowerCase().includes(keyword));
+  }, [availableProducts, productSearch]);
+
+  const priceFormatter = React.useMemo(
+    () =>
+      new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+        maximumFractionDigits: 0,
+      }),
+    []
+  );
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleProductToggle = (productId: string) => {
+    setFormData(prev => {
+      const exists = prev.products.includes(productId);
+      if (exists) {
+        return { ...prev, products: prev.products.filter(id => id !== productId) };
+      }
+      return { ...prev, products: [...prev.products, productId] };
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,8 +108,18 @@ export const CreateLivestreamPage: React.FC = () => {
       return;
     }
 
+    if (!canHostLivestream) {
+      setError(t('errors.roleNotAllowed'));
+      return;
+    }
+
     if (!formData.title.trim()) {
       setError(t('errors.titleRequired'));
+      return;
+    }
+
+    if (formData.products.length === 0) {
+      setError(t('form.productsRequired'));
       return;
     }
 
@@ -63,8 +137,6 @@ export const CreateLivestreamPage: React.FC = () => {
         title: formData.title,
         description: formData.description,
         thumbnail: formData.thumbnail || undefined,
-        hostId: user.id,
-        hostName: user.userName || user.email,
         products: formData.products,
         startTime,
       };
@@ -82,10 +154,6 @@ export const CreateLivestreamPage: React.FC = () => {
         setIsSubmitting(false);
         return;
       }
-
-      console.log('[CreateLivestream] Navigation with ID:', livestream.id);
-
-      // Check localStorage to ensure token still exists
       const token = localStorage.getItem('authToken');
       console.log('[CreateLivestream] Auth token exists:', !!token);
 
@@ -121,6 +189,24 @@ export const CreateLivestreamPage: React.FC = () => {
     );
   }
 
+  if (!authLoading && isAuthenticated && user && !canHostLivestream) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-blue-50 to-green-50 py-8 px-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-lg text-center">
+          <div className="text-6xl mb-4">⛔</div>
+          <p className="text-xl font-semibold text-gray-900 mb-2">{t('errors.roleNotAllowed')}</p>
+          <p className="text-sm text-gray-600 mb-6">{t('errors.roleNotAllowedHint')}</p>
+          <button
+            onClick={() => router.push('/main/livestream')}
+            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition"
+          >
+            {t('backToList')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-green-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
@@ -146,9 +232,21 @@ export const CreateLivestreamPage: React.FC = () => {
             <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-4 border border-purple-100">
               <h3 className="text-sm font-semibold text-gray-700 mb-2">{t('hostInfo')}</h3>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center text-purple-700 font-bold text-lg">
-                  {(user?.userName || user?.email || 'U')[0].toUpperCase()}
-                </div>
+                {user?.avatar && !avatarFailed ? (
+                  <Image
+                    src={user.avatar}
+                    alt={user.userName || user.email}
+                    width={48}
+                    height={48}
+                    className="w-12 h-12 rounded-full object-cover"
+                    onError={() => setAvatarFailed(true)}
+                    unoptimized
+                  />
+                ) : (
+                  <div className="w-12 h-12 bg-purple-200 rounded-full flex items-center justify-center text-purple-700 font-bold text-lg">
+                    {(user?.userName || user?.email || 'U')[0].toUpperCase()}
+                  </div>
+                )}
                 <div>
                   <p className="font-semibold text-gray-900">{user?.userName || user?.email}</p>
                   <p className="text-sm text-gray-600">{user?.email}</p>
@@ -189,6 +287,125 @@ export const CreateLivestreamPage: React.FC = () => {
               />
             </div>
 
+            {/* Product Selection */}
+            <div className="border border-purple-100 rounded-xl p-4 bg-purple-50/40">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <p className="text-sm font-semibold text-gray-800">
+                    {t('form.productsLabel')} <span className="text-red-500">*</span>
+                  </p>
+                  <p className="text-xs text-gray-600">{t('form.productsHelper')}</p>
+                </div>
+                <span className="text-xs text-gray-500 font-medium">
+                  {t('form.productsCounter', { count: formData.products.length, total: availableProducts.length })}
+                </span>
+              </div>
+
+              {isLoadingProducts ? (
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                  {t('form.productsLoading')}
+                </div>
+              ) : availableProducts.length === 0 ? (
+                <div className="text-sm text-gray-600 bg-white rounded-lg p-4 border border-dashed border-gray-200">
+                  <p>{t('form.productsEmpty')}</p>
+                  <button
+                    type="button"
+                    onClick={() => router.push('/main/products/create')}
+                    className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-semibold hover:bg-purple-700 transition"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    {t('form.createProductCta')}
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="mb-3">
+                    <input
+                      type="text"
+                      value={productSearch}
+                      onChange={(e) => setProductSearch(e.target.value)}
+                      placeholder={t('form.productSearchPlaceholder')}
+                      className="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div className="max-h-64 overflow-y-auto pr-1 space-y-2">
+                    {filteredProducts.map((product) => {
+                      const isSelected = formData.products.includes(product.id);
+                      return (
+                        <label
+                          key={product.id}
+                          className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition ${
+                            isSelected
+                              ? 'border-purple-500 bg-white shadow-sm'
+                              : 'border-gray-200 bg-white hover:border-purple-200'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => handleProductToggle(product.id)}
+                            className="sr-only"
+                          />
+                          <div
+                            className={`w-4 h-4 rounded border flex items-center justify-center ${
+                              isSelected ? 'bg-purple-600 border-purple-600' : 'border-gray-400'
+                            }`}
+                          >
+                            {isSelected && (
+                              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate">{product.name}</p>
+                            <p className="text-xs text-gray-500 truncate">
+                              {priceFormatter.format(product.price)} · {product.unit}
+                            </p>
+                          </div>
+                          <span className="text-[11px] text-gray-400">#{product.id.slice(-4)}</span>
+                        </label>
+                      );
+                    })}
+                    {filteredProducts.length === 0 && (
+                      <p className="text-sm text-gray-500 text-center py-4">{t('form.productsSearchEmpty')}</p>
+                    )}
+                  </div>
+                  {formData.products.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {formData.products.map((id) => {
+                        const product = availableProducts.find((item) => item.id === id);
+                        return (
+                          <span
+                            key={id}
+                            className="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded-full flex items-center gap-2"
+                          >
+                            <span className="truncate max-w-[140px]">{product?.name || id}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleProductToggle(id)}
+                              className="text-purple-500 hover:text-purple-700"
+                              aria-label="Remove product"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {productError && <p className="text-sm text-red-500 mt-2">{productError}</p>}
+              {!isLoadingProducts && availableProducts.length > 0 && formData.products.length === 0 && (
+                <p className="text-sm text-red-500 mt-2">{t('form.productsRequired')}</p>
+              )}
+            </div>
+
             {/* Thumbnail Upload */}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -216,7 +433,7 @@ export const CreateLivestreamPage: React.FC = () => {
                   <svg className="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  <span className="text-sm text-gray-600">Tải ảnh lên</span>
+                  <span className="text-sm text-gray-600">{t('form.uploadImage')}</span>
                 </label>
               </div>
 
@@ -229,18 +446,22 @@ export const CreateLivestreamPage: React.FC = () => {
                   value={formData.thumbnail}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition text-sm"
-                  placeholder="Hoặc nhập URL ảnh"
+                  placeholder={t('form.urlPlaceholder')}
                 />
               </div>
 
               {formData.thumbnail && (
-                <div className="mt-3">
-                  <img
+                <div className="mt-3 relative w-full h-48 rounded-lg overflow-hidden">
+                  <Image
                     src={formData.thumbnail}
                     alt="Thumbnail preview"
-                    className="w-full h-48 object-cover rounded-lg"
+                    fill
+                    unoptimized
+                    className="object-cover"
                     onError={(e) => {
-                      e.currentTarget.style.display = 'none';
+                      // Hide the image if it fails to load
+                      const target = e?.currentTarget as HTMLImageElement | undefined;
+                      if (target) target.style.display = 'none';
                     }}
                   />
                 </div>
@@ -266,7 +487,7 @@ export const CreateLivestreamPage: React.FC = () => {
                   className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
                 />
                 <label htmlFor="isScheduled" className="ml-3 text-sm font-semibold text-gray-700">
-                  Lên lịch livestream cho sau
+                  {t('form.scheduleLabel')}
                 </label>
               </div>
 
@@ -274,7 +495,7 @@ export const CreateLivestreamPage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-8">
                   <div>
                     <label htmlFor="scheduleDate" className="block text-sm font-medium text-gray-700 mb-2">
-                      Ngày
+                      {t('form.dateLabel')}
                     </label>
                     <input
                       type="date"
@@ -289,7 +510,7 @@ export const CreateLivestreamPage: React.FC = () => {
                   </div>
                   <div>
                     <label htmlFor="scheduleTime" className="block text-sm font-medium text-gray-700 mb-2">
-                      Giờ
+                      {t('form.timeLabel')}
                     </label>
                     <input
                       type="time"
@@ -303,7 +524,7 @@ export const CreateLivestreamPage: React.FC = () => {
                   </div>
                   {formData.scheduleDate && formData.scheduleTime && (
                     <div className="md:col-span-2 text-sm text-gray-600 bg-purple-50 p-3 rounded-lg">
-                      <span className="font-medium">Livestream sẽ bắt đầu vào:</span>{' '}
+                      <span className="font-medium">{t('form.startTimePreview')}</span>{' '}
                       {new Date(`${formData.scheduleDate}T${formData.scheduleTime}`).toLocaleString('vi-VN', {
                         weekday: 'long',
                         year: 'numeric',

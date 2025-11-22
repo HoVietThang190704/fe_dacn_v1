@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
 import { container } from '@/presentation/di/container';
 import { Livestream, LivestreamStatus } from '@/domain/entities/Livestream';
@@ -10,6 +10,10 @@ import { io, Socket } from 'socket.io-client';
 import { ChatBox, ChatMessage } from '@/components/livestream/ChatBox';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { API_CONFIG } from '@/shared/constants/api';
+import { cleanupAgoraConnection } from '@/shared/utils/livestream';
+import { ICONS } from '@/shared/constants/images';
+import { useLivestreamProducts } from '@/shared/hooks/useLivestreamProducts';
+import { Link } from '@/i18n/routing';
 
 interface WatchLivestreamPageProps {
   livestreamId: string;
@@ -17,6 +21,7 @@ interface WatchLivestreamPageProps {
 
 export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livestreamId }) => {
   const t = useTranslations('livestream');
+  const locale = useLocale();
   const { user } = useAuth();
 
   const [livestream, setLivestream] = useState<Livestream | null>(null);
@@ -32,11 +37,124 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
   const clientRef = useRef<IAgoraRTCClient | null>(null);
   const remoteVideoRef = useRef<HTMLDivElement>(null);
 
+  const currencyFormatter = React.useMemo(() => {
+    const intlLocale = locale === 'en' ? 'en-US' : 'vi-VN';
+    return new Intl.NumberFormat(intlLocale, {
+      style: 'currency',
+      currency: 'VND',
+      maximumFractionDigits: 0,
+    });
+  }, [locale]);
+
+  const {
+    products: linkedProducts,
+    isLoading: isLoadingLinkedProducts,
+    error: linkedProductsError,
+  } = useLivestreamProducts(livestream?.products ?? [], livestream?.productSummaries);
+
+  const shouldShowProductPanel =
+    (livestream?.products && livestream.products.length > 0) || isLoadingLinkedProducts || Boolean(linkedProductsError);
+
+  const renderProductList = (variant: 'grid' | 'list') => {
+    if (isLoadingLinkedProducts) {
+      return (
+        <div className="text-sm text-gray-400 py-2">
+          {t('watch.loadingProducts')}
+        </div>
+      );
+    }
+
+    if (linkedProductsError) {
+      return (
+        <div className="text-sm text-red-400 py-2">
+          {t('watch.productsError')}
+        </div>
+      );
+    }
+
+    if (!linkedProducts.length) {
+      return (
+        <div className="text-sm text-gray-400 py-2">
+          {t('watch.noProducts')}
+        </div>
+      );
+    }
+
+    if (variant === 'grid') {
+      return (
+        <div className="grid grid-cols-2 gap-3">
+          {linkedProducts.map((product) => (
+            <Link
+              key={product.id}
+              href={`/main/products/${product.id}`}
+              className="bg-gray-700 rounded-lg p-3 hover:bg-gray-600 transition flex flex-col gap-2"
+            >
+              <div className="w-full aspect-square rounded-md overflow-hidden bg-gray-600 relative">
+                {product.thumbnail ? (
+                  <Image
+                    src={product.thumbnail}
+                    alt={product.name}
+                    fill
+                    unoptimized
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-2xl">
+                    <Image src={ICONS.GOODS} alt="product" width={48} height={48} unoptimized />
+                  </div>
+                )}
+              </div>
+              <div>
+                <p className="font-semibold text-sm truncate">{product.name}</p>
+                <p className="text-xs text-gray-300">{currencyFormatter.format(product.price ?? 0)}</p>
+              </div>
+              <span className="text-xs text-purple-300 font-medium mt-auto">{t('watch.viewProduct')}</span>
+            </Link>
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+        {linkedProducts.map((product) => (
+          <Link
+            key={product.id}
+            href={`/main/products/${product.id}`}
+            className="flex items-center gap-3 bg-gray-700 rounded-lg p-2 hover:bg-gray-600 transition"
+          >
+            <div className="w-12 h-12 rounded-md overflow-hidden bg-gray-600 relative flex-shrink-0">
+              {product.thumbnail ? (
+                <Image
+                  src={product.thumbnail}
+                  alt={product.name}
+                  fill
+                  unoptimized
+                  className="object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-xl">
+                  <Image src={ICONS.GOODS} alt="product" fill unoptimized className="object-contain" />
+                </div>
+              )}
+              
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm truncate">{product.name}</p>
+              <p className="text-xs text-gray-300 truncate">{currencyFormatter.format(product.price ?? 0)}</p>
+            </div>
+            <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        ))}
+      </div>
+    );
+  };
   
 
   const joinLivestream = useCallback(async (data: Livestream) => {
     try {
-      console.log('[WatchLivestream] Joining livestream:', data.channelName);
       const AgoraRTC = (await import('agora-rtc-sdk-ng')).default;
       
       const getAgoraTokenUseCase = container.getAgoraTokenUseCase;
@@ -71,9 +189,7 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
 
       await client.join(tokenData.appId, data.channelName, tokenData.token, tokenData.uid);
       setIsJoined(true);
-      console.log('[WatchLivestream] ✅ Joined successfully');
-    } catch (err) {
-      console.error('[WatchLivestream] ❌ Join error:', err);
+    } catch {
       setError(t('errors.joinFailed'));
     }
   }, [t]);
@@ -88,21 +204,18 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
       if (data.status === LivestreamStatus.LIVE) {
         await joinLivestream(data);
       }
-    } catch (err) {
-      console.error('Load livestream error:', err);
+    } catch {
       setError(t('errors.loadFailed'));
     } finally {
       setIsLoading(false);
     }
   }, [livestreamId, joinLivestream, t]);
 
-  // Run load once and attach a beforeunload handler to make a best-effort leave
   useEffect(() => {
     loadLivestream();
 
     const handleBeforeUnload = () => {
       try {
-        // Mute and remove audio elements
         document.querySelectorAll('audio').forEach(audio => {
           try { audio.pause(); audio.muted = true; audio.srcObject = null; audio.remove(); } catch {}
         });
@@ -115,8 +228,7 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
           });
           try { clientRef.current.leave().catch(() => {}); } catch {}
         }
-      } catch (err) {
-        console.error('[WatchLivestream] beforeunload handler error', err);
+      } catch {
       }
     };
 
@@ -125,18 +237,7 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
 
-      console.log('[WatchLivestream] Component unmounting, cleaning up Agora connection...');
-      
-      // Mute and remove all audio elements FIRST
-      document.querySelectorAll('audio').forEach(audio => {
-        audio.pause();
-        audio.muted = true;
-        audio.srcObject = null;
-        audio.remove();
-      });
-      
       if (clientRef.current) {
-        // Stop all remote tracks before leaving
         const remoteUsers = clientRef.current.remoteUsers;
         remoteUsers.forEach(user => {
           if (user.audioTrack) {
@@ -147,19 +248,15 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
           }
         });
 
-        clientRef.current.leave().catch(console.error);
+        clientRef.current.leave().catch(() => {});
         clientRef.current = null;
       }
-      
-      console.log('[WatchLivestream] ✅ Cleanup complete');
     };
   }, [loadLivestream]);
 
-  // Socket.IO setup
   useEffect(() => {
     if (!user || !livestreamId) return;
 
-    console.log('[WatchLivestream] 🔌 Connecting to socket server...');
     const socketUrl = API_CONFIG.SOCKET_URL || (typeof window !== 'undefined' ? window.location.origin : '');
     const socket = io(socketUrl || undefined, {
       transports: ['websocket', 'polling']
@@ -167,8 +264,6 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
     socketRef.current = socket;
 
     socket.on('connect', () => {
-      console.log('[WatchLivestream] ✅ Socket connected:', socket.id);
-      // Join livestream room as viewer
       socket.emit('join-livestream', {
         livestreamId,
         userId: user.id,
@@ -176,30 +271,22 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
       });
     });
 
-    // Listen for chat history (loaded from database)
     socket.on('chat-history', (messages: ChatMessage[]) => {
-      console.log('[WatchLivestream] 📜 Chat history loaded:', messages.length);
       setChatMessages(messages);
     });
 
-    // Listen for new messages
     socket.on('new-message', (message: ChatMessage) => {
-      console.log('[WatchLivestream] 💬 New message:', message);
       setChatMessages(prev => [...prev, message]);
     });
 
-    // Listen for viewer count updates
     socket.on('viewer-count', ({ viewerCount: count }: { viewerCount: number }) => {
-      console.log('[WatchLivestream] 👥 Viewer count:', count);
       setViewerCount(count);
     });
 
     socket.on('disconnect', () => {
-      console.log('[WatchLivestream] 🔌 Socket disconnected');
     });
 
     return () => {
-      console.log('[WatchLivestream] 🔌 Cleaning up socket...');
       socket.emit('leave-livestream', { livestreamId });
       socket.disconnect();
     };
@@ -208,7 +295,6 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
   const handleSendMessage = (message: string) => {
     if (!socketRef.current || !user) return;
     
-    console.log('[WatchLivestream] 📤 Sending message:', message);
     socketRef.current.emit('send-message', {
       livestreamId,
       userId: user.id,
@@ -218,129 +304,10 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
   };
 
   const leaveLivestream = async () => {
-    console.log('[WatchLivestream] 🛑 FORCE LEAVING - Aggressive cleanup mode...');
-    
-    // Set isJoined = false IMMEDIATELY to trigger UI update
     setIsJoined(false);
     
-    try {
-      // STEP 1: Immediately mute and pause ALL audio/video in the page
-      console.log('[WatchLivestream] 🔇 STEP 1: Muting all media...');
-      document.querySelectorAll<HTMLMediaElement>('audio, video').forEach((media) => {
-        media.pause();
-        media.muted = true;
-        media.volume = 0;
-        if (media.srcObject) {
-          const tracks = (media.srcObject as MediaStream).getTracks();
-          tracks.forEach((track) => track.stop());
-          media.srcObject = null;
-        }
-        media.src = '';
-        media.load();
-      });
-
-      // STEP 2: Agora cleanup
-      if (clientRef.current) {
-        console.log('[WatchLivestream] 🔇 STEP 2: Agora tracks cleanup...');
-        const remoteUsers = clientRef.current.remoteUsers;
-        
-        // Stop all tracks immediately
-        for (const user of remoteUsers) {
-          if (user.audioTrack) {
-            console.log('[WatchLivestream] Stopping audio for user', user.uid);
-            try {
-              user.audioTrack.stop();
-            } catch (e) {
-              console.error('Audio stop error:', e);
-            }
-          }
-          if (user.videoTrack) {
-            try {
-              user.videoTrack.stop();
-            } catch (e) {
-              console.error('Video stop error:', e);
-            }
-          }
-        }
-
-        // Unsubscribe all
-        console.log('[WatchLivestream] � STEP 3: Unsubscribing...');
-        for (const user of remoteUsers) {
-          try {
-            if (user.hasAudio) {
-              await clientRef.current.unsubscribe(user, 'audio');
-            }
-            if (user.hasVideo) {
-              await clientRef.current.unsubscribe(user, 'video');
-            }
-          } catch (e) {
-            console.error('Unsubscribe error:', e);
-          }
-        }
-
-        // Clear video container
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.innerHTML = '';
-        }
-
-        // Leave channel
-        console.log('[WatchLivestream] 🔇 STEP 4: Leaving channel...');
-        await clientRef.current.leave();
-        clientRef.current = null;
-      }
-
-      // STEP 5: Nuclear option - remove ALL media elements from DOM
-      console.log('[WatchLivestream] 🔇 STEP 5: Removing all media elements from DOM...');
-      document.querySelectorAll('audio, video').forEach(element => {
-        element.remove();
-      });
-
-      // STEP 6: Stop all MediaStreamTracks in the entire page
-      console.log('[WatchLivestream] 🔇 STEP 6: Stopping all MediaStreamTracks...');
-      const mediaElements = document.querySelectorAll<HTMLMediaElement>('audio, video');
-      mediaElements.forEach((element) => {
-        if (element.srcObject) {
-          const tracks = (element.srcObject as MediaStream).getTracks();
-          tracks.forEach((track) => {
-            track.stop();
-            track.enabled = false;
-          });
-        }
-      });
-      
-      console.log('[WatchLivestream] ✅✅✅ AGGRESSIVE CLEANUP COMPLETE - MUST BE SILENT NOW ✅✅✅');
-      
-    } catch (err) {
-      console.error('[WatchLivestream] ❌ Cleanup error:', err);
-      
-      // FORCE CLEANUP on error
-      if (clientRef.current) {
-        try {
-          await clientRef.current.leave();
-        } catch (e) {
-          console.error('Force leave error:', e);
-        }
-        clientRef.current = null;
-      }
-      
-      // Nuclear option
-      document.querySelectorAll<HTMLMediaElement>('audio, video').forEach((element) => {
-        element.pause();
-        element.muted = true;
-        element.volume = 0;
-        if (element.srcObject) {
-          const tracks = (element.srcObject as MediaStream).getTracks();
-          tracks.forEach((track) => track.stop());
-        }
-        element.remove();
-      });
-    }
+    await cleanupAgoraConnection(clientRef, remoteVideoRef);
     
-    // Wait a bit to ensure everything is cleaned up
-    await new Promise(resolve => setTimeout(resolve, 200));
-    
-    // LAST RESORT: Force reload to /main/livestream to ensure complete cleanup
-    console.log('[WatchLivestream] Force navigating with full cleanup...');
     window.location.href = '/main/livestream';
   };
 
@@ -376,7 +343,6 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* Header with Back Button */}
       <div className="bg-gray-800 border-b border-gray-700 px-4 sm:px-6 py-3 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <button
@@ -398,12 +364,9 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
         </div>
       </div>
 
-      {/* Main Content - Facebook Style Layout */}
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row lg:gap-6">
-          {/* Left Side: Host Info + Video + Description */}
           <div className="flex-1 lg:max-w-4xl">
-            {/* Host Info Section - TOP (Facebook style) */}
             <div className="bg-gray-800 border-b border-gray-700 lg:rounded-t-xl lg:mt-4 px-4 sm:px-6 py-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3">
@@ -427,7 +390,7 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
                 </div>
                 
                 <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-semibold transition">
-                  {t('watch.follow') || 'Theo dõi'}
+                  {t('watch.follow')}
                 </button>
               </div>
 
@@ -440,7 +403,6 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
               )}
             </div>
 
-            {/* Video Player - BELOW HOST INFO */}
             <div className="bg-black lg:rounded-b-xl overflow-hidden aspect-video relative">
               {livestream.status === LivestreamStatus.LIVE && isJoined ? (
                 <div ref={remoteVideoRef} className="w-full h-full"></div>
@@ -453,7 +415,7 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
                         <p className="text-lg sm:text-xl mb-2">{t('watch.scheduled')}</p>
                         {livestream.startTime && (
                           <p className="text-sm sm:text-base text-gray-400">
-                            {t('watch.startTime')}: {new Date(livestream.startTime).toLocaleString('vi-VN')}
+                            {t('watch.startTime')}: {new Date(livestream.startTime).toLocaleString(locale)}
                           </p>
                         )}
                       </>
@@ -474,34 +436,19 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
               )}
             </div>
 
-            {/* Products Section - Mobile Only (below video) */}
-            {livestream.products && livestream.products.length > 0 && (
+            {shouldShowProductPanel && (
               <div className="lg:hidden bg-gray-800 border-t border-gray-700 px-4 py-4">
                 <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <span>🛍️</span>
+                  <Image src={ICONS.GOODS} alt="products" width={22} height={22} className="w-5 h-5" unoptimized />
                   <span>{t('watch.products')}</span>
                 </h3>
-                <div className="grid grid-cols-2 gap-3">
-                  {livestream.products.slice(0, 4).map((productId, index) => (
-                    <div key={productId} className="bg-gray-700 rounded-lg p-3 hover:bg-gray-600 transition cursor-pointer">
-                      <div className="w-full aspect-square bg-gray-600 rounded-lg flex items-center justify-center text-3xl mb-2">
-                        🛍️
-                      </div>
-                      <p className="font-semibold text-sm truncate">
-                        {t('watch.product')} #{index + 1}
-                      </p>
-                      <p className="text-xs text-gray-400 truncate">{productId.slice(0, 8)}...</p>
-                    </div>
-                  ))}
-                </div>
+                {renderProductList('grid')}
               </div>
             )}
           </div>
 
-          {/* Right Sidebar: Chat + Products (Desktop) */}
           <div className="lg:w-96 lg:sticky lg:top-16 lg:h-full lg:mt-4">
             <div className="flex flex-col h-full">
-              {/* Chat Box */}
               <div className="flex-1 min-h-[400px] lg:min-h-0">
                 <ChatBox 
                   messages={chatMessages}
@@ -511,31 +458,13 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
                 />
               </div>
 
-              {/* Products - Desktop Only */}
-              {livestream.products && livestream.products.length > 0 && (
+              {shouldShowProductPanel && (
                 <div className="hidden lg:block bg-gray-800 rounded-xl p-4 mt-4">
                   <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <span>🛍️</span>
+                    <Image src={ICONS.GOODS} alt="products" width={20} height={20} className="w-5 h-5" unoptimized />
                     <span>{t('watch.products')}</span>
                   </h3>
-                  <div className="space-y-2 max-h-[200px] overflow-y-auto">
-                    {livestream.products.map((productId, index) => (
-                      <div key={productId} className="flex items-center gap-3 bg-gray-700 rounded-lg p-2 hover:bg-gray-600 transition cursor-pointer">
-                        <div className="w-10 h-10 bg-gray-600 rounded-lg flex items-center justify-center text-xl flex-shrink-0">
-                          🛍️
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-xs truncate">
-                            {t('watch.product')} #{index + 1}
-                          </p>
-                          <p className="text-xs text-gray-400 truncate">{productId.slice(0, 12)}...</p>
-                        </div>
-                        <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </div>
-                    ))}
-                  </div>
+                  {renderProductList('list')}
                 </div>
               )}
             </div>

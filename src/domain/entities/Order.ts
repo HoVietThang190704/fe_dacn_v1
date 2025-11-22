@@ -10,7 +10,7 @@ export const ORDER_STATUS = {
 
 export type OrderStatus = (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS];
 
-export type PaymentMethod = 'cod' | 'momo' | 'zalopay' | 'vnpay' | 'card';
+export type PaymentMethod = 'cod' | 'vnpay';
 
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 

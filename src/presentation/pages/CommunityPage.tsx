@@ -1,131 +1,34 @@
 'use client';
 
-import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import React from 'react';
 import { CreatePostPopup } from '@/components/ui/CreatePostPopup';
 import Image from 'next/image';
-import { useAuth } from '@/shared/hooks/useAuth';
 import PostCard from '../components/PostCard';
 import EmptyState from '../components/EmptyState';
-import { usePosts } from '@/hooks/usePosts';
-import { CreatePostData } from '@/domain/entities/Post';
+import useCommunityPage from './community/useCommunityPage';
+import { getInitials } from '@/lib/utils';
 
 export const CommunityPage: React.FC = () => {
-  const t = useTranslations('community');
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [isCreatingPost, setIsCreatingPost] = useState(false);
-  const observerTarget = useRef<HTMLDivElement>(null);
-
-  // Use real API data via usePosts hook
   const {
+    t,
+    user,
     posts,
     isLoading,
     isLoadingMore,
     error,
     hasMore,
-    loadMore,
-    createPost,
-    toggleLike,
-    sharePost,
-    deletePost,
+    observerTarget,
+    isPopupOpen,
+    setIsPopupOpen,
+    isCreatingPost,
+    handleCreatePost,
+    handleDeletePost,
+    handleToggleLike,
+    handleSharePost,
     refresh,
-  } = usePosts();
+    SKELETON_COUNT,
+  } = useCommunityPage();
 
-  const { user } = useAuth();
-
-  console.log('User in CommunityPage:', user);
-  console.log('User avatar:', user?.avatar);
-
-  // Force refresh user data
-  const refreshUser = () => {
-    window.location.reload();
-  };
-
-  const getInitials = (name = '') => {
-    return name
-      .split(' ')
-      .map((w) => w[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-  const handleCreatePost = async (content: string, images?: File[]) => {
-    try {
-      setIsCreatingPost(true);
-      
-      const postData: CreatePostData = {
-        content,
-        images: images || [],
-        visibility: 'public', // Default to public
-      };
-
-      await createPost(postData);
-      setIsPopupOpen(false);
-    } catch (err) {
-      console.error('Error creating post:', err);
-      alert(err instanceof Error ? err.message : 'Lỗi khi tạo bài viết');
-    } finally {
-      setIsCreatingPost(false);
-    }
-  };
-
-  const handleToggleLike = async (postId: string) => {
-    try {
-      await toggleLike(postId);
-    } catch (err) {
-      console.error('Error toggling like:', err);
-    }
-  };
-
-  const handleDeletePost = async (postId: string) => {
-    if (!confirm('Bạn có chắc muốn xóa bài viết này?')) return;
-    
-    try {
-      await deletePost(postId);
-    } catch (err) {
-      console.error('Error deleting post:', err);
-      alert(err instanceof Error ? err.message : 'Lỗi khi xóa bài viết');
-    }
-  };
-
-  const handleSharePost = async (originalPostId: string, content?: string) => {
-    try {
-      await sharePost(originalPostId, content);
-    } catch (err) {
-      console.error('Error sharing post:', err);
-      alert(err instanceof Error ? err.message : 'Lỗi khi chia sẻ bài viết');
-    }
-  };
-
-  // Infinite Scroll with IntersectionObserver
-  const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
-    const [entry] = entries;
-    if (entry.isIntersecting && hasMore && !isLoadingMore) {
-      loadMore();
-    }
-  }, [hasMore, isLoadingMore, loadMore]);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(handleIntersection, {
-      root: null,
-      rootMargin: '100px', // Start loading 100px before reaching the bottom
-      threshold: 0.1,
-    });
-
-    const currentTarget = observerTarget.current;
-    if (currentTarget) {
-      observer.observe(currentTarget);
-    }
-
-    return () => {
-      if (currentTarget) {
-        observer.unobserve(currentTarget);
-      }
-    };
-  }, [handleIntersection]);
-
-  // Loading state - show skeleton
   if (isLoading && posts.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -136,7 +39,7 @@ export const CommunityPage: React.FC = () => {
           </div>
         </div>
         <div className="pb-4 px-4 md:px-8 lg:px-16 xl:px-24">
-          {[1, 2, 3].map((i) => (
+          {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
             <div key={i} className="bg-white rounded-lg shadow-sm mb-4 p-4">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
@@ -153,7 +56,6 @@ export const CommunityPage: React.FC = () => {
     );
   }
 
-  // Error state
   if (error && posts.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -163,7 +65,7 @@ export const CommunityPage: React.FC = () => {
             onClick={refresh}
             className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
           >
-            Thử lại
+            {t('retry')}
           </button>
         </div>
       </div>
@@ -172,16 +74,14 @@ export const CommunityPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Create Post Section - Simplified Design */}
       <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
         <div className="pb-4 px-4 md:px-8 lg:px-16 xl:px-24">
           <div className="max-w-full mx-auto pt-4">
             <div className="flex items-center gap-3">
-              {/* Use authenticated user avatar when available, otherwise fallback to first post user or initials */}
               {user?.avatar ? (
                 <Image
                   src={user.avatar}
-                  alt={user.userName || 'User'}
+                  alt={user.userName || t('userFallback')}
                   width={40}
                   height={40}
                   className="rounded-full object-cover shadow-md flex-shrink-0"
@@ -196,15 +96,14 @@ export const CommunityPage: React.FC = () => {
                 onClick={() => setIsPopupOpen(true)}
                 className="flex-1 text-left px-4 py-3 bg-gray-100 rounded-full text-sm text-gray-500 hover:bg-gray-200 transition-all hover:shadow-sm"
               >
-                {user?.userName ? `${user.userName} ơi, bạn đang nghĩ gì thế?` : (t('placeholder') || 'Bạn đang nghĩ gì?')}
+                {user?.userName ? `${user.userName} ${t('placeholder')}` : ''}
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Posts Feed */}
-      <div className="pb-4 px-4 md:px-8 lg:px-16 xl:px-24">
+      <div className="pb-4 px-4 md:px-8 lg:px-12 xl:px-16 xl:mx-40">
         {posts.length > 0 ? (
           <>
             {posts.map((post) => (
@@ -213,7 +112,7 @@ export const CommunityPage: React.FC = () => {
                 post={{
                   id: post.id,
                   userId: post.userId,
-                  userName: post.user?.userName || post.user?.email || 'Unknown User',
+                  userName: post.user?.userName || post.user?.email || t('unknownUser'),
                   userAvatar: post.user?.avatar || '',
                   userEmail: post.user?.email,
                   content: post.content,
@@ -230,8 +129,6 @@ export const CommunityPage: React.FC = () => {
                 onShare={() => handleSharePost(post.id)}
               />
             ))}
-            
-            {/* Intersection Observer Target - Load more when visible */}
             {hasMore && (
               <div ref={observerTarget} className="text-center py-4">
                 {isLoadingMore && (
@@ -239,12 +136,9 @@ export const CommunityPage: React.FC = () => {
                 )}
               </div>
             )}
-            
-            {/* End of Feed */}
+
             {!hasMore && posts.length > 0 && (
-              <div className="text-center py-4 text-gray-500">
-                Đã hiển thị tất cả bài viết
-              </div>
+              <div className="text-center py-4 text-gray-500">{t('allDisplayed')}</div>
             )}
           </>
         ) : (
@@ -261,3 +155,4 @@ export const CommunityPage: React.FC = () => {
     </div>
   );
 };
+
