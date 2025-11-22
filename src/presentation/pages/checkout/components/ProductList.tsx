@@ -36,7 +36,7 @@ export const ProductList = memo(({ items, t, formatCurrency }: ProductListProps)
           <div className="flex-1">
             <h3 className="font-medium text-gray-900">{item.title}</h3>
             <div className="text-sm text-gray-500 mt-1">
-              {t('products.quantity', { count: item.quantity })}
+              {t('products.quantity', { count: item.quantity ?? 0 })}
             </div>
           </div>
           <div className="text-right">

@@ -1,6 +1,15 @@
 import { Voucher } from '@/domain/entities/Voucher';
 
-export type TranslateFn = (key: string, values?: Record<string, unknown>) => string;
+// Use the exact runtime type returned by next-intl's `useTranslations` so callers can pass `t` directly
+// without type compatibility issues.
+import type { useTranslations } from 'next-intl';
+
+// Accept either the exact `useTranslations` return type OR a looser `key, values` function.
+// This keeps strong typing where possible while allowing differently-typed `t` helpers
+// (some call sites infer different value shapes) to be passed in without errors.
+export type TranslateFn =
+  | ReturnType<typeof useTranslations>
+  | ((key: string, values?: Record<string, unknown>) => string);
 
 export interface ShippingAddress {
   id?: string;

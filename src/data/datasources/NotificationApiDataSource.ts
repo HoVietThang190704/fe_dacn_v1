@@ -122,10 +122,11 @@ export class NotificationApiDataSource {
 
   async markAllAsRead(): Promise<{ updated: number }> {
     const response = await authApiClient.patch<MarkAllResponse>(API_ENDPOINTS.NOTIFICATIONS_READ_ALL, {});
-    if (!response.success || !response.data) {
+    if (!response.success || !response.data || response.data.data == null) {
       throw new Error(response.error || 'Không thể cập nhật tất cả thông báo');
     }
-    return { updated: response.data.updated ?? 0 };
+
+    return { updated: response.data.data.updated ?? 0 };
   }
 
   async getSummary(): Promise<NotificationSummary> {
