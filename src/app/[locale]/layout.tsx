@@ -2,6 +2,7 @@ import {NextIntlClientProvider} from 'next-intl';
 import {getMessages} from 'next-intl/server';
 import { LanguageSwitcher } from '@/components/ui';
 import EmotionProvider from '@/shared/providers/EmotionProvider';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 export default async function LocaleLayout({
   children,
@@ -9,13 +10,16 @@ export default async function LocaleLayout({
   children: React.ReactNode;
 }) {
   const messages = await getMessages();
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
 
   return (
     <EmotionProvider>
-      <NextIntlClientProvider messages={messages}>
-        {/* <LanguageSwitcher /> */}
-        {children}
-      </NextIntlClientProvider>
+      <GoogleOAuthProvider clientId={googleClientId}>
+        <NextIntlClientProvider messages={messages}>
+          {/* <LanguageSwitcher /> */}
+          {children}
+        </NextIntlClientProvider>
+      </GoogleOAuthProvider>
     </EmotionProvider>
   );
 }

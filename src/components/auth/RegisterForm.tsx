@@ -32,6 +32,10 @@ export default function RegisterForm() {
         console.log('Facebook register clicked - not implemented yet');
     };
 
+    const handleGoogleSuccess = async (idToken: string) => {
+        await loginWithGoogle(idToken);
+    };
+
     const validateForm = () => {
         const errors: Record<string, string> = {};
         if(!fullName.trim()){
@@ -212,9 +216,8 @@ export default function RegisterForm() {
 
                 <div className="grid grid-cols-2 gap-3">
                     <GoogleSignInButton 
-                        onClick={loginWithGoogle}
+                        onSuccess={handleGoogleSuccess}
                         disabled={isLoading || registrationSuccess}
-                        isLoading={isLoading}
                         className="w-full"
                     />
 

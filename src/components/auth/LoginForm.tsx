@@ -25,6 +25,10 @@ export default function LoginForm() {
   const { login, loginWithGoogle, isLoading, error } = useAuth();
   const t = useTranslations('auth');
 
+  const handleGoogleSuccess = async (idToken: string) => {
+    await loginWithGoogle(idToken);
+  };
+
   const loginWithFacebook = async () => {
     console.log('Facebook login clicked - not implemented yet');
   };
@@ -150,7 +154,7 @@ export default function LoginForm() {
 
         <div className="grid grid-cols-2 gap-2 sm:gap-3">
           <GoogleSignInButton 
-            onClick={loginWithGoogle}
+            onSuccess={handleGoogleSuccess}
             disabled={isLoading}
             isLoading={isLoading}
             className="w-full"

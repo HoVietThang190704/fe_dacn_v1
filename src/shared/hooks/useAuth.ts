@@ -191,14 +191,60 @@ export function useAuth() {
     }
   };
 
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = async (idToken: string) => {
     setIsLoading(true);
+    setError('');
     try {
-      console.log('Google login not implemented yet');
-      setError('Google login not implemented yet');
+      if (!idToken) throw new Error('No id_token received from Google');
+
+      // Exchange id_token with backend for our app tokens & user
+      const result = await authAPI.googleToken(idToken);
+      if (result.success && result.data) {
+        if (result.data.accessToken && result.data.refreshToken && result.data.user) {
+          localStorage.setItem('authToken', result.data.accessToken);
+          localStorage.setItem('refreshToken', result.data.refreshToken);
+
+          postCommentContainer.setAuthToken(result.data.accessToken);
+
+          // Fetch profile and store user (similar to normal login flow)
+          try {
+            const profileResult = await usersAPI.getMyProfile(result.data.accessToken);
+            if (profileResult && profileResult.success && profileResult.data) {
+              const normalized = extractProfileFromPayload(profileResult.data);
+              const fullUser = { ...result.data.user, ...(normalized || {}) } as User;
+              localStorage.setItem('user', JSON.stringify(fullUser));
+              setUser(fullUser);
+            } else {
+              localStorage.setItem('user', JSON.stringify(result.data.user));
+              setUser(result.data.user as User);
+            }
+          } catch (profileError) {
+            console.error('Failed to fetch profile after google login:', profileError);
+            localStorage.setItem('user', JSON.stringify(result.data.user));
+            setUser(result.data.user as User);
+          }
+
+          setIsAuthenticated(true);
+        }
+
+        router.push('/main');
+        return true;
+      }
+
+      setError(result.error || 'Google login failed');
+      return false;
     } catch (error) {
-      setError('Google login failed');
       console.error('Google login error:', error);
+      // Safely extract a string message from unknown `error`
+      let errMsg = 'Google login failed';
+      if (error instanceof Error && error.message) errMsg = error.message;
+      else if (typeof error === 'string') errMsg = error;
+      else if (error && typeof error === 'object') {
+        const maybe = error as { [key: string]: unknown };
+        if (typeof maybe.message === 'string') errMsg = maybe.message;
+      }
+      setError(errMsg);
+      return false;
     } finally {
       setIsLoading(false);
     }
