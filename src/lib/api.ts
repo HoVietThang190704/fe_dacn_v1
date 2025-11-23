@@ -196,6 +196,11 @@ export const authAPI = {
   register: async (userData: RegisterRequest): Promise<ApiResponse<RegisterResponse>> => {
     return apiClient.post<RegisterResponse>(API_ENDPOINTS.REGISTER, userData);
   }
+  ,
+  // Exchange Google id_token for app tokens/user
+  googleToken: async (idToken: string): Promise<ApiResponse<LoginResponse>> => {
+    return apiClient.post<LoginResponse>(API_ENDPOINTS.AUTH_GOOGLE_TOKEN, { id_token: idToken });
+  }
 };
 
 export const usersAPI = {

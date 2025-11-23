@@ -27,6 +27,8 @@ export const API_ENDPOINTS = {
   REFRESH_TOKEN: '/api/auth/refresh',
   AUTH_PROFILE: '/api/auth/profile',
   CHANGE_PASSWORD: '/api/auth/change-password',
+  // Google auth (id_token -> backend)
+  AUTH_GOOGLE_TOKEN: '/api/auth/google/token',
   
   // Products
   PRODUCTS: '/api/products',
