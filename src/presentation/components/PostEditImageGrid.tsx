@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { POST_EDIT_CONFIG } from '@/presentation/config/postEditConfig';
+import { ICONS } from '@/shared/constants/images';
 
 interface ImagePreview {
   file: File;
@@ -17,7 +18,7 @@ interface Props {
   onRemoveExisting: (url: string) => void;
   onRemoveNew: (url: string) => void;
   onAddNewImages: (files: FileList | null) => void;
-  t: TranslateFn;
+  t?: TranslateFn;
 }
 
 export const PostEditImageGrid: React.FC<Props> = ({
@@ -30,16 +31,20 @@ export const PostEditImageGrid: React.FC<Props> = ({
   t,
 }) => {
   const { width, height } = POST_EDIT_CONFIG.IMAGE_PREVIEW_SIZE;
+  const tHook = useTranslations('postEditor');
+  const i18n = t ?? tHook;
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium text-gray-700">{t('imagesSection')}</h2>
-        <span className="text-xs text-gray-500">{totalImages}/{POST_EDIT_CONFIG.MAX_IMAGES}</span>
+        <h2 className="text-sm font-medium text-gray-700">{i18n('imagesSection')}</h2>
+        <span className="text-xs text-gray-500">
+          {i18n('imageCount', { current: totalImages, max: POST_EDIT_CONFIG.MAX_IMAGES })}
+        </span>
       </div>
 
       {keptImages.length === 0 && newImages.length === 0 && (
-      <p className="text-xs text-gray-500">{t('noImages')}</p>
+      <p className="text-xs text-gray-500">{i18n('noImages')}</p>
       )}
 
       {keptImages.length > 0 && (
@@ -48,7 +53,7 @@ export const PostEditImageGrid: React.FC<Props> = ({
             <div key={url} className="relative">
               <Image
                 src={url}
-                alt={t('existingImageAlt')}
+                alt={i18n('existingImageAlt')}
                 width={width}
                 height={height}
                 className="w-full h-40 object-cover rounded-lg"
@@ -56,10 +61,16 @@ export const PostEditImageGrid: React.FC<Props> = ({
               <button
                 type="button"
                 onClick={() => onRemoveExisting(url)}
-                    aria-label={t('removeImageAria')}
+                    aria-label={i18n('removeImageAria')}
                 className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-black/50 text-white rounded-full hover:bg-black/70"
               >
-                ×
+                <Image
+                  src={ICONS.CROSS ?? ICONS.PLACEHOLDER}
+                  alt={i18n('removeImageAria')}
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
               </button>
             </div>
           ))}
@@ -72,7 +83,7 @@ export const PostEditImageGrid: React.FC<Props> = ({
             <div key={preview.url} className="relative">
               <Image
                 src={preview.url}
-                alt={t('newImageAlt')}
+                alt={i18n('newImageAlt')}
                 width={width}
                 height={height}
                 className="w-full h-40 object-cover rounded-lg"
@@ -80,10 +91,16 @@ export const PostEditImageGrid: React.FC<Props> = ({
               <button
                 type="button"
                 onClick={() => onRemoveNew(preview.url)}
-                aria-label={t('removeImageAria')}
+                aria-label={i18n('removeImageAria')}
                 className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center bg-black/50 text-white rounded-full hover:bg-black/70"
               >
-                ×
+                <Image
+                  src={ICONS.CROSS ?? ICONS.PLACEHOLDER}
+                  alt={i18n('removeImageAria')}
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
               </button>
             </div>
           ))}
@@ -99,11 +116,15 @@ export const PostEditImageGrid: React.FC<Props> = ({
             className="hidden"
             onChange={(event) => onAddNewImages(event.target.files)}
           />
-          <svg className="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          <span className="text-sm font-medium text-gray-700">{t('addImages')}</span>
-          <span className="text-xs text-gray-500">{t('addImagesHint')}</span>
+          <Image
+            src={ICONS.PLUS ?? ICONS.PLACEHOLDER}
+            alt={i18n('addImages')}
+            width={32}
+            height={32}
+            className="object-contain text-orange-500"
+          />
+          <span className="text-sm font-medium text-gray-700">{i18n('addImages')}</span>
+          <span className="text-xs text-gray-500">{i18n('addImagesHint')}</span>
         </label>
       )}
     </div>

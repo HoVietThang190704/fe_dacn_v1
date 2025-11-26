@@ -172,7 +172,7 @@ export class OrderApiDataSource {
 		const response = await authApiClient.get<OrderListApiResponse>(`${API_ENDPOINTS.ORDERS}${query}`);
 
 		if (!response.success || !response.data?.data) {
-			throw new Error(response.error || response.data?.message || 'Không thể tải danh sách đơn hàng');
+				throw new Error(response.error || response.data?.message || 'Failed to load orders');
 		}
 
 		const { orders, pagination } = response.data.data;
@@ -188,7 +188,7 @@ export class OrderApiDataSource {
 		const response = await authApiClient.get<OrderListApiResponse>(`${API_ENDPOINTS.MANAGED_ORDERS}${query}`);
 
 		if (!response.success || !response.data?.data) {
-			throw new Error(response.error || response.data?.message || 'Không thể tải danh sách đơn hàng');
+			throw new Error(response.error || response.data?.message || 'Failed to load orders');
 		}
 
 		const { orders, pagination } = response.data.data;
@@ -203,7 +203,7 @@ export class OrderApiDataSource {
 		const response = await authApiClient.get<OrderDetailApiResponse>(API_ENDPOINTS.ORDER_DETAIL(orderId));
 
 		if (!response.success || !response.data?.data) {
-			throw new Error(response.error || response.data?.message || 'Không thể tải đơn hàng');
+			throw new Error(response.error || response.data?.message || 'Failed to load order');
 		}
 
 		return this.mapOrder(response.data.data);
@@ -214,7 +214,7 @@ export class OrderApiDataSource {
 		const response = await authApiClient.get<OrderDetailApiResponse>(`${API_ENDPOINTS.MANAGED_ORDER_DETAIL(orderId)}${query}`);
 
 		if (!response.success || !response.data?.data) {
-			throw new Error(response.error || response.data?.message || 'Không thể tải đơn hàng');
+			throw new Error(response.error || response.data?.message || 'Failed to load order');
 		}
 
 		return this.mapOrder(response.data.data);
@@ -224,7 +224,7 @@ export class OrderApiDataSource {
 		const response = await authApiClient.post<CreateOrderApiResponse>(API_ENDPOINTS.ORDERS, payload);
 
 		if (!response.success || !response.data?.data) {
-			throw new Error(response.error || response.data?.message || 'Không thể tạo đơn hàng');
+			throw new Error(response.error || response.data?.message || 'Failed to create order');
 		}
 
 		return this.mapOrder(response.data.data);
@@ -234,7 +234,7 @@ export class OrderApiDataSource {
 		const response = await authApiClient.post<CancelOrderApiResponse>(API_ENDPOINTS.CANCEL_ORDER(orderId), { reason });
 
 		if (!response.success || !response.data?.data) {
-			throw new Error(response.error || response.data?.message || 'Không thể hủy đơn hàng');
+			throw new Error(response.error || response.data?.message || 'Failed to cancel order');
 		}
 
 		return this.mapOrder(response.data.data);
@@ -244,7 +244,7 @@ export class OrderApiDataSource {
 		const response = await authApiClient.get<StatisticsApiResponse>(API_ENDPOINTS.ORDER_STATISTICS);
 
 		if (!response.success || !response.data?.data) {
-			throw new Error(response.error || response.data?.message || 'Không thể tải thống kê đơn hàng');
+			throw new Error(response.error || response.data?.message || 'Failed to load order statistics');
 		}
 
 		return response.data.data;
@@ -257,7 +257,7 @@ export class OrderApiDataSource {
 		});
 
 		if (!response.success || !response.data?.data) {
-			throw new Error(response.error || response.data?.message || 'Không thể áp dụng mã giảm giá');
+			throw new Error(response.error || response.data?.message || 'Failed to apply voucher');
 		}
 
 		return response.data.data;
@@ -272,7 +272,7 @@ export class OrderApiDataSource {
 		);
 
 		if (!response.success || !response.data?.data) {
-			throw new Error(response.error || response.data?.message || 'Không thể cập nhật trạng thái thanh toán');
+			throw new Error(response.error || response.data?.message || 'Failed to update payment status');
 		}
 
 		return this.mapOrder(response.data.data);
@@ -288,7 +288,7 @@ export class OrderApiDataSource {
 		);
 
 		if (!response.success || !response.data?.data) {
-			throw new Error(response.error || response.data?.message || 'Không thể cập nhật trạng thái đơn hàng');
+			throw new Error(response.error || response.data?.message || 'Failed to update order status');
 		}
 
 		return this.mapOrder(response.data.data);
@@ -301,7 +301,7 @@ export class OrderApiDataSource {
 		);
 
 		if (!response.success || !response.data?.data) {
-			throw new Error(response.error || response.data?.message || 'Không thể xác nhận giao hàng');
+			throw new Error(response.error || response.data?.message || 'Failed to confirm delivery');
 		}
 
 		return this.mapOrder(response.data.data);

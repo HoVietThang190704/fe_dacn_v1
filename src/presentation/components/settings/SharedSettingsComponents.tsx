@@ -1,6 +1,8 @@
 import React from 'react';
 import TimezoneSelect, { ITimezone } from 'react-timezone-select';
+import Image from 'next/image';
 import { Button } from '@/components/ui';
+import { ICONS } from '@/shared/constants/images';
 
 export const ToggleSwitch: React.FC<{
   label: string;
@@ -31,16 +33,18 @@ export const DeviceItem: React.FC<{
 }> = ({ name, location, time, isCurrent, t }) => (
   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
     <div className="flex gap-4">
-      <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-xl flex items-center justify-center">💻</div>
+      <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-xl flex items-center justify-center">
+        <Image src={ICONS.PHONE_CALL || ICONS.PLACEHOLDER} alt={name} width={36} height={36} className="w-8 h-8" />
+      </div>
       <div>
-        <div className="font-semibold text-gray-800 dark:text-gray-200 text-sm sm:text-base">{name} {isCurrent && <span className="ml-2 text-xs sm:text-sm bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-1 rounded-full">{t('current') || 'Hiện tại'}</span>}</div>
+        <div className="font-semibold text-gray-800 dark:text-gray-200 text-sm sm:text-base">{name} {isCurrent && <span className="ml-2 text-xs sm:text-sm bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-1 rounded-full">{t('current')}</span>}</div>
         <div className="text-sm sm:text-base text-gray-500 dark:text-gray-400">{location}</div>
         <div className="text-xs sm:text-sm text-gray-400 dark:text-gray-500 mt-1">{time}</div>
       </div>
     </div>
     {!isCurrent && (
       <div className="w-full sm:w-auto">
-        <Button variant="outline" size="sm" className="mt-3 sm:mt-0 sm:ml-4 w-full sm:w-auto border-red-200 dark:border-red-700 text-red-600 dark:text-red-400">{t('logout') || 'Đăng xuất'}</Button>
+        <Button variant="outline" size="sm" className="mt-3 sm:mt-0 sm:ml-4 w-full sm:w-auto border-red-200 dark:border-red-700 text-red-600 dark:text-red-400">{t('logout')}</Button>
       </div>
     )}
   </div>
@@ -54,9 +58,8 @@ export const TimeZoneSelector: React.FC<{
   <div className="mb-4">
     {label && <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{label}</label>}
     <TimezoneSelect
-      // @ts-expect-error react-timezone-select accepts string or ITimezone
-      value={value}
-      onChange={onChange}
+      value={((value ?? '') as ITimezone)}
+      onChange={(tz) => onChange?.(tz)}
       className="w-full"
       styles={{
         control: (provided) => ({

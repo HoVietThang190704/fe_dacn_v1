@@ -57,8 +57,8 @@ export const useManagedOrdersViewModel = ({
       setOrders(result.orders);
       setPagination(result.pagination);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Không thể tải danh sách đơn hàng';
-      setError(message);
+    const message = err instanceof Error ? err.message : 'errors.loadOrders';
+    setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -103,9 +103,9 @@ export const useManagedOrdersViewModel = ({
         setUpdateError(null);
         const updated = await updateManagedOrderStatusUseCase.execute(orderId, payload);
         setOrders((prev) => prev.map((order) => (order.id === updated.id ? updated : order)));
-        setSuccessMessage('Cập nhật trạng thái đơn hàng thành công');
+        setSuccessMessage('success.statusUpdated');
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Không thể cập nhật trạng thái đơn hàng';
+        const message = err instanceof Error ? err.message : 'errors.updateStatus';
         setUpdateError(message);
       } finally {
         setUpdatingOrderId(null);

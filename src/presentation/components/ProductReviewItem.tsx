@@ -3,9 +3,7 @@ import Image from 'next/image';
 import { ProductReview } from '@/domain/entities/ProductReview';
 import { StarRatingDisplay } from '@/presentation/components/ui/StarRating';
 import { formatRelativeTime } from '@/presentation/lib/formatters';
-import { useTranslations } from 'next-intl';
-
-type TranslatorFn = ReturnType<typeof useTranslations>;
+import { useTranslations, useLocale } from 'next-intl';
 interface Props {
   review: ProductReview;
   level?: number;
@@ -17,8 +15,6 @@ interface Props {
   isSubmittingReview: boolean;
   onSubmitReply: (event: React.FormEvent<HTMLFormElement>, parent: ProductReview) => Promise<void>;
   onDeleteReview: (reviewId: string) => Promise<void>;
-  tProducts: TranslatorFn;
-  tFav: TranslatorFn;
 }
 
 export const ProductReviewItem: React.FC<Props> = ({
@@ -32,9 +28,9 @@ export const ProductReviewItem: React.FC<Props> = ({
   isSubmittingReview,
   onSubmitReply,
   onDeleteReview,
-  tProducts,
-  tFav
 }) => {
+  const t = useTranslations('product');
+  const locale = useLocale();
   const isOwner = userId === review.userId;
   const canReply = level < (Number(process.env.NEXT_PUBLIC_MAX_REVIEW_LEVELS) || 2);
 
@@ -58,8 +54,8 @@ export const ProductReviewItem: React.FC<Props> = ({
       <div className="flex-1 space-y-2">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <p className="font-semibold text-gray-900 text-sm sm:text-base">{review.user?.userName || 'Người dùng ẩn danh'}</p>
-            <p className="text-xs text-gray-500">{formatRelativeTime(review.createdAt)}</p>
+            <p className="font-semibold text-gray-900 text-sm sm:text-base">{review.user?.userName || (t('anonymousUser') || 'Anonymous')}</p>
+            <p className="text-xs text-gray-500">{formatRelativeTime(review.createdAt, locale)}</p>
           </div>
           {level === 0 && review.rating !== undefined && (
             <div className="flex items-center gap-2">
@@ -80,7 +76,7 @@ export const ProductReviewItem: React.FC<Props> = ({
               }}
               className="font-medium text-orange-500 hover:text-orange-600"
             >
-              {tProducts('reply') || 'Trả lời'}
+              {t('reply') || 'Reply'}
             </button>
           )}
           {isOwner && (
@@ -88,7 +84,7 @@ export const ProductReviewItem: React.FC<Props> = ({
               onClick={() => onDeleteReview(review.id)}
               className="font-medium text-red-500 hover:text-red-600"
             >
-              {tProducts('delete') || 'Xóa'}
+              {t('delete') || 'Delete'}
             </button>
           )}
         </div>
@@ -99,7 +95,7 @@ export const ProductReviewItem: React.FC<Props> = ({
               value={replyContent}
               onChange={(event) => setReplyContent(event.target.value)}
               rows={3}
-              placeholder={tProducts('replyPlaceholder') || 'Viết phản hồi của bạn...'}
+              placeholder={t('replyPlaceholder') || 'Write a reply...'}
               className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               disabled={isSubmittingReview}
             />
@@ -109,7 +105,7 @@ export const ProductReviewItem: React.FC<Props> = ({
                 className="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 disabled:opacity-50"
                 disabled={isSubmittingReview}
               >
-                {isSubmittingReview ? (tProducts('loading') || 'Đang gửi...') : (tProducts('submit') || 'Gửi phản hồi')}
+                {isSubmittingReview ? (t('replyLoading') || 'Sending...') : (t('submitReply') || 'Submit')}
               </button>
               <button
                 type="button"
@@ -119,7 +115,7 @@ export const ProductReviewItem: React.FC<Props> = ({
                 }}
                 className="px-4 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50"
               >
-                {tProducts('cancel') || 'Hủy'}
+                {t('cancel') || 'Cancel'}
               </button>
             </div>
           </form>
@@ -140,8 +136,6 @@ export const ProductReviewItem: React.FC<Props> = ({
                 isSubmittingReview={isSubmittingReview}
                 onSubmitReply={onSubmitReply}
                 onDeleteReview={onDeleteReview}
-                tProducts={tProducts}
-                tFav={tFav}
               />
             ))}
           </div>

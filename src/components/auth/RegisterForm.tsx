@@ -96,7 +96,7 @@ export default function RegisterForm() {
             <div className="min-h-screen flex items-center justify-center bg-[var(--background)] font-[var(--font-sans)] relative p-4 sm:p-6 md:p-8">
                 <div className="fixed inset-0 z-0">
                 <Image
-                    src="/img/background1.png"
+                    src="/img/Background1.png"
                     alt="Register Background"
                     fill
                     className="object-cover"

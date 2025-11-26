@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { MenuButton, UserDropdown } from '@/components/ui';
@@ -9,18 +9,39 @@ import { ICONS } from '@/shared/constants/images';
 import { useCart } from '@/shared/hooks/useCart';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useNotificationsSummary } from '@/shared/hooks/useNotificationsSummary';
+import { useSearchSuggestions } from '@/shared/hooks/useSearchSuggestions';
+import { SearchSuggestionDropdown } from '@/components/search/SearchSuggestionDropdown';
+import type { ProductSuggestion } from '@/lib/api';
 const SearchBar = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
   const t = useTranslations('navbar');
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
   const locale = (params?.locale as string) ?? 'vi';
+  const inputWrapperRef = useRef<HTMLDivElement>(null);
+  const { suggestions, isLoading: isSuggesting, requestSuggestions, clearSuggestions } = useSearchSuggestions({ limit: 6 });
 
   useEffect(() => {
     const current = searchParams.get('q') ?? '';
     setSearchQuery(current);
   }, [searchParams]);
+
+  useEffect(() => {
+    requestSuggestions(searchQuery);
+  }, [searchQuery, requestSuggestions]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (inputWrapperRef.current && !inputWrapperRef.current.contains(event.target as Node)) {
+        setIsFocused(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -32,15 +53,42 @@ const SearchBar = () => {
     router.push(`/${locale}/main/search${keyword ? `?${query.toString()}` : ''}`);
   };
 
+  const trimmedQuery = searchQuery.trim();
+  const shouldShowSuggestions = isFocused && trimmedQuery.length >= 1 && (isSuggesting || suggestions.length > 0);
+
+  const handleSuggestionSelect = (item: ProductSuggestion) => {
+    setSearchQuery(item.name ?? '');
+    clearSuggestions();
+    setIsFocused(false);
+    router.push(`/${locale}/main/products/${encodeURIComponent(item.id)}`);
+  };
+
+  const handleViewAll = () => {
+    if (!trimmedQuery) return;
+    const query = new URLSearchParams({ q: trimmedQuery });
+    router.push(`/${locale}/main/search?${query.toString()}`);
+    setIsFocused(false);
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="relative flex-1 max-w-3xl mx-2 sm:mx-4 md:mx-6">
-      <div className="relative">
+    <form onSubmit={handleSubmit} className="relative flex-1 max-w-3xl -mx-1 -ml-3 sm:mx-4 md:mx-6">
+      <div className="relative" ref={inputWrapperRef}>
         <input
           type="search"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={t('searchPlaceholder')}
-          className="w-full px-3 sm:px-4 py-2 sm:py-2.5 pl-9 sm:pl-10 pr-12 sm:pr-14 text-sm sm:text-base text-foreground bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm"
+          onFocus={() => setIsFocused(true)}
+          aria-label={t('searchButton')}
+          className="w-full px-3 sm:px-4 py-2 sm:py-2.5 pl-2 sm:pl-4 pr-2 sm:pr-4 text-sm sm:text-base text-foreground bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm"
+        />
+        <SearchSuggestionDropdown
+          visible={shouldShowSuggestions}
+          query={trimmedQuery}
+          suggestions={suggestions}
+          isLoading={isSuggesting}
+          onSelect={handleSuggestionSelect}
+          onViewAll={handleViewAll}
         />
       </div>
     </form>

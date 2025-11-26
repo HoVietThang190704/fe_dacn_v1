@@ -31,8 +31,6 @@ export const PostEditPage: React.FC<PostEditPageProps> = ({ postId }) => {
     handleCancel,
   } = usePostEdit(postId);
 
-  // All logic moved to usePostEdit hook
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">

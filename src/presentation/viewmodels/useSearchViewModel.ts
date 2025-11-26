@@ -6,7 +6,7 @@ import type { SearchQueryParams } from '@/domain/repositories/ISearchRepository'
 import { SearchUseCase } from '@/domain/usecases/SearchUseCase';
 
 export const DEFAULT_SEARCH_LIMITS: Required<SearchQueryParams> = {
-  productsLimit: 6,
+  productsLimit: 10,
   postsLimit: 5,
   usersLimit: 6,
 };

@@ -2,6 +2,7 @@
 
 import { useRef } from 'react';
 import Image from 'next/image';
+import { ICONS } from '@/shared/constants/images';
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { Button } from './Button';
 
@@ -60,7 +61,7 @@ export function GoogleSignInButton({
         className={`flex items-center justify-center gap-2 ${className}`}
       >
         <Image 
-          src="/icons/google.png"
+          src={ICONS.GOOGLE}
           alt="Google"
           width={20}
           height={20}

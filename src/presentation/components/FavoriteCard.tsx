@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ICONS } from '@/shared/constants/images';
 import { Favorite } from '@/domain/entities/Favorite';
 
 type FavoriteCardProps = {
@@ -12,6 +13,7 @@ type FavoriteCardProps = {
 
 const FavoriteCard: React.FC<FavoriteCardProps> = ({ favorite, onRemove, isMutating }) => {
   const t = useTranslations('favorites');
+  const tProductCard = useTranslations('productCard');
   const product = favorite.product;
   const productId = product?.id || favorite.productId;
   const fallbackName = product?.name || t('discover');
@@ -23,7 +25,6 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({ favorite, onRemove, isMutat
   const isInStock = product?.inStock ?? (typeof stockQuantity === 'number' ? stockQuantity > 0 : true);
   const productLink = productId ? `/main/products/${productId}` : '#';
 
-  // Additional product info
   const sellerName = product?.owner?.userName || product?.owner?.email;
 
   const handleRemove = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -45,17 +46,17 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({ favorite, onRemove, isMutat
       <button
         type="button"
         aria-label={t('removeAria')}
-        className="absolute top-2 right-2 z-10 w-7 h-7 bg-white rounded-full shadow flex items-center justify-center hover:bg-red-50 transition-colors disabled:opacity-60"
+        className="absolute top-2 right-2 z-10 w-7 h-7 bg-white/50 rounded-full shadow flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-60"
         onClick={handleRemove}
         disabled={isMutating || !onRemove}
       >
-        <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden>
-          <path
-            fillRule="evenodd"
-            d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-            clipRule="evenodd"
-          />
-        </svg>
+        <Image
+          src={ICONS.CROSS}
+          alt={String(t('removeAria'))}
+          width={12}
+          height={12}
+          className="w-3 h-3 text-red-500"
+        />
       </button>
       <Link
         href={productLink}
@@ -76,8 +77,9 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({ favorite, onRemove, isMutat
             className="w-full h-full object-cover"
           />
           {discount && (
-            <div className="absolute top-0 right-0 bg-yellow-400 text-xs font-bold px-1.5 py-0.5">
-              {discount}% GIẢM
+            <div className="absolute top-0 right-0 bg-yellow-400 text-xs font-bold px-1.5 py-0.5 flex items-center gap-1">
+              <Image src={ICONS.THUNDER} alt={String(tProductCard('discountLabel', { discount }))} width={14} height={14} className="w-3 h-3" />
+              <span>{tProductCard('discountLabel', { discount })}</span>
             </div>
           )}
           {!isInStock && (
@@ -110,7 +112,7 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({ favorite, onRemove, isMutat
             )}
           </div>
           {sellerName && (
-            <p className="text-xs text-gray-500 mb-1detail">
+            <p className="text-xs text-gray-500 mb-1">
                {sellerName}
             </p>
           )}
@@ -120,7 +122,7 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({ favorite, onRemove, isMutat
           onClick={(event) => {
             event.stopPropagation();
             event.preventDefault();
-            // TODO: integrate add to cart
+            // remove from favorites or add to cart behavior to be implemented by parent
           }}
           disabled={!isInStock}
           className={`w-full mt-2 py-1.5 text-xs rounded transition-colors ${isInStock ? 'bg-orange-500 text-white hover:bg-orange-600' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}

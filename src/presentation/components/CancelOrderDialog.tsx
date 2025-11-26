@@ -1,9 +1,10 @@
-'use client';
+ 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { translateSafely } from '../utils/translate';
 import { ORDER_CONFIG } from '../config/orderConfig';
+import { ICONS } from '../../shared/constants/images';
 
  
 
@@ -36,17 +37,17 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
 
   const handleConfirm = () => {
     if (!reason.trim()) {
-      setLocalError(translateSafely(t, 'validation.reasonRequired', 'Vui lòng nhập lý do hủy đơn'));
+      setLocalError(t('validation.reasonRequired'));
       return;
     }
 
     if (reason.length < ORDER_CONFIG.CANCEL_REASON_MIN_LENGTH) {
-      setLocalError(translateSafely(t, 'validation.reasonTooShort', `Lý do hủy phải tối thiểu ${ORDER_CONFIG.CANCEL_REASON_MIN_LENGTH} ký tự`));
+      setLocalError(t('validation.reasonTooShort'));
       return;
     }
 
     if (reason.length > ORDER_CONFIG.CANCEL_REASON_MAX_LENGTH) {
-      setLocalError(translateSafely(t, 'validation.reasonTooLong', `Lý do hủy không được vượt quá ${ORDER_CONFIG.CANCEL_REASON_MAX_LENGTH} ký tự`));
+      setLocalError(t('validation.reasonTooLong'));
       return;
     }
 
@@ -63,25 +64,22 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
         
         <div className="mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">
-            {translateSafely(t, 'dialog.cancelTitle', 'Hủy đơn hàng')}
-          </h2>
-          <p className="mt-1 text-sm text-gray-500">
-            {translateSafely(t, 'dialog.cancelSubtitle', 'Đơn hàng')} #{orderNumber}
-          </p>
+          <h2 className="text-lg font-semibold text-gray-900">{t('dialog.cancelTitle')}</h2>
+          <p className="mt-1 text-sm text-gray-500">{t('dialog.cancelSubtitle')} #{orderNumber}</p>
         </div>
 
         
         <div className="mb-4 rounded-lg bg-orange-50 p-3">
-          <p className="text-sm text-orange-700">
-            ⚠️ {translateSafely(t, 'dialog.cancelWarning', 'Việc hủy đơn hàng không thể được hoàn tác. Vui lòng xác nhận lý do hủy.')}
+          <p className="text-sm text-orange-700 flex items-start gap-2">
+            <Image src={ICONS.WARNING} alt={t('dialog.warningAlt')} width={20} height={20} className="w-5 h-5 flex-shrink-0" unoptimized />
+            <span>{t('dialog.cancelWarning')}</span>
           </p>
         </div>
 
         
         <div className="mb-4">
           <label htmlFor="cancel-reason" className="block text-sm font-medium text-gray-700">
-            {translateSafely(t, 'dialog.reasonLabel', 'Lý do hủy đơn')} *
+            {t('dialog.reasonLabel')} *
           </label>
           <textarea
             id="cancel-reason"
@@ -90,22 +88,23 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
               setReason(e.target.value);
               setLocalError(null);
             }}
-            placeholder={translateSafely(t, 'dialog.reasonPlaceholder', 'Vui lòng nhập lý do hủy đơn (tối thiểu 10 ký tự)...')}
+            placeholder={t('dialog.reasonPlaceholder')}
             className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm placeholder-gray-400 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
             rows={4}
             disabled={isLoading}
             maxLength={ORDER_CONFIG.CANCEL_REASON_MAX_LENGTH}
           />
           <div className="mt-1 text-xs text-gray-500">
-            {reason.length}/{ORDER_CONFIG.CANCEL_REASON_MAX_LENGTH} {translateSafely(t, 'dialog.characters', 'ký tự')}
+            {reason.length}/{ORDER_CONFIG.CANCEL_REASON_MAX_LENGTH} {t('dialog.characters')}
           </div>
         </div>
 
         
         {(localError || error) && (
           <div className="mb-4 rounded-lg bg-red-50 p-3">
-            <p className="text-sm text-red-600">
-              ❌ {localError || error}
+            <p className="text-sm text-red-600 flex items-start gap-2">
+              <Image src={ICONS.CROSS} alt={t('dialog.errorAlt')} width={18} height={18} className="w-4 h-4 flex-shrink-0" unoptimized />
+              <span>{localError || error}</span>
             </p>
           </div>
         )}
@@ -117,7 +116,7 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
             disabled={isLoading}
             className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
           >
-            {translateSafely(t, 'dialog.cancel', 'Hủy bỏ')}
+            {t('dialog.cancel')}
           </button>
           <button
             onClick={handleConfirm}
@@ -127,10 +126,10 @@ export const CancelOrderDialog: React.FC<CancelOrderDialogProps> = ({
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-                {translateSafely(t, 'dialog.cancelling', 'Đang hủy...')}
+                {t('dialog.cancelling')}
               </span>
-            ) : (
-              translateSafely(t, 'dialog.confirmCancel', 'Xác nhận hủy')
+              ) : (
+                t('dialog.confirmCancel')
             )}
           </button>
         </div>

@@ -87,7 +87,8 @@ export const API_ENDPOINTS = {
   POSTS_SEARCH: '/api/posts/search/query',
   POSTS_TRENDING: '/api/posts/trending/now',
   // Search
-  GLOBAL_SEARCH: '/api/search',
+  GLOBAL_SEARCH: '/api/v1/search',
+  SEARCH_SUGGEST: '/api/search/suggest',
   POST_DETAIL: (postId: string) => `/api/posts/${postId}`,
   CREATE_POST: '/api/posts',
   UPDATE_POST: (postId: string) => `/api/posts/${postId}`,

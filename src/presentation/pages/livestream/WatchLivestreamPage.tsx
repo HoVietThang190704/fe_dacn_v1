@@ -12,8 +12,11 @@ import { useAuth } from '@/shared/hooks/useAuth';
 import { API_CONFIG } from '@/shared/constants/api';
 import { cleanupAgoraConnection } from '@/shared/utils/livestream';
 import { ICONS } from '@/shared/constants/images';
+import LivestreamHeader from './components/watchlivestreampage/LivestreamHeader';
+import LivestreamProductList from './components/watchlivestreampage/LivestreamProductList';
+import LivestreamPlaceholder from './components/watchlivestreampage/LivestreamPlaceholder';
 import { useLivestreamProducts } from '@/shared/hooks/useLivestreamProducts';
-import { Link } from '@/i18n/routing';
+ 
 
 interface WatchLivestreamPageProps {
   livestreamId: string;
@@ -29,22 +32,23 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
   const [error, setError] = useState('');
   const [isJoined, setIsJoined] = useState(false);
   const [viewerCount, setViewerCount] = useState(0);
-
-  // Socket.IO states
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const socketRef = useRef<Socket | null>(null);
-
   const clientRef = useRef<IAgoraRTCClient | null>(null);
-  const remoteVideoRef = useRef<HTMLDivElement>(null);
-
+  const remoteVideoRef = useRef<HTMLDivElement | null>(null);
   const currencyFormatter = React.useMemo(() => {
     const intlLocale = locale === 'en' ? 'en-US' : 'vi-VN';
     return new Intl.NumberFormat(intlLocale, {
       style: 'currency',
       currency: 'VND',
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 0
     });
   }, [locale]);
+
+  if (!ICONS.WARNING) throw new Error('Missing icon: ICONS.WARNING');
+  if (!ICONS.ARROW_LEFT) throw new Error('Missing icon: ICONS.ARROW_LEFT');
+  if (!ICONS.PLACEHOLDER) throw new Error('Missing icon: ICONS.PLACEHOLDER');
+  if (!ICONS.GOODS) throw new Error('Missing icon: ICONS.GOODS');
 
   const {
     products: linkedProducts,
@@ -54,103 +58,6 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
 
   const shouldShowProductPanel =
     (livestream?.products && livestream.products.length > 0) || isLoadingLinkedProducts || Boolean(linkedProductsError);
-
-  const renderProductList = (variant: 'grid' | 'list') => {
-    if (isLoadingLinkedProducts) {
-      return (
-        <div className="text-sm text-gray-400 py-2">
-          {t('watch.loadingProducts')}
-        </div>
-      );
-    }
-
-    if (linkedProductsError) {
-      return (
-        <div className="text-sm text-red-400 py-2">
-          {t('watch.productsError')}
-        </div>
-      );
-    }
-
-    if (!linkedProducts.length) {
-      return (
-        <div className="text-sm text-gray-400 py-2">
-          {t('watch.noProducts')}
-        </div>
-      );
-    }
-
-    if (variant === 'grid') {
-      return (
-        <div className="grid grid-cols-2 gap-3">
-          {linkedProducts.map((product) => (
-            <Link
-              key={product.id}
-              href={`/main/products/${product.id}`}
-              className="bg-gray-700 rounded-lg p-3 hover:bg-gray-600 transition flex flex-col gap-2"
-            >
-              <div className="w-full aspect-square rounded-md overflow-hidden bg-gray-600 relative">
-                {product.thumbnail ? (
-                  <Image
-                    src={product.thumbnail}
-                    alt={product.name}
-                    fill
-                    unoptimized
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-2xl">
-                    <Image src={ICONS.GOODS} alt="product" width={48} height={48} unoptimized />
-                  </div>
-                )}
-              </div>
-              <div>
-                <p className="font-semibold text-sm truncate">{product.name}</p>
-                <p className="text-xs text-gray-300">{currencyFormatter.format(product.price ?? 0)}</p>
-              </div>
-              <span className="text-xs text-purple-300 font-medium mt-auto">{t('watch.viewProduct')}</span>
-            </Link>
-          ))}
-        </div>
-      );
-    }
-
-    return (
-      <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
-        {linkedProducts.map((product) => (
-          <Link
-            key={product.id}
-            href={`/main/products/${product.id}`}
-            className="flex items-center gap-3 bg-gray-700 rounded-lg p-2 hover:bg-gray-600 transition"
-          >
-            <div className="w-12 h-12 rounded-md overflow-hidden bg-gray-600 relative flex-shrink-0">
-              {product.thumbnail ? (
-                <Image
-                  src={product.thumbnail}
-                  alt={product.name}
-                  fill
-                  unoptimized
-                  className="object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-xl">
-                  <Image src={ICONS.GOODS} alt="product" fill unoptimized className="object-contain" />
-                </div>
-              )}
-              
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm truncate">{product.name}</p>
-              <p className="text-xs text-gray-300 truncate">{currencyFormatter.format(product.price ?? 0)}</p>
-            </div>
-            <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-        ))}
-      </div>
-    );
-  };
   
 
   const joinLivestream = useCallback(async (data: Livestream) => {
@@ -326,12 +233,11 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
         <div className="text-center">
-          <div className="text-6xl mb-4">⚠️</div>
+          <div className="text-6xl mb-4">
+            <Image src={ICONS.WARNING} alt={t('errors.livestreamNotFound')} width={80} height={80} unoptimized />
+          </div>
           <p className="text-xl text-white mb-6">{error || t('errors.livestreamNotFound')}</p>
-          <button
-            onClick={leaveLivestream}
-            className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition"
-          >
+          <button onClick={leaveLivestream} className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition">
             {t('backToList')}
           </button>
         </div>
@@ -339,26 +245,22 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
     );
   }
 
-  const hostAvatar = livestream.hostAvatar || '/icons/avatar.jpg';
+  const hostAvatar = livestream.hostAvatar || ICONS.PLACEHOLDER;
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <div className="bg-gray-800 border-b border-gray-700 px-4 sm:px-6 py-3 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <button
-            onClick={leaveLivestream}
-            className="flex items-center text-gray-300 hover:text-white transition"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            <span className="hidden sm:inline">{t('back')}</span>
-          </button>
-
+          <div>
+            <button onClick={leaveLivestream} className="flex items-center text-gray-300 hover:text-white transition">
+              <Image src={ICONS.ARROW_LEFT} alt={t('back')} width={20} height={20} className="w-5 h-5 mr-2" unoptimized />
+              <span className="hidden sm:inline">{t('back')}</span>
+            </button>
+          </div>
           {livestream.status === LivestreamStatus.LIVE && (
             <span className="px-3 py-1 bg-red-500 text-white rounded-full text-sm font-semibold flex items-center gap-2 animate-pulse">
-              <span className="w-2 h-2 bg-white rounded-full"></span>
-              LIVE
+              <span className="w-2 h-2 bg-white rounded-full" />
+              {t('liveBadge')}
             </span>
           )}
         </div>
@@ -366,71 +268,18 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
 
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row lg:gap-6">
-          <div className="flex-1 lg:max-w-4xl">
+          <div className="flex-1 lg:max-w-4xl lg:ml-3">
             <div className="bg-gray-800 border-b border-gray-700 lg:rounded-t-xl lg:mt-4 px-4 sm:px-6 py-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <Image
-                    src={hostAvatar}
-                    alt={livestream.hostName}
-                    width={48}
-                    height={48}
-                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover ring-2 ring-purple-500"
-                  />
-                  <div>
-                    <p className="font-semibold text-base sm:text-lg">{livestream.hostName}</p>
-                    <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-400">
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
-                      </svg>
-                      <span className="font-semibold">{viewerCount}</span>
-                      <span>{t('viewers')}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-semibold transition">
-                  {t('watch.follow')}
-                </button>
-              </div>
-
-              <h1 className="text-lg sm:text-xl font-bold mb-2">{livestream.title}</h1>
-              
-              {livestream.description && (
-                <p className="text-sm text-gray-300 line-clamp-2">
-                  {livestream.description}
-                </p>
-              )}
+              <LivestreamHeader livestream={livestream} viewerCount={viewerCount} hostAvatar={hostAvatar} onLeave={leaveLivestream} />
             </div>
 
-            <div className="bg-black lg:rounded-b-xl overflow-hidden aspect-video relative">
+            <div className="bg-black lg:rounded-b-xl overflow-hidden aspect-video relative -mt-3">
               {livestream.status === LivestreamStatus.LIVE && isJoined ? (
                 <div ref={remoteVideoRef} className="w-full h-full"></div>
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
                   <div className="text-center px-4">
-                    {livestream.status === LivestreamStatus.SCHEDULED ? (
-                      <>
-                        <div className="text-4xl sm:text-6xl mb-4">📅</div>
-                        <p className="text-lg sm:text-xl mb-2">{t('watch.scheduled')}</p>
-                        {livestream.startTime && (
-                          <p className="text-sm sm:text-base text-gray-400">
-                            {t('watch.startTime')}: {new Date(livestream.startTime).toLocaleString(locale)}
-                          </p>
-                        )}
-                      </>
-                    ) : livestream.status === LivestreamStatus.ENDED ? (
-                      <>
-                        <div className="text-4xl sm:text-6xl mb-4">📺</div>
-                        <p className="text-lg sm:text-xl mb-2">{t('watch.ended')}</p>
-                        <p className="text-sm sm:text-base text-gray-400">{t('watch.thankYou')}</p>
-                      </>
-                    ) : (
-                      <>
-                        <div className="text-4xl sm:text-6xl mb-4">⏳</div>
-                        <p className="text-lg sm:text-xl">{t('watch.connecting')}</p>
-                      </>
-                    )}
+                    <LivestreamPlaceholder status={livestream.status} startTime={livestream.startTime} />
                   </div>
                 </div>
               )}
@@ -439,10 +288,16 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
             {shouldShowProductPanel && (
               <div className="lg:hidden bg-gray-800 border-t border-gray-700 px-4 py-4">
                 <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <Image src={ICONS.GOODS} alt="products" width={22} height={22} className="w-5 h-5" unoptimized />
+                  <Image src={ICONS.GOODS} alt={t('productsAlt')} width={22} height={22} className="w-5 h-5" unoptimized />
                   <span>{t('watch.products')}</span>
                 </h3>
-                {renderProductList('grid')}
+                <LivestreamProductList
+                  products={linkedProducts}
+                  isLoading={isLoadingLinkedProducts}
+                  error={linkedProductsError}
+                  variant="grid"
+                  formatPrice={(n) => currencyFormatter.format(n ?? 0)}
+                />
               </div>
             )}
           </div>
@@ -461,10 +316,16 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
               {shouldShowProductPanel && (
                 <div className="hidden lg:block bg-gray-800 rounded-xl p-4 mt-4">
                   <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <Image src={ICONS.GOODS} alt="products" width={20} height={20} className="w-5 h-5" unoptimized />
+                    <Image src={ICONS.GOODS} alt={t('productsAlt')} width={20} height={20} className="w-5 h-5" unoptimized />
                     <span>{t('watch.products')}</span>
                   </h3>
-                  {renderProductList('list')}
+                  <LivestreamProductList
+                    products={linkedProducts}
+                    isLoading={isLoadingLinkedProducts}
+                    error={linkedProductsError}
+                    variant="list"
+                    formatPrice={(n) => currencyFormatter.format(n ?? 0)}
+                  />
                 </div>
               )}
             </div>

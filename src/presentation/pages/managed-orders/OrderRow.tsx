@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Order, OrderStatus } from '@/domain/entities/Order';
 import { useFormatCurrency } from '@/lib/utils';
 import { useTranslations, useLocale } from 'next-intl';
+import { translateSafely } from '../../utils/translate';
 
 type OrderRowProps = {
   order: Order;
@@ -27,9 +28,9 @@ export const OrderRow = ({
   const formatCurrency = useFormatCurrency();
 
   const customerName = order.customer?.name || order.shippingAddress?.recipientName || t('labels.noProduct');
-  const customerContact = order.customer?.phone || order.shippingAddress?.phone || order.customer?.email || '—';
+  const customerContact = order.customer?.phone || order.shippingAddress?.phone || order.customer?.email || t('labels.placeholder', { defaultValue: '—' });
   const createdAt = useMemo(() => {
-    if (!order.createdAt) return '—';
+    if (!order.createdAt) return t('labels.placeholder', { defaultValue: '—' });
     try {
       return new Intl.DateTimeFormat(locale, { dateStyle: 'short', timeStyle: 'short' }).format(new Date(order.createdAt));
     } catch {
@@ -39,15 +40,15 @@ export const OrderRow = ({
 
   return (
     <tr className="align-top">
-      <td className="px-4 py-4 font-semibold text-gray-900">#{order.orderNumber}</td>
+      <td className="px-4 py-4 font-semibold text-gray-900">{t('labels.orderNumberWithHash', { orderNumber: order.orderNumber, defaultValue: `#${order.orderNumber}` })}</td>
       <td className="px-4 py-4 text-sm text-gray-600">
         <div className="font-medium text-gray-900">{customerName}</div>
         <div className="text-xs text-gray-500">{customerContact}</div>
       </td>
       <td className="px-4 py-4 text-sm text-gray-700">{formatCurrency(order.total)}</td>
       <td className="px-4 py-4 text-sm text-gray-600">
-        <div className="font-medium capitalize text-gray-700">{order.paymentMethod}</div>
-        <div className="text-xs uppercase text-gray-400">{order.paymentStatus}</div>
+        <div className="font-medium capitalize text-gray-700">{translateSafely(t, `payment.${order.paymentMethod}`, order.paymentMethod)}</div>
+        <div className="text-xs uppercase text-gray-400">{translateSafely(t, `status.${(order.paymentStatus ?? '').toLowerCase()}`, order.paymentStatus ?? '')}</div>
       </td>
       <td className="px-4 py-4 text-sm text-gray-600">
         <select

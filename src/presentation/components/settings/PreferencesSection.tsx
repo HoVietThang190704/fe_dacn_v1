@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui';
 import { ToggleSwitch, TimeZoneSelector } from './SharedSettingsComponents';
+import type { ITimezone } from 'react-timezone-select';
 
 const PreferencesSection: React.FC = () => {
   const t = useTranslations('settings');
@@ -64,9 +65,9 @@ const PreferencesSection: React.FC = () => {
         <TimeZoneSelector
           label={t('pref_timezone')}
           value={selectedTimezone}
-          onChange={(tz) => {
-            // @ts-expect-error react-timezone-select ITimezone has value property
-            setSelectedTimezone(tz.value);
+          onChange={(tz: ITimezone) => {
+            const tzValue = typeof tz === 'string' ? tz : tz?.value;
+            setSelectedTimezone(tzValue ?? '');
           }}
         />
       </div>
