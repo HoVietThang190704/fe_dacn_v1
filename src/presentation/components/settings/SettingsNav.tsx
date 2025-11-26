@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
+import { ICONS } from '@/shared/constants/images';
 
 type TabKey = 'profile' | 'security' | 'notifications' | 'preferences';
 
@@ -16,6 +18,7 @@ interface Props {
 }
 
 export const SettingsNav: React.FC<Props> = ({ tabs, active, onChange }) => {
+  const t = useTranslations('settings');
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -40,25 +43,23 @@ export const SettingsNav: React.FC<Props> = ({ tabs, active, onChange }) => {
       <aside className="hidden lg:block lg:w-1/4">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-6">
           <nav className="space-y-2">
-            {tabs.map((t) => (
+            {tabs.map((tab) => (
               <button
-                key={t.key}
-                onClick={() => onChange(t.key)}
+                key={tab.key}
+                onClick={() => onChange(tab.key)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors text-sm ${
-                  active === t.key
+                  active === tab.key
                     ? 'bg-green-100 text-green-700 border-l-4 border-green-500'
                     : 'text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                {t.icon && <Image src={t.icon} alt={t.label} width={20} height={20} className="w-5 h-5" />}
-                <span className="font-medium">{t.label}</span>
+                <Image src={tab.icon || (tab.key === 'profile' ? ICONS.USERS : tab.key === 'security' ? ICONS.SETTINGS : tab.key === 'notifications' ? ICONS.BELL : ICONS.PREFERENCES)} alt={tab.label} width={20} height={20} className="w-5 h-5" />
+                <span className="font-medium">{tab.label}</span>
               </button>
             ))}
           </nav>
         </div>
       </aside>
-
-      {/* Mobile dropdown nav to avoid horizontal overflow */}
       <div className="lg:hidden sticky top-16 z-10 left-0 right-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative" ref={containerRef}>
@@ -70,28 +71,26 @@ export const SettingsNav: React.FC<Props> = ({ tabs, active, onChange }) => {
               className="w-full bg-white rounded-lg border border-gray-200 shadow-sm px-4 py-2 flex items-center justify-between gap-2 text-sm"
             >
               <div className="flex items-center gap-3">
-                <span className="text-sm font-medium">{tabs.find((t) => t.key === active)?.label}</span>
+                <span className="text-sm font-medium">{tabs.find((tab) => tab.key === active)?.label}</span>
               </div>
-              <svg className={`w-4 h-4 text-gray-500 transform transition-transform ${isOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="none" stroke="currentColor">
-                <path d="M6 8l4 4 4-4" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <Image src={ICONS.ARROW_RIGHT} alt={isOpen ? t('collapse') : t('expand')} width={16} height={16} className={`w-4 h-4 transform transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isOpen && (
               <div role="menu" className="absolute left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-100 overflow-hidden">
-                {tabs.map((t) => (
+                {tabs.map((tab) => (
                   <button
-                    key={t.key}
+                    key={tab.key}
                     role="menuitem"
                     type="button"
                     onClick={() => {
-                      onChange(t.key);
+                      onChange(tab.key);
                       setIsOpen(false);
                     }}
-                    className={`w-full text-left px-4 py-3 text-sm flex items-center gap-3 hover:bg-gray-50 ${active === t.key ? 'bg-green-50 text-green-700' : 'text-gray-700'}`}
+                    className={`w-full text-left px-4 py-3 text-sm flex items-center gap-3 hover:bg-gray-50 ${active === tab.key ? 'bg-green-50 text-green-700' : 'text-gray-700'}`}
                   >
-                    {t.icon && <Image src={t.icon} alt={t.label} width={18} height={18} className="w-4.5 h-4.5" />}
-                    <span className="truncate">{t.label}</span>
+                    <Image src={tab.icon || (tab.key === 'profile' ? ICONS.USERS : tab.key === 'security' ? ICONS.SETTINGS : tab.key === 'notifications' ? ICONS.BELL : ICONS.PREFERENCES)} alt={tab.label} width={18} height={18} className="w-4.5 h-4.5" />
+                    <span className="truncate">{tab.label}</span>
                   </button>
                 ))}
               </div>

@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
+import { translateSafely } from '../../utils/translate';
 
 export const FilterPill: React.FC<{
   label: string;
@@ -8,7 +10,9 @@ export const FilterPill: React.FC<{
   onClick: () => void;
   count?: number;
   isLoading?: boolean;
-}> = ({ label, active, onClick, count, isLoading }) => (
+}> = ({ label, active, onClick, count, isLoading }) => {
+  const t = useTranslations('orders');
+  return (
   <button
     onClick={onClick}
     className={`inline-flex snap-start items-center gap-2 rounded-full border px-2 py-1 text-xs font-medium transition-colors sm:px-3 sm:py-1 sm:text-sm whitespace-nowrap ${
@@ -23,9 +27,10 @@ export const FilterPill: React.FC<{
         active ? 'bg-white text-orange-600' : 'bg-white text-gray-600'
       }`}
     >
-      {isLoading ? '…' : count ?? 0}
+      {isLoading ? translateSafely(t, 'loading') : count ?? 0}
     </span>
   </button>
-);
+  );
+};
 
 export default FilterPill;

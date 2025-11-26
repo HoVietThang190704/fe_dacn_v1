@@ -19,7 +19,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ userId }) => {
     { key: "profile", label: t("profile") || "Hồ sơ", icon: ICONS.USERS },
     { key: "security", label: t("security") || "Bảo mật", icon: ICONS.SETTINGS },
     { key: "notifications", label: t("notifications") || "Thông báo", icon: ICONS.BELL },
-    { key: "preferences", label: t("preferences") || "Tùy chọn", icon: ICONS.SETTINGS },
+    { key: "preferences", label: t("preferences") || "Tùy chọn", icon: ICONS.PREFERENCES },
   ];
 
   return (

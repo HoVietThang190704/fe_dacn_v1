@@ -32,6 +32,10 @@ export default function RegisterForm() {
         console.log('Facebook register clicked - not implemented yet');
     };
 
+    const handleGoogleSuccess = async (idToken: string) => {
+        await loginWithGoogle(idToken);
+    };
+
     const validateForm = () => {
         const errors: Record<string, string> = {};
         if(!fullName.trim()){
@@ -92,7 +96,7 @@ export default function RegisterForm() {
             <div className="min-h-screen flex items-center justify-center bg-[var(--background)] font-[var(--font-sans)] relative p-4 sm:p-6 md:p-8">
                 <div className="fixed inset-0 z-0">
                 <Image
-                    src="/img/background1.png"
+                    src="/img/Background1.png"
                     alt="Register Background"
                     fill
                     className="object-cover"
@@ -212,9 +216,8 @@ export default function RegisterForm() {
 
                 <div className="grid grid-cols-2 gap-3">
                     <GoogleSignInButton 
-                        onClick={loginWithGoogle}
+                        onSuccess={handleGoogleSuccess}
                         disabled={isLoading || registrationSuccess}
-                        isLoading={isLoading}
                         className="w-full"
                     />
 

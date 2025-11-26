@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
+import { ICONS } from '@/shared/constants/images';
+import { useTranslations } from 'next-intl';
 import { postCommentContainer } from '@/presentation/di/PostCommentContainer';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { CommentSection } from './CommentSection';
@@ -30,6 +32,8 @@ interface Props {
 
 export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
   useAuth();
+  const tPost = useTranslations('postEditor');
+  const tCommunity = useTranslations('community');
   const [isLoading, setIsLoading] = useState(false);
   const [post, setPost] = useState<ApiPost | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -38,11 +42,7 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
   const touchStartX = useRef<number | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, postId]);
+  
 
   useEffect(() => {
     if (!isOpen) return;
@@ -68,18 +68,23 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
     return () => window.removeEventListener('keydown', handleKey);
   }, [isOpen, post]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
-    const p = await postCommentContainer.postRepository.getPostById(postId);
-    setPost(p as ApiPost);
-  setCurrentImageIndex(0);
+      const p = await postCommentContainer.postRepository.getPostById(postId);
+      setPost(p as ApiPost);
+      setCurrentImageIndex(0);
     } catch (err) {
       console.error('Error loading post detail:', err);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [postId]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    loadData();
+  }, [isOpen, loadData]);
 
   
 
@@ -87,7 +92,7 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 "
+      className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/60 "
       ref={overlayRef}
       onMouseDown={(e) => {
         if (e.target === overlayRef.current) {
@@ -95,23 +100,23 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
         }
       }}
     >
-  <div className="bg-white w-full max-w-4xl max-h-[80vh] lg:max-h-[100vh] overflow-auto rounded-lg shadow-xl relative scrollbar-hide">
-        <button ref={closeBtnRef} onClick={onClose} className="absolute top-3 right-3 rounded-full p-2 hover:bg-gray-100 ">
-          ✕
+  <div className="bg-white w-full h-full sm:h-auto max-h-full sm:max-h-[100vh] sm:max-w-4xl overflow-auto rounded-t-lg sm:rounded-lg shadow-xl relative scrollbar-hide">
+        <button ref={closeBtnRef} onClick={onClose} className="absolute top-3 right-3 rounded-full p-2 hover:bg-gray-100 " aria-label={tPost('close') ?? tCommunity('closeAlt') ?? 'Close'}>
+          <Image src={ICONS.CROSS ?? ICONS.PLACEHOLDER} alt={tPost('close') ?? tCommunity('closeAlt') ?? 'Close'} width={20} height={20} />
         </button>
 
         {isLoading ? (
-          <div className="p-8 text-center">Đang tải...</div>
+          <div className="p-8 text-center">{tPost('loading') ?? 'Loading...'}</div>
         ) : (
-          <div className="p-4">
+          <div className="p-4 sm:p-6 h-full flex flex-col">
             <div className="flex gap-3 items-center mb-4">
                 {(() => {
                   const avatar = post?.user ? (post.user.avatar || post.user.userAvatar || post.user.image) : undefined;
-                  if (avatar) {
+                    if (avatar) {
                     return (
                       <Image
                         src={avatar}
-                        alt={post?.user?.userName || 'User'}
+                        alt={post?.user?.userName || (tCommunity('userFallback') ?? 'User')}
                         width={48}
                         height={48}
                         className="w-12 h-12 rounded-full object-cover"
@@ -119,14 +124,14 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
                     );
                   }
 
-                  return (
+                    return (
                     <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-white">
-                      {post?.user?.userName?.charAt(0)?.toUpperCase() || 'U'}
+                      {post?.user?.userName?.charAt(0)?.toUpperCase() || (tCommunity('userFallback')?.charAt(0)?.toUpperCase() ?? 'U')}
                     </div>
                   );
                 })()}
               <div>
-                <div className="font-semibold">{post?.user?.userName || 'Unknown User'}</div>
+                <div className="font-semibold">{post?.user?.userName || tCommunity('unknownUser')}</div>
                 <div className="text-xs text-gray-500">{new Date(post?.createdAt || Date.now()).toLocaleString()}</div>
               </div>
             </div>
@@ -164,7 +169,7 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
                       <Image
                         key={post!.images![currentImageIndex]}
                         src={post!.images![currentImageIndex]}
-                        alt={`img-${currentImageIndex}`}
+                        alt={tPost('imageAlt', { index: currentImageIndex + 1 })}
                         width={1200}
                         height={800}
                         className="w-full max-h-[60vh] object-contain cursor-pointer transition-transform duration-300"
@@ -183,12 +188,10 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
                             setCurrentImageIndex((idx) => (idx - 1 + post!.images!.length) % post!.images!.length);
                             setTimeout(() => setIsAnimating(false), 250);
                           }}
-                          aria-label="Previous image"
+                          aria-label={tPost('prevImage') ?? 'Previous image'}
                           className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-md flex items-center justify-center"
                         >
-                          <svg className="w-5 h-5 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                          </svg>
+                          <Image src={ICONS.ARROW_LEFT ?? ICONS.PLACEHOLDER} alt={tPost('prevImage') ?? 'Previous'} width={20} height={20} />
                         </button>
                       )}
                       {post!.images!.length > 1 && (
@@ -198,18 +201,16 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
                             setCurrentImageIndex((idx) => (idx + 1) % post!.images!.length);
                             setTimeout(() => setIsAnimating(false), 250);
                           }}
-                          aria-label="Next image"
+                          aria-label={tPost('nextImage') ?? 'Next image'}
                           className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-md flex items-center justify-center"
                         >
-                          <svg className="w-5 h-5 text-gray-700" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                          </svg>
+                          <Image src={ICONS.ARROW_RIGHT ?? ICONS.PLACEHOLDER} alt={tPost('nextImage') ?? 'Next'} width={20} height={20} />
                         </button>
                       )}
 
                       {post!.images!.length > 1 && (
                         <div className="absolute right-3 bottom-3 bg-black/60 text-white text-xs px-2 py-1 rounded">
-                          {currentImageIndex + 1} / {post!.images!.length}
+                          {tPost('imageCount', { current: currentImageIndex + 1, max: post!.images!.length })}
                         </div>
                       )}
                     </div>
@@ -221,7 +222,7 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
                             onClick={() => setCurrentImageIndex(idx)}
                             className={`flex-shrink-0 w-20 h-14 rounded overflow-hidden border ${idx === currentImageIndex ? 'ring-2 ring-orange-400' : 'border-transparent'}`}
                           >
-                            <Image src={src} alt={`thumb-${idx}`} width={80} height={56} className="w-full h-full object-cover" />
+                            <Image src={src} alt={tPost('thumbAlt', { index: idx + 1 })} width={80} height={56} className="w-full h-full object-cover" />
                           </button>
                         ))}
                       </div>
@@ -231,7 +232,7 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
               </div>
             )}
 
-            <div className="border-t pt-4">
+            <div className="border-t pt-4 flex-1 overflow-auto">
               <CommentSection postId={postId} />
             </div>
           </div>

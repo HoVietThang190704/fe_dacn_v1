@@ -1,9 +1,19 @@
 import React from 'react';
+import Image from 'next/image';
+import { ICONS } from '@/shared/constants/images';
 
 const ErrorState: React.FC<{ error: string; onRetry: () => void; t: (key: string) => string }> = ({ error, onRetry, t }) => (
   <div className="flex items-center justify-center min-h-screen">
     <div className="text-center">
-      <div className="text-red-500 text-5xl mb-4">⚠️</div>
+      <div className="mb-4">
+        <Image
+          src={ICONS.WARNING}
+          alt={String(t('error'))}
+          width={56}
+          height={56}
+          className="mx-auto"
+        />
+      </div>
       <h2 className="text-xl font-semibold mb-2">{t('error')}</h2>
       <p className="text-gray-600 mb-4">{error}</p>
       <button

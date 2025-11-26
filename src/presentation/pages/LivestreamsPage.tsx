@@ -7,6 +7,8 @@ import { useAuth } from '@/shared/hooks/useAuth';
 import { useLivestreams } from '@/presentation/hooks/useLivestreams';
 import LivestreamCard from '@/presentation/components/LivestreamCard';
 import LivestreamsEmptyState from '@/presentation/components/livestreams/EmptyState';
+import Image from 'next/image';
+import { ICONS } from '@/shared/constants/images';
 
 export const LivestreamsPage: React.FC = () => {
   const t = useTranslations('livestream');
@@ -39,9 +41,7 @@ export const LivestreamsPage: React.FC = () => {
 
             <div className="flex-shrink-0 flex items-center gap-3 mt-3 sm:mt-0">
               <button onClick={() => router.push('/main/livestream/create')} aria-label={t('create')} className="inline-flex items-center gap-2 px-4 py-2 bg-white text-emerald-700 rounded-full font-semibold shadow hover:shadow-lg transition transform hover:-translate-y-0.5">
-                <svg className="w-4 h-4 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
-                  <path d="M12 5v14M5 12h14" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                <Image src={ICONS.PLUS} alt={t('create')} width={16} height={16} className="w-4 h-4 text-emerald-700" />
                 <span className="text-sm">{t('create')}</span>
               </button>
 
@@ -50,9 +50,7 @@ export const LivestreamsPage: React.FC = () => {
                 aria-label={t('history')} 
                 className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 text-white rounded-full font-semibold hover:bg-white/20 transition"
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden>
-                  <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                <Image src={ICONS.HISTORY} alt={t('history')} width={16} height={16} className="w-4 h-4" />
                 <span className="text-sm">{t('history')}</span>
               </button>
             </div>

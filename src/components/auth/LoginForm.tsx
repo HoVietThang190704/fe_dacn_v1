@@ -25,6 +25,10 @@ export default function LoginForm() {
   const { login, loginWithGoogle, isLoading, error } = useAuth();
   const t = useTranslations('auth');
 
+  const handleGoogleSuccess = async (idToken: string) => {
+    await loginWithGoogle(idToken);
+  };
+
   const loginWithFacebook = async () => {
     console.log('Facebook login clicked - not implemented yet');
   };
@@ -62,7 +66,7 @@ export default function LoginForm() {
       <div className="min-h-screen flex items-center justify-center bg-[var(--background)] font-[var(--font-sans)] relative p-4 sm:p-6 md:p-8">
         <div className="fixed inset-0 z-0">
         <Image
-          src="/img/Background1.PNG"
+          src="/img/Background1.png"
           alt="Login Background"
           fill
           className="object-cover"
@@ -150,7 +154,7 @@ export default function LoginForm() {
 
         <div className="grid grid-cols-2 gap-2 sm:gap-3">
           <GoogleSignInButton 
-            onClick={loginWithGoogle}
+            onSuccess={handleGoogleSuccess}
             disabled={isLoading}
             isLoading={isLoading}
             className="w-full"

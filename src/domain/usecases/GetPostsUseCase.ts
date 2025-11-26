@@ -33,8 +33,8 @@ export class SearchPostsUseCase {
   constructor(private postRepository: IPostRepository) {}
 
   async execute(query: string, page: number = 1, limit: number = 20): Promise<PaginatedPosts> {
-    if (!query || query.trim().length < 2) {
-      throw new Error('Từ khóa tìm kiếm phải có ít nhất 2 ký tự');
+    if (!query || query.trim().length < 1) {
+      throw new Error('Từ khóa tìm kiếm phải có ít nhất 1 ký tự');
     }
 
     return await this.postRepository.searchPosts(query, page, limit);

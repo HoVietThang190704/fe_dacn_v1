@@ -1,8 +1,10 @@
 export const LIVESTREAM_THUMBNAIL_WIDTH = 400;
 export const LIVESTREAM_THUMBNAIL_HEIGHT = 192;
 export const LIVESTREAM_AVATAR_SIZE = 48;
+import { ICONS } from '@/shared/constants/images';
+
 export const PLACEHOLDER_THUMBNAIL = '/img/products/placeholder.jpg';
-export const PLACEHOLDER_AVATAR = '/icons/avatar.jpg';
+export const PLACEHOLDER_AVATAR = ICONS.PLACEHOLDER;
 export const SPINNER_SIZE = 16; // px
 export const TIME_LOCALE = 'vi-VN';
 export const TIME_OPTIONS = { hour: '2-digit', minute: '2-digit' } as const;

@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { ICONS } from '@/shared/constants/images';
 import { Button } from './Button';
 
 interface FacebookSignInButtonProps {
@@ -24,7 +25,7 @@ export function FacebookSignInButton({
       className={`flex items-center justify-center gap-2 ${className}`}
     >
       <Image 
-        src="/icons/facebook.png"
+        src={ICONS.FACEBOOK}
         alt="Facebook"
         width={20}
         height={20}

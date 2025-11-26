@@ -27,6 +27,8 @@ export const API_ENDPOINTS = {
   REFRESH_TOKEN: '/api/auth/refresh',
   AUTH_PROFILE: '/api/auth/profile',
   CHANGE_PASSWORD: '/api/auth/change-password',
+  // Google auth (id_token -> backend)
+  AUTH_GOOGLE_TOKEN: '/api/auth/google/token',
   
   // Products
   PRODUCTS: '/api/products',
@@ -85,7 +87,8 @@ export const API_ENDPOINTS = {
   POSTS_SEARCH: '/api/posts/search/query',
   POSTS_TRENDING: '/api/posts/trending/now',
   // Search
-  GLOBAL_SEARCH: '/api/search',
+  GLOBAL_SEARCH: '/api/v1/search',
+  SEARCH_SUGGEST: '/api/search/suggest',
   POST_DETAIL: (postId: string) => `/api/posts/${postId}`,
   CREATE_POST: '/api/posts',
   UPDATE_POST: (postId: string) => `/api/posts/${postId}`,

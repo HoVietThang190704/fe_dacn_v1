@@ -1,20 +1,25 @@
-'use client';
+"use client";
 
 import React, { useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
+import { ICONS } from '@/shared/constants/images';
 
 interface ImageUploaderProps {
   initialUrls?: string[];
   onChange?: (urls: string[]) => void;
   maxFiles?: number;
+  i18nNamespace?: string;
 }
 
-export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], onChange, maxFiles = 8 }) => {
+export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], onChange, maxFiles = 8, i18nNamespace = 'imageUploader' }) => {
   const [urls, setUrls] = useState<string[]>(initialUrls);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState<number>(0);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const t = useTranslations(i18nNamespace);
 
   const notify = useCallback((next: string[]) => {
     setUrls(next);
@@ -37,7 +42,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
         : null;
 
       if (!token) {
-        alert('Vui lòng đăng nhập trước khi upload ảnh');
+        alert(t('loginRequired'));
         return;
       }
 
@@ -53,8 +58,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
 
       const payload = await res.json();
       if (!res.ok) {
-        console.error('Upload failed', payload);
-        alert(payload.message || 'Upload lỗi');
+        alert(payload.message || t('uploadFailed'));
         return;
       }
 
@@ -62,17 +66,15 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
       const next = [...urls, ...returnedUrls].slice(0, maxFiles);
       notify(next);
     } catch (e) {
-      console.error('Upload error', e);
-      alert('Upload lỗi: ' + String(e));
+      alert(t('uploadError', { error: String(e) }));
     } finally {
       setUploading(false);
       setProgress(0);
-      // Reset input để có thể chọn lại cùng file
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
     }
-  }, [maxFiles, urls, notify]);
+  }, [maxFiles, urls, notify, t]);
 
   const handleRemove = async (index: number) => {
     const url = urls[index];
@@ -92,8 +94,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
           headers,
         });
       }
-    } catch (e) {
-      console.warn('Could not delete remote image', e);
+    } catch {
     }
 
     const next = urls.filter((_, i) => i !== index);
@@ -114,7 +115,6 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
     e.preventDefault();
     setIsDragging(false);
     const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('image/'));
-    // Create a FileList-like object
     const dt = new DataTransfer();
     files.forEach(file => dt.items.add(file));
     handleFiles(dt.files);
@@ -157,17 +157,19 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
             <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
               isDragging ? 'bg-orange-100' : 'bg-gray-100'
             }`}>
-              <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
+              {ICONS.IMAGE || ICONS.PLACEHOLDER ? (
+                <Image src={ICONS.IMAGE || ICONS.PLACEHOLDER} alt={t('uploadImage')} width={24} height={24} />
+              ) : (
+                <div className="w-6 h-6 text-gray-500" aria-hidden />
+              )}
             </div>
 
             <div>
               <p className="text-sm font-medium text-gray-900">
-                {isDragging ? 'Thả ảnh vào đây' : 'Chọn nhiều ảnh cùng lúc'}
+                {isDragging ? t('dropHere') : t('selectMultiple')}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                Kéo thả hoặc click để chọn • Tối đa {maxFiles} ảnh • Còn {remainingSlots} slot
+                {t('hint', { maxFiles, remainingSlots })}
               </p>
             </div>
 
@@ -179,7 +181,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
                     style={{ width: `${progress}%` }}
                   />
                 </div>
-                <p className="text-xs text-gray-600 mt-1">Đang upload... {progress}%</p>
+                <p className="text-xs text-gray-600 mt-1">{t('uploading', { progress })}</p>
               </div>
             )}
           </div>
@@ -188,9 +190,9 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
 
       {urls.length > 0 && (
         <div>
-          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-medium text-gray-700">
-              Ảnh đã chọn ({urls.length}/{maxFiles})
+              {t('selectedImages', { count: urls.length, max: maxFiles })}
             </p>
             {remainingSlots > 0 && (
               <button
@@ -201,7 +203,12 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
                 }}
                 className="text-xs px-3 py-1.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
               >
-                + Thêm ảnh
+                {ICONS.PLUS ? (
+                  <Image src={ICONS.PLUS} alt={t('add')} width={14} height={14} />
+                ) : (
+                  <span className="font-bold">{t('add')}</span>
+                )}
+                <span className="ml-2">{t('add')}</span>
               </button>
             )}
           </div>
@@ -221,11 +228,15 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
                   type="button"
                   onClick={() => handleRemove(idx)}
                   className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                  title="Xóa ảnh"
+                  title={t('remove')}
                 >
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  {ICONS.CROSS ? (
+                    <Image src={ICONS.CROSS} alt={t('remove')} width={12} height={12} />
+                  ) : (
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
                 </button>
                 <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
                   {idx + 1}

@@ -3,14 +3,19 @@ export const formatCurrency = (value?: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
 };
 
-export const formatRelativeTime = (isoDate: string) => {
+export const formatRelativeTime = (isoDate: string, locale: string = 'vi') => {
   const now = new Date();
   const target = new Date(isoDate);
-  const diff = (now.getTime() - target.getTime()) / 1000;
+  const seconds = Math.floor((now.getTime() - target.getTime()) / 1000);
 
-  if (diff < 60) return 'Vừa xong';
-  if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
-  if (diff < 86400 * 30) return `${Math.floor(diff / 86400)} ngày trước`;
-  return target.toLocaleDateString('vi-VN');
+  if (Number.isNaN(seconds) || seconds < 0) return target.toLocaleDateString(locale);
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+  if (seconds < 60) return rtf.format(0, 'second');
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return rtf.format(-minutes, 'minute');
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return rtf.format(-hours, 'hour');
+  const days = Math.floor(hours / 24);
+  if (days < 30) return rtf.format(-days, 'day');
+  return target.toLocaleDateString(locale);
 };
