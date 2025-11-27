@@ -173,6 +173,13 @@ export default function LoginForm() {
           linkText={t('login.createAccount')}
           className="mt-3 sm:mt-4 text-xs sm:text-sm"
         />
+        
+        <AuthLink 
+          href="/auth/phone-login"
+          text="Đăng nhập bằng"
+          linkText="Số điện thoại"
+          className="mt-2 text-xs sm:text-sm"
+        />
       </div>
     </div>
     </>

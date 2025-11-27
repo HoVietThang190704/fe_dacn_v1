@@ -201,6 +201,21 @@ export const authAPI = {
   // Exchange Google id_token for app tokens/user
   googleToken: async (idToken: string): Promise<ApiResponse<LoginResponse>> => {
     return apiClient.post<LoginResponse>(API_ENDPOINTS.AUTH_GOOGLE_TOKEN, { id_token: idToken });
+  },
+
+  // Exchange Firebase idToken (from client phone auth) for app access tokens
+  firebaseVerify: async (idToken: string): Promise<ApiResponse<LoginResponse>> => {
+    return apiClient.post<LoginResponse>(API_ENDPOINTS.PHONE_FIREBASE_VERIFY, { idToken });
+  },
+
+  // Send OTP to phone number
+  sendOTP: async (phone: string): Promise<ApiResponse<{ expiresAt: string }>> => {
+    return apiClient.post<{ expiresAt: string }>(API_ENDPOINTS.PHONE_SEND_OTP, { phone });
+  },
+
+  // Verify OTP and login
+  verifyOTP: async (phone: string, otp: string): Promise<ApiResponse<LoginResponse>> => {
+    return apiClient.post<LoginResponse>(API_ENDPOINTS.PHONE_VERIFY_OTP, { phone, otp });
   }
 };
 
