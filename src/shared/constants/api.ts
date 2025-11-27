@@ -29,6 +29,8 @@ export const API_ENDPOINTS = {
   CHANGE_PASSWORD: '/api/auth/change-password',
   // Google auth (id_token -> backend)
   AUTH_GOOGLE_TOKEN: '/api/auth/google/token',
+  // Facebook auth (access_token -> backend)
+  AUTH_FACEBOOK_TOKEN: '/api/auth/facebook/token',
   // Phone OTP auth
   PHONE_SEND_OTP: '/api/auth/phone/send-otp',
   PHONE_VERIFY_OTP: '/api/auth/phone/verify-otp',

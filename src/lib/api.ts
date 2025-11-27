@@ -203,6 +203,11 @@ export const authAPI = {
     return apiClient.post<LoginResponse>(API_ENDPOINTS.AUTH_GOOGLE_TOKEN, { id_token: idToken });
   },
 
+  // Exchange Facebook access_token for app tokens/user
+  facebookToken: async (accessToken: string): Promise<ApiResponse<LoginResponse>> => {
+    return apiClient.post<LoginResponse>(API_ENDPOINTS.AUTH_FACEBOOK_TOKEN, { access_token: accessToken });
+  },
+
   // Exchange Firebase idToken (from client phone auth) for app access tokens
   firebaseVerify: async (idToken: string): Promise<ApiResponse<LoginResponse>> => {
     return apiClient.post<LoginResponse>(API_ENDPOINTS.PHONE_FIREBASE_VERIFY, { idToken });
