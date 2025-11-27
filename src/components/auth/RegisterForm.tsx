@@ -28,8 +28,9 @@ export default function RegisterForm() {
     const [fullName, setFullName] = useState('');
     const t = useTranslations('auth');
 
-    const registerWithFacebook = async () => {
-        console.log('Facebook register clicked - not implemented yet');
+    const handleFacebookSuccess = async (accessToken: string) => {
+        console.log('Facebook register with access token:', accessToken);
+        // TODO: Implement Facebook registration logic
     };
 
     const handleGoogleSuccess = async (idToken: string) => {
@@ -222,7 +223,7 @@ export default function RegisterForm() {
                     />
 
                     <FacebookSignInButton 
-                        onClick={registerWithFacebook}
+                        onSuccess={handleFacebookSuccess}
                         disabled={isLoading || registrationSuccess}
                         isLoading={isLoading}
                         className="w-full"
