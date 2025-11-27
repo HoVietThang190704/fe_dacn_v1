@@ -81,7 +81,6 @@ export function initFirebaseClient() {
     const useTestMode = process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_USE_TEST_PHONE === 'true';
     
     if (typeof window !== 'undefined' && useTestMode) {
-      // @ts-ignore - Firebase internal settings
       auth.settings.appVerificationDisabledForTesting = true;
       console.debug('App verification disabled for testing (test phone numbers enabled)');
     } else {
@@ -115,7 +114,6 @@ export function createRecaptchaVerifier(containerId: string) {
   const a = getFirebaseAuth();
 
   // Check if app verification is disabled (for test phone numbers)
-  // @ts-ignore - Firebase internal settings
   if (a.settings?.appVerificationDisabledForTesting) {
     console.debug('App verification disabled - creating minimal RecaptchaVerifier for test phone numbers');
   }
