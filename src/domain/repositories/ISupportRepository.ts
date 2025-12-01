@@ -1,4 +1,4 @@
-import { SupportTicket, FAQ, TicketStatus, CreateSupportTicketInput } from '../entities/Support';
+import { SupportTicket, FAQ, TicketStatus, CreateSupportTicketInput, SupportChatThread, SupportChatMessage } from '../entities/Support';
 
 export interface ISupportRepository {
   getTickets(): Promise<SupportTicket[]>;
@@ -13,4 +13,7 @@ export interface ISupportRepository {
     notHelpful: number;
     userVote?: 'helpful' | 'not_helpful' | null;
   }>;
+  getChatThread(): Promise<SupportChatThread | null>;
+  sendChatMessage(content: string): Promise<{ message: SupportChatMessage; thread: SupportChatThread }>;
+  markChatThreadRead(): Promise<SupportChatThread | null>;
 }

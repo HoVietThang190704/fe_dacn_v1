@@ -39,7 +39,6 @@ interface Props {
 
 export const SettingsSections: React.FC<Props> = ({ activeTab, userId }) => {
   const t = useTranslations('settings');
-  const locale = useLocale();
   const viewModel = useUserProfileViewModel(
     container.getUserProfileUseCase,
     container.updateUserProfileUseCase,
@@ -99,6 +98,8 @@ const ProfileSection: React.FC<{ t: ReturnType<typeof useTranslations>; viewMode
 
       if (values.removeAvatar) {
         updates.avatar = null;
+      } else if (values.avatarUploadedUrl) {
+        updates.avatar = values.avatarUploadedUrl;
       } else if (values.avatarFile) {
         try {
           const avatarUrl = await uploadAvatar(values.avatarFile);
@@ -189,7 +190,7 @@ const ProfileSection: React.FC<{ t: ReturnType<typeof useTranslations>; viewMode
         value: formatDateTime(user.updatedAt, locale) || t('unknown'),
       },
     ];
-  }, [label, t, user]);
+  }, [label, t, user, locale]);
 
   let body: React.ReactNode;
 
@@ -277,6 +278,7 @@ const ProfileSection: React.FC<{ t: ReturnType<typeof useTranslations>; viewMode
         onClose={() => setIsEditOpen(false)}
         onSubmit={handleFormSubmit}
         isSubmitting={isUpdating}
+        onAvatarUpload={uploadAvatar}
         t={t}
         user={user}
       />
@@ -320,7 +322,6 @@ const AvatarPreview: React.FC<{ user: User | null }> = ({ user }) => {
 };
 
 const InfoField: React.FC<ProfileField> = ({ label, value }) => {
-  const t = useTranslations('settings');
   const tLocal = useTranslations('settings');
   const content = typeof value === 'string'
     ? value.trim().length ? value : tLocal('unknown')

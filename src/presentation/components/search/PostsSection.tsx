@@ -10,9 +10,10 @@ interface PostSectionProps {
   onLoadMore: () => void;
   total: number;
   onOpenPost?: (id: string) => void;
+  isLoadingMore?: boolean;
 }
 
-const PostsSection: React.FC<PostSectionProps> = ({ posts, keyword, hasMore, onLoadMore, total, onOpenPost }) => {
+const PostsSection: React.FC<PostSectionProps> = ({ posts, keyword, hasMore, onLoadMore, total, onOpenPost, isLoadingMore = false }) => {
   const t = useTranslations('search');
 
   return (
@@ -36,7 +37,8 @@ const PostsSection: React.FC<PostSectionProps> = ({ posts, keyword, hasMore, onL
           <button
             type="button"
             onClick={onLoadMore}
-            className="px-3 py-1.5 text-sm font-medium text-orange-600 hover:text-orange-700 border rounded"
+            disabled={isLoadingMore}
+            className={`px-3 py-1.5 text-sm font-medium text-orange-600 hover:text-orange-700 border rounded ${isLoadingMore ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {t('results.loadMore')}
           </button>

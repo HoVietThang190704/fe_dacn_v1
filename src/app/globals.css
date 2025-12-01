@@ -211,26 +211,41 @@ input:-webkit-autofill:focus {
   background-image: none !important;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;  
+  scrollbar-width: none;  
 }
 
-/* Prevent accidental horizontal overflow site-wide that can cause a white gap on the right */
-/* Do not force overflow-x hidden globally — it can block touch/swipe on nested scroll containers.
-   Use the .scroll-x-touch helper on elements that need smooth horizontal scrolling. */
+html, body, #__next {
+  -ms-overflow-style: none;  
+  scrollbar-width: none;     
+}
+
+html::-webkit-scrollbar, body::-webkit-scrollbar, #__next::-webkit-scrollbar {
+  display: none;
+  height: 0 !important;
+  width: 0 !important;
+}
+
+.enable-scrollbar::-webkit-scrollbar {
+  display: block;
+  height: 6px;
+  width: 6px;
+}
+.enable-scrollbar {
+  -ms-overflow-style: auto;
+  scrollbar-width: auto;
+}
+
 
 .scroll-x-touch {
-  -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
+  -webkit-overflow-scrolling: touch; 
 }
 
-/* Custom animations for CreatePostPopup */
 @keyframes fadeIn {
   from {
     opacity: 0;

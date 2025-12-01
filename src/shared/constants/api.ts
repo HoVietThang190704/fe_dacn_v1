@@ -71,6 +71,8 @@ export const API_ENDPOINTS = {
   USER_ADDRESSES: '/api/users/me/addresses',
   USER_ADDRESS_DETAIL: (id: string) => `/api/users/me/addresses/${id}`,
   SET_DEFAULT_ADDRESS: (id: string) => `/api/users/me/addresses/${id}/default`,
+  REGISTER_SHOP_OWNER: '/api/register-shop-owner',
+  REGISTER_SHOP_OWNER_ME: '/api/register-shop-owner/me',
   
   WISHLIST: '/api/wishlist',
   WISHLIST_ITEM: (productId: string) => `/api/wishlist/${productId}`,
@@ -123,6 +125,9 @@ export const API_ENDPOINTS = {
   SUPPORT_FAQS: '/api/support/faqs',
   SUPPORT_FAQ_SEARCH: '/api/support/faqs/search',
   SUPPORT_FAQ_VOTE: (id: string) => `/api/support/faqs/${id}/vote`,
+  SUPPORT_CHAT_THREAD: '/api/support/chat/thread',
+  SUPPORT_CHAT_MESSAGES: '/api/support/chat/messages',
+  SUPPORT_CHAT_THREAD_READ: '/api/support/chat/thread/read',
 
   // Notifications
   NOTIFICATIONS: '/api/notifications',

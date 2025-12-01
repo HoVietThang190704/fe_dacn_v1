@@ -10,7 +10,6 @@ type Props = {
   livestream: Livestream;
   currentUserId?: string;
   onStartStream?: (id: string) => void;
-  // optional translator - fallback to useTranslations('livestream') inside
   t?: ReturnType<typeof useTranslations>;
 };
 
@@ -20,8 +19,6 @@ export const LivestreamCard: React.FC<Props> = ({ livestream, t, currentUserId, 
   const isMyStream = currentUserId && livestream.hostId === currentUserId;
   const thumbnailUrl = livestream.thumbnail || PLACEHOLDER_THUMBNAIL;
   const hostAvatar = livestream.hostAvatar || PLACEHOLDER_AVATAR;
-
-  // translator: always use local namespace translator and accept optional override
   const localT = useTranslations('livestream');
   const translate = t ?? localT;
 
@@ -103,16 +100,16 @@ export const LivestreamCard: React.FC<Props> = ({ livestream, t, currentUserId, 
           </div>
         </div>
 
-        <div className="p-4 sm:p-6">
+        <div className="p-6 sm:p-3">
           <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3 line-clamp-2 text-gray-800 group-hover:text-purple-600 transition-colors">
             {livestream.title}
           </h3>
 
-          <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 line-clamp-2 leading-relaxed">
+          <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2 line-clamp-2 leading-relaxed -mt-3">
             {livestream.description}
           </p>
 
-          <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+          <div className="flex items-center gap-3 sm:gap-4 mb-2 sm:mb-3">
             <Image
               src={hostAvatar}
               alt={livestream.hostName}

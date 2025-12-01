@@ -10,9 +10,10 @@ interface UsersSectionProps {
   onLoadMore: () => void;
   total: number;
   onUserClick?: (id: string) => void;
+  isLoadingMore?: boolean;
 }
 
-const UsersSection: React.FC<UsersSectionProps> = ({ users, hasMore, onLoadMore, total, onUserClick }) => {
+const UsersSection: React.FC<UsersSectionProps> = ({ users, hasMore, onLoadMore, total, onUserClick, isLoadingMore = false }) => {
   const t = useTranslations('search');
 
   return (
@@ -57,7 +58,8 @@ const UsersSection: React.FC<UsersSectionProps> = ({ users, hasMore, onLoadMore,
           <button
             type="button"
             onClick={onLoadMore}
-            className="px-3 py-1.5 text-sm font-medium text-orange-600 hover:text-orange-700 border rounded"
+            disabled={isLoadingMore}
+            className={`px-3 py-1.5 text-sm font-medium text-orange-600 hover:text-orange-700 border rounded ${isLoadingMore ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {t('results.loadMore')}
           </button>

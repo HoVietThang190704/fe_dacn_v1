@@ -19,6 +19,7 @@ export type EditProfileForm = {
   dateOfBirth: string;
   address: AddressFormValues;
   avatarFile: File | null;
+  avatarUploadedUrl?: string | null;
   removeAvatar: boolean;
 };
 
@@ -27,11 +28,12 @@ interface ProfileEditModalProps {
   onClose: () => void;
   onSubmit: (values: EditProfileForm) => Promise<void>;
   isSubmitting: boolean;
+  onAvatarUpload?: (file: File) => Promise<string>;
   t: ReturnType<typeof useTranslations>;
   user: User | null;
 }
 
-export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ open, onClose, onSubmit, isSubmitting, t, user }) => {
+export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ open, onClose, onSubmit, isSubmitting, onAvatarUpload, t, user }) => {
   const [form, setForm] = useState<EditProfileForm>({
     userName: '',
     phone: '',
@@ -44,9 +46,11 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ open, onClos
       province: '',
     },
     avatarFile: null,
+    avatarUploadedUrl: null,
     removeAvatar: false,
   });
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [isAvatarUploading, setIsAvatarUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -64,6 +68,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ open, onClos
           province: user?.address?.province || '',
         },
         avatarFile: null,
+        avatarUploadedUrl: null,
         removeAvatar: false,
       });
       setAvatarPreview(user?.avatar || null);
@@ -101,6 +106,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ open, onClos
     setForm((prev) => ({
       ...prev,
       avatarFile: file,
+      avatarUploadedUrl: null,
       removeAvatar: false,
     }));
 
@@ -110,12 +116,26 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ open, onClos
       }
       return file ? URL.createObjectURL(file) : user?.avatar || null;
     });
+    if (file && typeof onAvatarUpload === 'function') {
+      setIsAvatarUploading(true);
+      onAvatarUpload(file)
+        .then((url: string) => {
+          setForm((prev) => ({ ...prev, avatarUploadedUrl: url, avatarFile: null, removeAvatar: false }));
+          setAvatarPreview(url || null);
+        })
+        .catch((err: unknown) => {
+          const message = err instanceof Error ? err.message : t('uploadAvatarError');
+          setErrorMessage(message);
+        })
+        .finally(() => setIsAvatarUploading(false));
+    }
   };
 
   const handleRemoveAvatar = () => {
     setForm((prev) => ({
       ...prev,
       avatarFile: null,
+      avatarUploadedUrl: null,
       removeAvatar: true,
     }));
 
@@ -174,7 +194,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ open, onClos
               <div className="mt-4 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
                 <div className="relative">
                   <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-gray-100 bg-gray-50 shadow-md">
-                    {avatarPreview ? (
+                      {avatarPreview ? (
                       <Image
                         src={avatarPreview}
                         alt={form.userName || user?.email || t('avatar')}
@@ -189,12 +209,21 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ open, onClos
                       </span>
                     )}
                   </div>
+                  {isAvatarUploading && (
+                    <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/25" aria-live="polite">
+                      <svg className="w-6 h-6 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    </div>
+                  )}
                   <div className="absolute right-0 bottom-0 flex gap-2">
                     <button
                       type="button"
                       onClick={handleRemoveAvatar}
                       className="inline-flex items-center justify-center rounded-full bg-white p-1 shadow-sm text-red-600 hover:bg-red-50"
                       title={t('removeAvatar')}
+                      disabled={isAvatarUploading || isSubmitting}
                     >
                       <Image src={ICONS.CROSS || ICONS.PLACEHOLDER} alt={t('removeAvatar')} width={14} height={14} />
                     </button>
@@ -208,6 +237,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ open, onClos
                     onChange={handleAvatarChange}
                     className="hidden"
                     aria-hidden="true"
+                    disabled={isAvatarUploading || isSubmitting}
                   />
 
                   <Button
@@ -215,8 +245,19 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ open, onClos
                     variant="outline"
                     className="px-4 py-2 rounded-lg"
                     onClick={() => fileInputRef.current?.click()}
+                    disabled={isAvatarUploading || isSubmitting}
                   >
-                    {t('changeAvatar')}
+                    {isAvatarUploading ? (
+                      <div className="flex items-center gap-2">
+                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        {t('uploading')}
+                      </div>
+                    ) : (
+                      t('changeAvatar')
+                    )}
                   </Button>
                   <span className="text-xs text-gray-500">{t('avatarHint')}</span>
                 </div>
@@ -304,8 +345,10 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ open, onClos
 
             {errorMessage && (
                 <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 flex items-center gap-3">
+                    <div aria-live="polite">
                     <Image src={ICONS.WARNING || ICONS.PLACEHOLDER} alt={t('error')} width={20} height={20} className="w-5 h-5 text-red-500" />
                   {errorMessage}
+                    </div>
                 </div>
             )}
 
@@ -313,7 +356,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({ open, onClos
               <Button type="button" variant="outline" onClick={onClose} className="w-full rounded-lg px-4 py-2 sm:w-auto">
                 {t('cancel')}
               </Button>
-              <Button type="submit" variant="primary" disabled={isSubmitting} className="w-full rounded-lg px-6 py-2 sm:w-auto">
+              <Button type="submit" variant="primary" disabled={isSubmitting || isAvatarUploading} aria-busy={isSubmitting || isAvatarUploading} className="w-full rounded-lg px-6 py-2 sm:w-auto">
                 {isSubmitting ? (
                   <div className="flex items-center gap-2">
                     <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">

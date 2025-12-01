@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { authAPI, LoginRequest, RegisterRequest } from '@/lib/api';
 import { usersAPI } from '@/lib/api';
 import { postCommentContainer } from '@/presentation/di/PostCommentContainer';
+import type { UserAddress } from '@/domain/entities/User';
 
 export interface User {
   id: string;
@@ -12,6 +13,7 @@ export interface User {
   role: string;
   isVerified: boolean;
   avatar?: string;
+  address?: UserAddress | null;
 }
 
 export function useAuth() {

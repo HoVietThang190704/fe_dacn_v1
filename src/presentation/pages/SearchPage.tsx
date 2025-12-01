@@ -43,6 +43,7 @@ export const SearchPage: React.FC = () => {
     query,
     results,
     isLoading,
+    isLoadingMore,
     error,
     performSearch,
     clear,
@@ -200,29 +201,31 @@ export const SearchPage: React.FC = () => {
             <nav className="flex gap-2 items-center">
               <button
                 onClick={() => setActiveTab('all')}
-                className={`px-3 py-2 rounded-md ${activeTab === 'all' ? 'bg-orange-500 text-white' : 'bg-white border'}`}
+                className={`px-2 py-1 rounded-md ${activeTab === 'all' ? 'bg-orange-500 text-white' : 'bg-white border'}`}
               >{t('tabs.all')}</button>
               <button
                 onClick={() => setActiveTab('products')}
-                className={`px-3 py-2 rounded-md ${activeTab === 'products' ? 'bg-orange-500 text-white' : 'bg-white border'}`}
+                className={`px-2 py-1 rounded-md ${activeTab === 'products' ? 'bg-orange-500 text-white' : 'bg-white border'}`}
               >{t('tabs.products')} ({totalProducts})</button>
               <button
                 onClick={() => setActiveTab('posts')}
-                className={`px-3 py-2 rounded-md ${activeTab === 'posts' ? 'bg-orange-500 text-white' : 'bg-white border'}`}
+                className={`px-2 py-1 rounded-md ${activeTab === 'posts' ? 'bg-orange-500 text-white' : 'bg-white border'}`}
               >{t('tabs.posts')} ({totalPosts})</button>
               <button
                 onClick={() => setActiveTab('users')}
-                className={`px-3 py-2 rounded-md ${activeTab === 'users' ? 'bg-orange-500 text-white' : 'bg-white border'}`}
+                className={`px-2 py-1 rounded-md ${activeTab === 'users' ? 'bg-orange-500 text-white' : 'bg-white border'}`}
               >{t('tabs.users')} ({totalUsers})</button>
             </nav>
 
-            <div className="pt-4">
+            <div className="pt-4 -mt-4">
               {(activeTab === 'all' || activeTab === 'products') && (
                 <ProductsSection
                   products={products}
                   hasMore={Boolean(results?.products.hasMore)}
                   onLoadMore={() => loadMoreProducts(DEFAULT_SEARCH_LIMITS.productsLimit)}
                   total={totalProducts}
+                  router={router}
+                  isLoadingMore={isLoadingMore}
                 />
               )}
 
@@ -234,6 +237,7 @@ export const SearchPage: React.FC = () => {
                   onLoadMore={() => loadMorePosts(DEFAULT_SEARCH_LIMITS.postsLimit)}
                   total={totalPosts}
                   onOpenPost={openPostDetail}
+                  isLoadingMore={isLoadingMore}
                 />
               )}
 
@@ -244,6 +248,7 @@ export const SearchPage: React.FC = () => {
                   onLoadMore={() => loadMoreUsers(DEFAULT_SEARCH_LIMITS.usersLimit)}
                   total={totalUsers}
                   onUserClick={handleUserClick}
+                  isLoadingMore={isLoadingMore}
                 />
               )}
             </div>

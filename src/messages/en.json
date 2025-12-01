@@ -807,8 +807,21 @@
       "empty": "No conversations yet. Send your first message!",
       "placeholder": "Type what you need help with...",
       "send": "Send message",
+      "enterToSend": "Enter to send · Shift+Enter for newline",
+      "enterToSendShort": "Enter to send",
       "noteTitle": "Note",
-      "noteContent": "Chat is currently in beta. Our support team will follow up via email or phone."
+      "noteContent": "Chat is currently in beta. Our support team will follow up via email or phone.",
+      "connection": {
+        "connected": "Connected",
+        "connecting": "Connecting",
+        "disconnected": "Offline"
+      },
+      "connectionLost": "Connection lost. We're trying to reconnect, please wait or refresh.",
+      "loading": "Loading your conversation...",
+      "loginPrompt": "Please sign in so we can continue helping you via chat.",
+      "loginCta": "Login to chat",
+      "sending": "Sending...",
+      "unreadBadge": "{count} unread messages"
     },
     "statuses": {
       "open": "New",
@@ -868,6 +881,7 @@
     "notifications": "Notifications",
     "preferences": "Preferences",
     "changeAvatar": "Change avatar",
+    "uploading": "Uploading...",
     "saveChanges": "Save changes",
     "cancel": "Cancel",
     "deleteAccount": "Delete account",
@@ -992,7 +1006,45 @@
       "deleteError": "Error deleting the post",
       "sharePostError": "Error sharing the post",
       "deleteProductError": "Error deleting the product",
-      "updateProductStatusError": "Error updating the product status"
+      "updateProductStatusError": "Error updating the product status",
+      "registerShopOwner": {
+        "title": "Register as shop owner",
+        "subtitle": "Submit your business certificate to unlock selling tools and analytics dashboards.",
+        "button": "Register as shop owner",
+        "ctaDescription": "Upload your certificate to request selling permissions.",
+        "status": {
+          "pending": "Pending review",
+          "approved": "Approved",
+          "rejected": "Rejected",
+          "none": "No request yet"
+        },
+        "statusDescription": {
+          "pending": "Hang tight while our team reviews your certificate.",
+          "approved": "Your account is approved. Selling tools are now available.",
+          "rejected": "Your previous request was rejected. Update the document and try again.",
+          "none": "You have not submitted any request yet."
+        },
+        "messages": {
+          "success": "Request submitted successfully. We will contact you soon.",
+          "error": "Unable to submit your request. Please try again."
+        },
+        "form": {
+          "userInfoTitle": "Your information",
+          "certificateTitle": "Business certificate",
+          "uploadHint": "Upload a clear image of your legitimate business certificate.",
+          "selectFile": "Choose image",
+          "replaceFile": "Replace image",
+          "selectedFile": "Selected file: {name}",
+          "preview": "Preview",
+          "locked": "You cannot upload a new certificate while we are reviewing your request.",
+          "submit": "Send request",
+          "submitting": "Submitting...",
+          "required": "Certificate image is required.",
+          "address": "Address",
+          "noAddress": "No address on file",
+          "noPhone": "No phone number"
+        }
+      }
   },
   "order": {
     "orderDetails": "Order Details",
