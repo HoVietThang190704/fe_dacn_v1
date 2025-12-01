@@ -72,4 +72,5 @@ export const ICONS = {
     NO_MICRO_PHONE: '/icons/no-micro-phone.png',
     NO_CAMERA: '/icons/no-video.png',
     HISTORY: '/icons/history.png',
+    DIRECT: '/icons/direct.png',
 }

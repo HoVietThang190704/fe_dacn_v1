@@ -4,6 +4,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { ICONS } from '@/shared/constants/images';
+import { API_CONFIG } from '@/shared/constants/api';
 
 interface ImageUploaderProps {
   initialUrls?: string[];
@@ -32,6 +33,11 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
     const fileArray = Array.from(files).slice(0, Math.max(0, maxFiles - urls.length));
     if (fileArray.length === 0) return;
 
+    if (!API_CONFIG.BASE_URL) {
+      alert(t('uploadError', { error: 'Missing API_BASE_URL (set NEXT_PUBLIC_API_URL in deployment)' }));
+      return;
+    }
+
     setUploading(true);
     setProgress(0);
     try {
@@ -49,12 +55,34 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
       const headers: Record<string, string> = {};
       headers['Authorization'] = `Bearer ${token}`;
 
-      const res = await fetch('/api/upload/images', {
+      const apiBase = (API_CONFIG.BASE_URL || '').replace(/\/$/, '');
+        const endpoint = `${apiBase}/api/upload/images`;
+      const res = await fetch(endpoint, {
         method: 'POST',
         body: fd,
         credentials: 'include',
         headers,
       });
+      if (!res.ok) {
+        const text = await res.text();
+        // Try to parse JSON error if possible
+        try {
+          const jsonErr = JSON.parse(text);
+          alert(jsonErr.message || t('uploadFailed'));
+        } catch {
+          console.error('[ImageUploader] upload failed with non-JSON:', text);
+          alert(t('uploadFailed'));
+        }
+        return;
+      }
+
+      const ct = res.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) {
+        const text = await res.text();
+        console.error('[ImageUploader] Invalid response content-type from upload endpoint:', ct, text);
+        alert(t('uploadFailed'));
+        return;
+      }
 
       const payload = await res.json();
       if (!res.ok) {
@@ -66,7 +94,11 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
       const next = [...urls, ...returnedUrls].slice(0, maxFiles);
       notify(next);
     } catch (e) {
-      alert(t('uploadError', { error: String(e) }));
+      // Show a more friendly message when the result is not JSON (most likely misconfigured base URL)
+      const errText = String(e);
+      console.error('[ImageUploader] upload error:', errText);
+      const friendly = t('uploadError', { error: errText });
+      alert(friendly);
     } finally {
       setUploading(false);
       setProgress(0);
@@ -88,7 +120,9 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
         const headers: Record<string, string> = {};
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        await fetch(`/api/upload/images/${encodeURIComponent(publicId)}`, {
+          const apiBase = (API_CONFIG.BASE_URL || '').replace(/\/$/, '');
+            const deleteEndpoint = `${apiBase}/api/upload/images/${encodeURIComponent(publicId)}`;
+        await fetch(deleteEndpoint, {
           method: 'DELETE',
           credentials: 'include',
           headers,

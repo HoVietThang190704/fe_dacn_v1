@@ -804,7 +804,18 @@
       "placeholder": "Nhập nội dung bạn cần hỗ trợ...",
       "send": "Gửi tin nhắn",
       "noteTitle": "Lưu ý",
-      "noteContent": "Tính năng chat hiện đang ở giai đoạn thử nghiệm. Đội ngũ CSKH sẽ phản hồi qua email hoặc điện thoại."
+      "noteContent": "Tính năng chat hiện đang ở giai đoạn thử nghiệm. Đội ngũ CSKH sẽ phản hồi qua email hoặc điện thoại.",
+      "connection": {
+        "connected": "Đã kết nối",
+        "connecting": "Đang kết nối",
+        "disconnected": "Mất kết nối"
+      },
+      "connectionLost": "Mất kết nối. Chúng tôi đang thử kết nối lại, bạn có thể làm mới để tiếp tục.",
+      "loading": "Đang tải cuộc trò chuyện...",
+      "loginPrompt": "Hãy đăng nhập để tiếp tục chat với đội ngũ CSKH.",
+      "loginCta": "Đăng nhập ngay",
+      "sending": "Đang gửi...",
+      "unreadBadge": "{count} tin chưa đọc"
     },
     "statuses": {
       "open": "Mới",
@@ -864,6 +875,7 @@
     "notifications": "Thông báo",
     "preferences": "Tùy chọn",
     "changeAvatar": "Thay đổi ảnh",
+    "uploading": "Đang tải...",
     "saveChanges": "Lưu thay đổi",
     "cancel": "Hủy",
     "deleteAccount": "Xóa tài khoản",
@@ -989,7 +1001,45 @@
       "deleteError": "Lỗi khi xóa bài viết",
       "sharePostError": "Lỗi khi chia sẻ bài viết",
       "deleteProductError": "Lỗi khi xóa sản phẩm",
-      "updateProductStatusError": "Lỗi khi cập nhật trạng thái sản phẩm"
+      "updateProductStatusError": "Lỗi khi cập nhật trạng thái sản phẩm",
+      "registerShopOwner": {
+        "title": "Đăng ký trở thành chủ shop",
+        "subtitle": "Gửi giấy phép kinh doanh để mở khóa công cụ bán hàng và quản lý chuyên sâu.",
+        "button": "Đăng ký chủ shop",
+        "ctaDescription": "Tải lên giấy tờ chứng nhận để yêu cầu quyền bán hàng.",
+        "status": {
+          "pending": "Đang duyệt",
+          "approved": "Đã phê duyệt",
+          "rejected": "Bị từ chối",
+          "none": "Chưa gửi yêu cầu"
+        },
+        "statusDescription": {
+          "pending": "Vui lòng chờ đội ngũ kiểm duyệt tài liệu của bạn.",
+          "approved": "Tài khoản đã được phê duyệt, bạn có thể sử dụng tính năng bán hàng.",
+          "rejected": "Yêu cầu trước đó bị từ chối. Hãy cập nhật giấy tờ và gửi lại.",
+          "none": "Bạn chưa gửi yêu cầu nào."
+        },
+        "messages": {
+          "success": "Gửi yêu cầu thành công. Chúng tôi sẽ liên hệ sớm.",
+          "error": "Không thể gửi yêu cầu. Vui lòng thử lại."
+        },
+        "form": {
+          "userInfoTitle": "Thông tin của bạn",
+          "certificateTitle": "Giấy phép kinh doanh",
+          "uploadHint": "Tải ảnh rõ nét của giấy phép/giấy chứng nhận hợp lệ.",
+          "selectFile": "Chọn ảnh",
+          "replaceFile": "Chọn ảnh khác",
+          "selectedFile": "Tệp đã chọn: {name}",
+          "preview": "Xem trước",
+          "locked": "Bạn không thể tải ảnh mới khi yêu cầu đang được duyệt.",
+          "submit": "Gửi yêu cầu",
+          "submitting": "Đang gửi...",
+          "required": "Vui lòng tải lên ảnh giấy phép.",
+          "address": "Địa chỉ",
+          "noAddress": "Chưa có địa chỉ",
+          "noPhone": "Chưa có số điện thoại"
+        }
+      }
   },
   "order": {
     "orderDetails": "Chi tiết đơn hàng",

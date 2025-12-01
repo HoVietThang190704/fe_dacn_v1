@@ -36,6 +36,8 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
   const socketRef = useRef<Socket | null>(null);
   const clientRef = useRef<IAgoraRTCClient | null>(null);
   const remoteVideoRef = useRef<HTMLDivElement | null>(null);
+  const userAudioElementsRef = useRef<Map<string | number, HTMLAudioElement>>(new Map());
+  const [needsAudioPermission, setNeedsAudioPermission] = useState(false);
   const currencyFormatter = React.useMemo(() => {
     const intlLocale = locale === 'en' ? 'en-US' : 'vi-VN';
     return new Intl.NumberFormat(intlLocale, {
@@ -84,13 +86,67 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
         }
 
         if (mediaType === 'audio') {
-          user.audioTrack?.play();
+          try {
+            const uid = (user.uid as string | number);
+            if (userAudioElementsRef.current.has(uid)) {
+              const existing = userAudioElementsRef.current.get(uid)!;
+              existing.remove();
+              userAudioElementsRef.current.delete(uid);
+            }
+            const beforeEls = Array.from(document.querySelectorAll<HTMLAudioElement>('audio'));
+            try { user.audioTrack?.play(); } catch  { }
+
+            setTimeout(() => {
+              try {
+                const afterEls = Array.from(document.querySelectorAll<HTMLAudioElement>('audio'));
+                const added = afterEls.filter(a => !beforeEls.includes(a));
+                if (added.length > 0) {
+                  const el = added[0];
+                  el.muted = false;
+                  el.volume = 1;
+                  el.style.display = 'none';
+                  userAudioElementsRef.current.set(uid, el);
+                } else {
+                  setNeedsAudioPermission(true);
+                }
+              } catch {
+                }
+            }, 80);
+          } catch {
+          }
         }
       });
 
-      client.on('user-unpublished', (user: IAgoraRTCRemoteUser) => {
-        if (user.videoTrack) {
-          user.videoTrack.stop();
+      client.on('user-unpublished', (user: IAgoraRTCRemoteUser, mediaType: 'audio' | 'video') => {
+        if (mediaType === 'video') {
+          try { user.videoTrack?.stop(); } catch {}
+        } else if (mediaType === 'audio') {
+          try { user.audioTrack?.stop?.(); } catch {}
+          try {
+            const uid = (user.uid as string | number);
+            const element = userAudioElementsRef.current.get(uid);
+            if (element) {
+              try { element.pause(); } catch {}
+              try { element.remove(); } catch {}
+              userAudioElementsRef.current.delete(uid);
+            }
+          } catch {
+          }
+        }
+      });
+
+      client.on('user-left', (user: IAgoraRTCRemoteUser) => {
+        try { user.videoTrack?.stop(); } catch {}
+        try { user.audioTrack?.stop?.(); } catch {}
+        try {
+          const uid = (user.uid as string | number);
+          const element = userAudioElementsRef.current.get(uid);
+          if (element) {
+            try { element.pause(); } catch {}
+            try { element.remove(); } catch {}
+            userAudioElementsRef.current.delete(uid);
+          }
+        } catch {
         }
       });
 
@@ -218,6 +274,20 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
     window.location.href = '/main/livestream';
   };
 
+  const enableAudio = () => {
+    try {
+      const audios = Array.from(document.querySelectorAll<HTMLAudioElement>('audio'));
+      audios.forEach(a => {
+        try {
+          a.muted = false;
+          a.volume = 1;
+          a.play().catch(() => {});
+        } catch {}
+      });
+      setNeedsAudioPermission(false);
+    } catch {}
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
@@ -281,6 +351,12 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
                   <div className="text-center px-4">
                     <LivestreamPlaceholder status={livestream.status} startTime={livestream.startTime} />
                   </div>
+                </div>
+              )}
+
+              {needsAudioPermission && (
+                <div className="absolute left-4 bottom-4 z-20">
+                  <button onClick={enableAudio} className="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md text-sm">{t('watch.enableAudio') || 'Enable audio'}</button>
                 </div>
               )}
             </div>

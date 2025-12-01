@@ -71,8 +71,6 @@ export const ProductsListPage: React.FC<ProductsListPageProps> = ({ categories }
         onCategoryChange={viewModel.handleCategoryChange}
       />
 
-      <StockFilter onToggleInStock={viewModel.handleToggleInStock} />
-
       {viewModel.error && (
         <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded">
           <div className="flex justify-between items-center">

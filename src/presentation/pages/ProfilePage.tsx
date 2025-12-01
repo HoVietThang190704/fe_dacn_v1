@@ -25,7 +25,9 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'posts' | 'products'>('posts');
   const canManageShopOrders = useMemo(() => profile.role === "shop_owner" || profile.role === "admin", [profile.role]);
+  const canRegisterShopOwner = useMemo(() => profile.role === 'customer', [profile.role]);
   const manageOrdersPath = '/main/orders/manage';
+  const registerShopOwnerPath = '/main/profile/register-shop-owner';
   
   const {
     posts,
@@ -103,9 +105,20 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
     router.push(manageOrdersPath);
   };
 
+  const handleRegisterShopOwnerClick = () => {
+    router.push(registerShopOwnerPath);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <ProfileHeader profile={profile} canManageShopOrders={canManageShopOrders} onManageOrdersClick={handleManageOrdersClick} t={t} />
+      <ProfileHeader
+        profile={profile}
+        canManageShopOrders={canManageShopOrders}
+        onManageOrdersClick={handleManageOrdersClick}
+        canRegisterShopOwner={canRegisterShopOwner}
+        onRegisterShopOwnerClick={handleRegisterShopOwnerClick}
+        t={t}
+      />
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4">
           <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} postsCount={userPosts.length} productsCount={products.length} t={t} />
@@ -156,7 +169,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
                 <LoadingSpinner />
               </div>
             ) : products.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 gap-1 -mx-2 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
                 {products.map((product) => (
                   <ProfileProductCard
                     key={product.id}

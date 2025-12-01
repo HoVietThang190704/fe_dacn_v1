@@ -31,7 +31,7 @@ const ProductsHeader: React.FC<Props> = ({ searchQuery, sortKey, onSearch, onSor
           defaultValue={searchQuery}
           onChange={(e) => onSearch(e.target.value)}
         />
-
+        <div className="flex flex-row gap-2">
         <SortDropdown
           value={sortKey}
           options={[
@@ -40,20 +40,21 @@ const ProductsHeader: React.FC<Props> = ({ searchQuery, sortKey, onSearch, onSor
             { value: 'high-low', label: t('sortHighLow') },
             { value: 'name', label: t('sortName') },
           ]}
-          align="right"
+          align="left"
           onChange={onSortChange}
         />
 
         <button
           type="button"
           onClick={onCreate}
-          className="px-4 py-2 bg-orange-500 text-white rounded-md text-sm hover:bg-orange-600 transition-colors flex items-center gap-2"
+          className="px-4 py-2 bg-green-200 text-black rounded-md text-sm hover:bg-green-300 transition-colors flex items-center gap-2"
         >
           {ICONS.PLUS ? (
             <Image src={ICONS.PLUS} alt={String(t('createButton'))} width={16} height={16} className="w-4 h-4" unoptimized />
           ) : null}
           <span>{t('createButton')}</span>
         </button>
+        </div>
       </div>
     </div>
   );

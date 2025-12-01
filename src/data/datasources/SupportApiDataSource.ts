@@ -6,6 +6,8 @@ import {
   TicketType,
   CreateSupportTicketInput,
   SupportTicketAttachment,
+  SupportChatThread,
+  SupportChatMessage,
 } from '@/domain/entities/Support';
 import { API_ENDPOINTS } from '@/shared/constants/api';
 
@@ -68,6 +70,59 @@ type FaqDto = {
 type FaqResponse = {
   success?: boolean;
   data?: FaqDto[];
+  message?: string;
+};
+
+type ChatMessageDto = {
+  id?: string;
+  _id?: string;
+  sender?: 'user' | 'admin';
+  senderId?: string;
+  sender_id?: string;
+  senderName?: string | null;
+  sender_name?: string | null;
+  senderRole?: string | null;
+  sender_role?: string | null;
+  content?: string;
+  createdAt?: string;
+};
+
+type ChatThreadDto = {
+  threadId?: string;
+  id?: string;
+  userId?: string;
+  user_id?: string;
+  userName?: string | null;
+  user_name?: string | null;
+  userEmail?: string | null;
+  user_email?: string | null;
+  userAvatar?: string | null;
+  user_avatar?: string | null;
+  lastMessage?: string | null;
+  last_message?: string | null;
+  lastSender?: string | null;
+  last_sender?: string | null;
+  lastMessageAt?: string | null;
+  last_message_at?: string | null;
+  unreadByAdmin?: number;
+  unread_by_admin?: number;
+  unreadByUser?: number;
+  unread_by_user?: number;
+  messages?: ChatMessageDto[];
+};
+
+type ChatThreadResponse = {
+  success?: boolean;
+  data?: ChatThreadDto;
+  message?: string;
+};
+
+type ChatMessageResponse = {
+  success?: boolean;
+  data?: {
+    message?: ChatMessageDto;
+    thread?: ChatThreadDto;
+  };
   message?: string;
 };
 
@@ -164,6 +219,36 @@ const mapFaqDtoToDomain = (dto: FaqDto): FAQ => ({
   helpful: dto.helpful,
   notHelpful: dto.notHelpful,
   userVote: dto.userVote ?? null,
+});
+
+const mapChatMessageDto = (dto: ChatMessageDto): SupportChatMessage => ({
+  id:
+    dto.id ??
+    dto._id ??
+    `${Date.now().toString(32)}-${Math.random().toString(36).slice(2, 8)}`,
+  sender: dto.sender === 'admin' ? 'admin' : 'user',
+  senderName: dto.senderName ?? dto.sender_name ?? null,
+  senderRole: (dto.senderRole ?? dto.sender_role ?? null) as 'user' | 'admin' | null,
+  content: dto.content ?? '',
+  createdAt: parseDate(dto.createdAt),
+});
+
+const mapChatThreadDto = (dto: ChatThreadDto): SupportChatThread => ({
+  threadId: dto.threadId ?? dto.id ?? '',
+  userId: dto.userId ?? dto.user_id ?? '',
+  userName: dto.userName ?? dto.user_name ?? null,
+  userEmail: dto.userEmail ?? dto.user_email ?? null,
+  userAvatar: dto.userAvatar ?? dto.user_avatar ?? null,
+  lastMessage: dto.lastMessage ?? dto.last_message ?? null,
+  lastSender: (dto.lastSender ?? dto.last_sender ?? null) as 'user' | 'admin' | null,
+  lastMessageAt: dto.lastMessageAt ? parseDate(dto.lastMessageAt) : dto.last_message_at ? parseDate(dto.last_message_at) : null,
+  unreadByAdmin: dto.unreadByAdmin ?? dto.unread_by_admin ?? 0,
+  unreadByUser: dto.unreadByUser ?? dto.unread_by_user ?? 0,
+  messages: Array.isArray(dto.messages)
+    ? dto.messages
+        .map((message) => mapChatMessageDto(message))
+        .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+    : [],
 });
 
 export class SupportApiDataSource {
@@ -318,6 +403,54 @@ export class SupportApiDataSource {
       notHelpful: typeof payload.data.notHelpful === 'number' ? payload.data.notHelpful : 0,
       userVote: payload.data.userVote ?? null,
     };
+  }
+
+  async getChatThread(): Promise<SupportChatThread | null> {
+    const payload = await this.request<ChatThreadResponse>(
+      API_ENDPOINTS.SUPPORT_CHAT_THREAD,
+      { method: 'GET' },
+      true
+    );
+
+    if (!payload.data) {
+      return null;
+    }
+
+    return mapChatThreadDto(payload.data);
+  }
+
+  async sendChatMessage(content: string): Promise<{ message: SupportChatMessage; thread: SupportChatThread }> {
+    const payload = await this.request<ChatMessageResponse>(
+      API_ENDPOINTS.SUPPORT_CHAT_MESSAGES,
+      {
+        method: 'POST',
+        body: JSON.stringify({ content })
+      },
+      true
+    );
+
+    if (!payload.data?.message || !payload.data?.thread) {
+      throw new Error(payload.message || 'Failed to send message');
+    }
+
+    return {
+      message: mapChatMessageDto(payload.data.message),
+      thread: mapChatThreadDto(payload.data.thread)
+    };
+  }
+
+  async markChatThreadRead(): Promise<SupportChatThread | null> {
+    const payload = await this.request<ChatThreadResponse>(
+      API_ENDPOINTS.SUPPORT_CHAT_THREAD_READ,
+      { method: 'PATCH' },
+      true
+    );
+
+    if (!payload.data) {
+      return null;
+    }
+
+    return mapChatThreadDto(payload.data);
   }
 
   private buildUrl(path: string): string {

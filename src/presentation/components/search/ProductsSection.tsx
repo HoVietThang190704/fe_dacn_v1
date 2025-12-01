@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Product } from '@/domain/entities/Product';
-import ProductCard from '@/presentation/components/ProductCard';
+import ProductListCard from '@/presentation/components/ProductListCard';
 import { useTranslations } from 'next-intl';
 
 interface ProductSectionProps {
@@ -8,9 +8,11 @@ interface ProductSectionProps {
   hasMore: boolean;
   onLoadMore: () => void;
   total: number;
+  router?: { push: (path: string) => void };
+  isLoadingMore?: boolean;
 }
 
-const ProductsSection: React.FC<ProductSectionProps> = ({ products, hasMore, onLoadMore, total }) => {
+const ProductsSection: React.FC<ProductSectionProps> = ({ products, hasMore, onLoadMore, total, router, isLoadingMore = false }) => {
   const t = useTranslations('search');
 
   return (
@@ -20,11 +22,11 @@ const ProductsSection: React.FC<ProductSectionProps> = ({ products, hasMore, onL
       </div>
 
       {products.length === 0 ? (
-        <p className="text-sm text-gray-500">{t('results.noProductsDesc')}</p>
+        <p className="text-sm text-gray-500 ">{t('results.noProductsDesc')}</p>
       ) : (
-        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="grid grid-cols-2 -mx-2 gap-1 sm:gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductListCard key={product.id} product={product} router={router} />
           ))}
         </div>
       )}
@@ -34,7 +36,8 @@ const ProductsSection: React.FC<ProductSectionProps> = ({ products, hasMore, onL
           <button
             type="button"
             onClick={onLoadMore}
-            className="px-3 py-1.5 text-sm font-medium text-orange-600 hover:text-orange-700 border rounded"
+            disabled={isLoadingMore}
+            className={`px-3 py-1.5 text-sm font-medium text-orange-600 hover:text-orange-700 border rounded ${isLoadingMore ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {t('results.loadMore')}
           </button>

@@ -1,19 +1,13 @@
  'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
-import {
-  FAQ,
-  SupportTicket,
-  TicketPriority,
-  TicketStatus,
-  TicketType,
-  CreateSupportTicketInput,
-} from '@/domain/entities/Support';
+import { CreateSupportTicketInput } from '@/domain/entities/Support';
 import { ICONS } from '@/shared/constants/images';
 import { container } from '../di/container';
 import { useSupportViewModel } from '../viewmodels/useSupportViewModel';
+import { useSupportChatViewModel } from '../viewmodels/useSupportChatViewModel';
 import { QuickActionCard } from '@/presentation/components/support/QuickActionCard';
 import { TabButton } from '@/presentation/components/support/TabButton';
 import { FAQCard } from '@/presentation/components/support/FAQCard';
@@ -22,18 +16,6 @@ import { ChatPopup } from '@/presentation/components/support/ChatPopup';
 import { CreateTicketModal } from '@/presentation/components/support/CreateTicketModal';
 import { LoadingState } from '@/presentation/components/support/LoadingState';
 import { ErrorState } from '@/presentation/components/support/ErrorState';
-import { TICKET_TYPES, PRIORITIES } from '@/presentation/components/support/constants';
-
- 
-
-type TranslationFn = (key: string, values?: Record<string, string | number | Date>) => string;
-
-type ChatMessage = {
-  id: string;
-  author: 'user' | 'system';
-  content: string;
-  timestamp: Date;
-};
 
 export const SupportPage: React.FC = () => {
   const t = useTranslations('support');
@@ -42,6 +24,9 @@ export const SupportPage: React.FC = () => {
   const getSupportDataUseCase = container.getSupportDataUseCase;
   const createSupportTicketUseCase = container.createSupportTicketUseCase;
   const voteSupportFaqUseCase = container.voteSupportFaqUseCase;
+  const getSupportChatThreadUseCase = container.getSupportChatThreadUseCase;
+  const sendSupportChatMessageUseCase = container.sendSupportChatMessageUseCase;
+  const markSupportChatThreadReadUseCase = container.markSupportChatThreadReadUseCase;
 
   const {
     tickets,
@@ -63,32 +48,32 @@ export const SupportPage: React.FC = () => {
     locale,
   });
 
+  const {
+    messages: chatMessages,
+    chatInput,
+    setChatInput,
+    isChatOpen,
+    openChat,
+    closeChat,
+    isLoading: isChatLoading,
+    loadError: chatLoadError,
+    isSending: isChatSending,
+    sendMessage,
+    requiresAuth: chatRequiresAuth,
+    socketStatus,
+    unreadCount,
+    refresh: refreshChat,
+  } = useSupportChatViewModel(
+    getSupportChatThreadUseCase,
+    sendSupportChatMessageUseCase,
+    markSupportChatThreadReadUseCase,
+    {
+      greeting: t('chatBox.greeting'),
+    }
+  );
+
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [chatInput, setChatInput] = useState('');
-  const [isChatOpen, setChatOpen] = useState(false);
-
-  useEffect(() => {
-    setChatMessages((prev) => {
-      if (!prev.length) {
-        return [
-          {
-            id: 'welcome',
-            author: 'system',
-            content: t('chatBox.greeting'),
-            timestamp: new Date(),
-          },
-        ];
-      }
-
-      return prev.map((message) =>
-        message.id === 'welcome'
-          ? { ...message, content: t('chatBox.greeting') }
-          : message
-      );
-    });
-  }, [t]);
 
   const sortedTickets = useMemo(() => {
     return [...tickets].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -99,6 +84,21 @@ export const SupportPage: React.FC = () => {
     const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;
     window.open(gmailUrl, '_blank', 'noopener');
   }, [t]);
+
+  const handleOpenChat = useCallback(() => {
+    setActiveTab('tickets');
+    openChat();
+  }, [openChat, setActiveTab]);
+
+  const handleChatClose = useCallback(() => {
+    closeChat();
+  }, [closeChat]);
+
+  const handleChatLoginRedirect = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
+  }, []);
 
   const handleOpenCreateModal = () => {
     clearCreationError();
@@ -130,29 +130,6 @@ export const SupportPage: React.FC = () => {
       }
       console.error('Ticket creation failed:', msg);
     }
-  };
-
-  const handleSendChatMessage = () => {
-    const message = chatInput.trim();
-    if (!message) return;
-
-    const now = new Date();
-    setChatMessages((prev) => [
-      ...prev,
-      {
-        id: `user-${now.getTime()}`,
-        author: 'user',
-        content: message,
-        timestamp: now,
-      },
-      {
-        id: `system-${now.getTime() + 1}`,
-        author: 'system',
-        content: t('chatBox.autoReply'),
-        timestamp: new Date(now.getTime() + 1000),
-      },
-    ]);
-    setChatInput('');
   };
 
   if (isLoading && !tickets.length && !faqs.length) {
@@ -195,7 +172,17 @@ export const SupportPage: React.FC = () => {
       <div className="mb-8 grid gap-4 md:grid-cols-3">
         <QuickActionCard iconSrc={ICONS.PHONE_CALL} title={t('hotline')} description={t('quickActions.hotlineNumber')} />
         <QuickActionCard iconSrc={ICONS.EMAIL_ICON} title={t('email')} description={String(t('contactEmail'))} onClick={handleEmailClick} actionLabel={t('actions.openEmail')} />
-        <QuickActionCard iconSrc={ICONS.CHAT} title={t('chat')} description={t('quickActions.chatDescription')} onClick={() => { setActiveTab('tickets'); setChatOpen(true); }} actionLabel={t('actions.openChat')} />
+        <div className="relative">
+          {unreadCount > 0 && (
+            <span
+              className="absolute -right-1.5 -top-1.5 min-w-[32px] rounded-full bg-red-500 px-2 py-0.5 text-center text-xs font-semibold text-white"
+              aria-label={t('chatBox.unreadBadge', { count: unreadCount })}
+            >
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+          <QuickActionCard iconSrc={ICONS.CHAT} title={t('chat')} description={t('quickActions.chatDescription')} onClick={handleOpenChat} actionLabel={t('actions.openChat')} />
+        </div>
       </div>
 
       <div className="mb-6 flex flex-wrap gap-3 rounded-lg bg-white p-2 shadow-sm">
@@ -260,7 +247,23 @@ export const SupportPage: React.FC = () => {
         )}
       </div>
 
-      <ChatPopup open={isChatOpen} onClose={() => setChatOpen(false)} t={t} messages={chatMessages} locale={locale} chatInput={chatInput} onChatInputChange={setChatInput} onSend={handleSendChatMessage} />
+      <ChatPopup
+        open={isChatOpen}
+        onClose={handleChatClose}
+        t={t}
+        messages={chatMessages}
+        locale={locale}
+        chatInput={chatInput}
+        onChatInputChange={(value) => setChatInput(value)}
+        onSend={sendMessage}
+        isSending={isChatSending}
+        isLoading={isChatLoading}
+        loadError={chatLoadError}
+        onRetry={refreshChat}
+        requiresAuth={chatRequiresAuth}
+        onRequestLogin={handleChatLoginRedirect}
+        socketStatus={socketStatus}
+      />
 
       <CreateTicketModal open={isCreateModalOpen} onClose={handleCloseCreateModal} onSubmit={handleCreateTicket} isSubmitting={isCreating} error={creationError} t={t} />
     </section>

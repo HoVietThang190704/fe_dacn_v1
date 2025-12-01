@@ -28,9 +28,10 @@ export const useSearchViewModel = (searchUseCase: SearchUseCase) => {
   const [results, setResults] = useState<SearchResults | null>(null);
   const [limits, setLimits] = useState<SearchQueryParams>({ ...DEFAULT_SEARCH_LIMITS });
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const performSearch = useCallback(async (rawQuery: string, override?: SearchQueryParams) => {
+  const performSearch = useCallback(async (rawQuery: string, override?: SearchQueryParams, options?: { isLoadMore?: boolean }) => {
     const keyword = (rawQuery ?? '').trim();
     if (!keyword) {
       setQuery('');
@@ -42,7 +43,11 @@ export const useSearchViewModel = (searchUseCase: SearchUseCase) => {
     const mergedLimits = mergeLimits(baseLimitsRef.current, limitsRef.current, override);
 
     try {
-      setIsLoading(true);
+      if (options?.isLoadMore) {
+        setIsLoadingMore(true);
+      } else {
+        setIsLoading(true);
+      }
       setError(null);
       const payload = await searchUseCase.execute(keyword, mergedLimits);
       setResults(payload);
@@ -54,7 +59,11 @@ export const useSearchViewModel = (searchUseCase: SearchUseCase) => {
       setError(message);
       console.error('[useSearchViewModel] performSearch error:', err);
     } finally {
-      setIsLoading(false);
+      if (options?.isLoadMore) {
+        setIsLoadingMore(false);
+      } else {
+        setIsLoading(false);
+      }
     }
   }, [searchUseCase]);
 
@@ -76,21 +85,21 @@ export const useSearchViewModel = (searchUseCase: SearchUseCase) => {
     if (!query) return;
     const currentLimit = limitsRef.current.productsLimit ?? DEFAULT_SEARCH_LIMITS.productsLimit;
     const nextLimit = currentLimit + step;
-    await performSearch(query, { productsLimit: nextLimit });
+    await performSearch(query, { productsLimit: nextLimit }, { isLoadMore: true });
   }, [performSearch, query]);
 
   const loadMorePosts = useCallback(async (step: number = DEFAULT_SEARCH_LIMITS.postsLimit) => {
     if (!query) return;
     const currentLimit = limitsRef.current.postsLimit ?? DEFAULT_SEARCH_LIMITS.postsLimit;
     const nextLimit = currentLimit + step;
-    await performSearch(query, { postsLimit: nextLimit });
+    await performSearch(query, { postsLimit: nextLimit }, { isLoadMore: true });
   }, [performSearch, query]);
 
   const loadMoreUsers = useCallback(async (step: number = DEFAULT_SEARCH_LIMITS.usersLimit) => {
     if (!query) return;
     const currentLimit = limitsRef.current.usersLimit ?? DEFAULT_SEARCH_LIMITS.usersLimit;
     const nextLimit = currentLimit + step;
-    await performSearch(query, { usersLimit: nextLimit });
+    await performSearch(query, { usersLimit: nextLimit }, { isLoadMore: true });
   }, [performSearch, query]);
 
   return {
@@ -98,6 +107,7 @@ export const useSearchViewModel = (searchUseCase: SearchUseCase) => {
     results,
     limits,
     isLoading,
+    isLoadingMore,
     error,
     performSearch,
     loadMoreProducts,

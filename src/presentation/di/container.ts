@@ -13,6 +13,7 @@ import { ProductReviewApiDataSource } from '@/data/datasources/ProductReviewApiD
 import { CartApiDataSource } from '@/data/datasources/CartApiDataSource';
 import { SearchApiDataSource } from '@/data/datasources/SearchApiDataSource';
 import { NotificationApiDataSource } from '@/data/datasources/NotificationApiDataSource';
+import { RegisterShopOwnerApiDataSource } from '@/data/datasources/RegisterShopOwnerApiDataSource';
 
 import { ProductRepositoryImpl } from '@/data/repositories/ProductRepositoryImpl';
 import { BannerRepositoryImpl } from '@/data/repositories/BannerRepositoryImpl';
@@ -27,6 +28,7 @@ import { ProductReviewRepositoryImpl } from '@/data/repositories/ProductReviewRe
 import { CartRepositoryImpl } from '@/data/repositories/CartRepositoryImpl';
 import { SearchRepositoryImpl } from '@/data/repositories/SearchRepositoryImpl';
 import { NotificationRepositoryImpl } from '@/data/repositories/NotificationRepositoryImpl';
+import { RegisterShopOwnerRepositoryImpl } from '@/data/repositories/RegisterShopOwnerRepositoryImpl';
 
 import { GetProductsUseCase } from '@/domain/usecases/GetProductsUseCase';
 import { GetHomeDataUseCase } from '@/domain/usecases/GetHomeDataUseCase';
@@ -56,6 +58,9 @@ import { GetOrderByIdUseCase } from '@/domain/usecases/GetOrderByIdUseCase';
 import { GetSupportDataUseCase } from '@/domain/usecases/GetSupportTicketsUseCase';
 import { CreateSupportTicketUseCase } from '@/domain/usecases/CreateSupportTicketUseCase';
 import { VoteSupportFaqUseCase } from '@/domain/usecases/VoteSupportFaqUseCase';
+import { GetSupportChatThreadUseCase } from '@/domain/usecases/GetSupportChatThreadUseCase';
+import { SendSupportChatMessageUseCase } from '@/domain/usecases/SendSupportChatMessageUseCase';
+import { MarkSupportChatThreadReadUseCase } from '@/domain/usecases/MarkSupportChatThreadReadUseCase';
 import { CreateLivestreamUseCase } from '@/domain/usecases/CreateLivestreamUseCase';
 import { GetLivestreamByIdUseCase } from '@/domain/usecases/GetLivestreamByIdUseCase';
 import { UpdateLivestreamStatusUseCase } from '@/domain/usecases/UpdateLivestreamStatusUseCase';
@@ -78,6 +83,8 @@ import { GetNotificationsUseCase } from '@/domain/usecases/notifications/GetNoti
 import { MarkNotificationReadUseCase } from '@/domain/usecases/notifications/MarkNotificationReadUseCase';
 import { MarkAllNotificationsReadUseCase } from '@/domain/usecases/notifications/MarkAllNotificationsReadUseCase';
 import { GetNotificationSummaryUseCase } from '@/domain/usecases/notifications/GetNotificationSummaryUseCase';
+import { GetMyRegisterShopOwnerRequestUseCase } from '@/domain/usecases/registerShopOwner/GetMyRegisterShopOwnerRequestUseCase';
+import { SubmitRegisterShopOwnerRequestUseCase } from '@/domain/usecases/registerShopOwner/SubmitRegisterShopOwnerRequestUseCase';
 
 class DIContainer {
   private static instance: DIContainer;
@@ -95,6 +102,7 @@ class DIContainer {
   private _cartApiDataSource?: CartApiDataSource;
   private _searchApiDataSource?: SearchApiDataSource;
   private _notificationApiDataSource?: NotificationApiDataSource;
+  private _registerShopOwnerApiDataSource?: RegisterShopOwnerApiDataSource;
 
   private _productRepository?: ProductRepositoryImpl;
   private _bannerRepository?: BannerRepositoryImpl;
@@ -109,6 +117,7 @@ class DIContainer {
   private _cartRepository?: CartRepositoryImpl;
   private _searchRepository?: SearchRepositoryImpl;
   private _notificationRepository?: NotificationRepositoryImpl;
+  private _registerShopOwnerRepository?: RegisterShopOwnerRepositoryImpl;
 
   private _getProductsUseCase?: GetProductsUseCase;
   private _getHomeDataUseCase?: GetHomeDataUseCase;
@@ -141,6 +150,9 @@ class DIContainer {
   private _getSupportDataUseCase?: GetSupportDataUseCase;
   private _createSupportTicketUseCase?: CreateSupportTicketUseCase;
   private _voteSupportFaqUseCase?: VoteSupportFaqUseCase;
+  private _getSupportChatThreadUseCase?: GetSupportChatThreadUseCase;
+  private _sendSupportChatMessageUseCase?: SendSupportChatMessageUseCase;
+  private _markSupportChatThreadReadUseCase?: MarkSupportChatThreadReadUseCase;
   private _createLivestreamUseCase?: CreateLivestreamUseCase;
   private _getLivestreamByIdUseCase?: GetLivestreamByIdUseCase;
   private _updateLivestreamStatusUseCase?: UpdateLivestreamStatusUseCase;
@@ -160,6 +172,8 @@ class DIContainer {
   private _markNotificationReadUseCase?: MarkNotificationReadUseCase;
   private _markAllNotificationsReadUseCase?: MarkAllNotificationsReadUseCase;
   private _getNotificationSummaryUseCase?: GetNotificationSummaryUseCase;
+  private _getMyRegisterShopOwnerRequestUseCase?: GetMyRegisterShopOwnerRequestUseCase;
+  private _submitRegisterShopOwnerRequestUseCase?: SubmitRegisterShopOwnerRequestUseCase;
 
   private constructor() {}
 
@@ -261,6 +275,13 @@ class DIContainer {
     return this._notificationApiDataSource;
   }
 
+  get registerShopOwnerApiDataSource(): RegisterShopOwnerApiDataSource {
+    if (!this._registerShopOwnerApiDataSource) {
+      this._registerShopOwnerApiDataSource = new RegisterShopOwnerApiDataSource();
+    }
+    return this._registerShopOwnerApiDataSource;
+  }
+
   get productRepository(): ProductRepositoryImpl {
     if (!this._productRepository) {
       this._productRepository = new ProductRepositoryImpl(this.productApiDataSource);
@@ -350,6 +371,13 @@ class DIContainer {
       this._notificationRepository = new NotificationRepositoryImpl(this.notificationApiDataSource);
     }
     return this._notificationRepository;
+  }
+
+  get registerShopOwnerRepository(): RegisterShopOwnerRepositoryImpl {
+    if (!this._registerShopOwnerRepository) {
+      this._registerShopOwnerRepository = new RegisterShopOwnerRepositoryImpl(this.registerShopOwnerApiDataSource);
+    }
+    return this._registerShopOwnerRepository;
   }
 
   get getProductsUseCase(): GetProductsUseCase {
@@ -572,6 +600,27 @@ class DIContainer {
     return this._voteSupportFaqUseCase;
   }
 
+  get getSupportChatThreadUseCase(): GetSupportChatThreadUseCase {
+    if (!this._getSupportChatThreadUseCase) {
+      this._getSupportChatThreadUseCase = new GetSupportChatThreadUseCase(this.supportRepository);
+    }
+    return this._getSupportChatThreadUseCase;
+  }
+
+  get sendSupportChatMessageUseCase(): SendSupportChatMessageUseCase {
+    if (!this._sendSupportChatMessageUseCase) {
+      this._sendSupportChatMessageUseCase = new SendSupportChatMessageUseCase(this.supportRepository);
+    }
+    return this._sendSupportChatMessageUseCase;
+  }
+
+  get markSupportChatThreadReadUseCase(): MarkSupportChatThreadReadUseCase {
+    if (!this._markSupportChatThreadReadUseCase) {
+      this._markSupportChatThreadReadUseCase = new MarkSupportChatThreadReadUseCase(this.supportRepository);
+    }
+    return this._markSupportChatThreadReadUseCase;
+  }
+
   get createLivestreamUseCase(): CreateLivestreamUseCase {
     if (!this._createLivestreamUseCase) {
       this._createLivestreamUseCase = new CreateLivestreamUseCase(this.livestreamRepository);
@@ -703,6 +752,20 @@ class DIContainer {
       this._getNotificationSummaryUseCase = new GetNotificationSummaryUseCase(this.notificationRepository);
     }
     return this._getNotificationSummaryUseCase;
+  }
+
+  get getMyRegisterShopOwnerRequestUseCase(): GetMyRegisterShopOwnerRequestUseCase {
+    if (!this._getMyRegisterShopOwnerRequestUseCase) {
+      this._getMyRegisterShopOwnerRequestUseCase = new GetMyRegisterShopOwnerRequestUseCase(this.registerShopOwnerRepository);
+    }
+    return this._getMyRegisterShopOwnerRequestUseCase;
+  }
+
+  get submitRegisterShopOwnerRequestUseCase(): SubmitRegisterShopOwnerRequestUseCase {
+    if (!this._submitRegisterShopOwnerRequestUseCase) {
+      this._submitRegisterShopOwnerRequestUseCase = new SubmitRegisterShopOwnerRequestUseCase(this.registerShopOwnerRepository);
+    }
+    return this._submitRegisterShopOwnerRequestUseCase;
   }
 }
 
