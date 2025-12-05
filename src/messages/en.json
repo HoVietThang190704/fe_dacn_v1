@@ -57,6 +57,38 @@
     "loginButton": "Login",
     "registerButton": "Register"
   },
+  "aiAssistant": {
+    "launcher": {
+      "tooltipDesktop": "Chat with FreshBuddy",
+      "tooltipMobile": "Ask FreshBuddy",
+      "openLabel": "Open AI assistant",
+      "closeLabel": "Close AI assistant"
+    },
+    "panel": {
+      "title": "FreshBuddy",
+      "subtitle": "Catalog-first AI helper that only goes to Google when your data runs out",
+      "placeholder": "Ask about categories, products or deals...",
+      "send": "Send",
+      "clear": "Clear chat",
+      "empty": "Ask something like \"Which organic vegetables are available today?\"",
+      "loading": "FreshBuddy is thinking...",
+      "error": "Unable to reach the AI assistant right now. Please try again soon.",
+      "retry": "Retry",
+      "poweredBy": "Powered by Google Gemini + Programmable Search",
+      "privacy": "FreshBuddy answers with Fresh Food data first and only shares anonymized snippets with Google when needed.",
+      "fallbackHint": "Fallback search triggers automatically whenever your question needs extra context.",
+      "greeting": "Hi there! I can help you explore categories, find matching products or highlight current promotions.",
+      "suggestions": {
+        "categories": "Suggested categories",
+        "products": "Suggested products"
+      },
+      "status": {
+        "ready": "Ready to help",
+        "thinking": "Preparing a reply...",
+        "failed": "Something went wrong"
+      }
+    }
+  },
   "navbar": {
     "searchPlaceholder": "Search for Grocery, Stores, Vegetable or Meat...",
     "deliveryPromise": "Order now and get it within 15 mins!",
@@ -195,6 +227,7 @@
     "quantity": "Quantity",
     "addToCart": "Add to cart",
     "buyNow": "Buy now",
+    "shareThisProduct": "Share product",
     "productDetails": "Product details",
     "stock": "Stock",
     "labelProduct": "Product",
@@ -714,6 +747,39 @@
     "daysAgo": "{days} days ago",
     "moreImages": "+{count}",
     "options": "Options"
+  },
+  "shareDialog": {
+    "title": {
+      "post": "Share post",
+      "product": "Share product"
+    },
+    "subtitle": {
+      "post": "Copy the link or let friends scan the QR code to view this post.",
+      "product": "Copy the link or show the QR code so customers can view this product."
+    },
+    "linkLabel": "Share link",
+    "copyAction": "Copy link",
+    "openAction": "Open link",
+    "copySuccess": "Link copied to clipboard",
+    "copyError": "Unable to copy link. Please try again.",
+    "qrLabel": "Scan QR code",
+    "scanHint": "Point any mobile camera to open the link instantly.",
+    "loading": "Preparing share link...",
+    "error": "Unable to load share information.",
+    "retry": "Try again",
+    "close": "Close",
+    "preview": "Link preview",
+    "metaFallback": {
+      "post": "Community post",
+      "product": "Product"
+    },
+    "internalShare": {
+      "title": "Reshare to community",
+      "helper": "Add a note and share this post back to your feed.",
+      "placeholder": "Say something about this post...",
+      "clear": "Clear",
+      "cta": "Share now"
+    }
   },
   "postEditor": { 
     "title": "Edit post",

@@ -14,6 +14,8 @@ import { CartApiDataSource } from '@/data/datasources/CartApiDataSource';
 import { SearchApiDataSource } from '@/data/datasources/SearchApiDataSource';
 import { NotificationApiDataSource } from '@/data/datasources/NotificationApiDataSource';
 import { RegisterShopOwnerApiDataSource } from '@/data/datasources/RegisterShopOwnerApiDataSource';
+import { AiAssistantApiDataSource } from '@/data/datasources/AiAssistantApiDataSource';
+import { ShareApiDataSource } from '@/data/datasources/ShareApiDataSource';
 
 import { ProductRepositoryImpl } from '@/data/repositories/ProductRepositoryImpl';
 import { BannerRepositoryImpl } from '@/data/repositories/BannerRepositoryImpl';
@@ -29,6 +31,8 @@ import { CartRepositoryImpl } from '@/data/repositories/CartRepositoryImpl';
 import { SearchRepositoryImpl } from '@/data/repositories/SearchRepositoryImpl';
 import { NotificationRepositoryImpl } from '@/data/repositories/NotificationRepositoryImpl';
 import { RegisterShopOwnerRepositoryImpl } from '@/data/repositories/RegisterShopOwnerRepositoryImpl';
+import { AiAssistantRepositoryImpl } from '@/data/repositories/AiAssistantRepositoryImpl';
+import { ShareRepositoryImpl } from '@/data/repositories/ShareRepositoryImpl';
 
 import { GetProductsUseCase } from '@/domain/usecases/GetProductsUseCase';
 import { GetHomeDataUseCase } from '@/domain/usecases/GetHomeDataUseCase';
@@ -85,6 +89,9 @@ import { MarkAllNotificationsReadUseCase } from '@/domain/usecases/notifications
 import { GetNotificationSummaryUseCase } from '@/domain/usecases/notifications/GetNotificationSummaryUseCase';
 import { GetMyRegisterShopOwnerRequestUseCase } from '@/domain/usecases/registerShopOwner/GetMyRegisterShopOwnerRequestUseCase';
 import { SubmitRegisterShopOwnerRequestUseCase } from '@/domain/usecases/registerShopOwner/SubmitRegisterShopOwnerRequestUseCase';
+import { AskAiAssistantUseCase } from '@/domain/usecases/AskAiAssistantUseCase';
+import { GetPostShareInfoUseCase } from '@/domain/usecases/share/GetPostShareInfoUseCase';
+import { GetProductShareInfoUseCase } from '@/domain/usecases/share/GetProductShareInfoUseCase';
 
 class DIContainer {
   private static instance: DIContainer;
@@ -103,6 +110,8 @@ class DIContainer {
   private _searchApiDataSource?: SearchApiDataSource;
   private _notificationApiDataSource?: NotificationApiDataSource;
   private _registerShopOwnerApiDataSource?: RegisterShopOwnerApiDataSource;
+  private _aiAssistantApiDataSource?: AiAssistantApiDataSource;
+  private _shareApiDataSource?: ShareApiDataSource;
 
   private _productRepository?: ProductRepositoryImpl;
   private _bannerRepository?: BannerRepositoryImpl;
@@ -118,6 +127,8 @@ class DIContainer {
   private _searchRepository?: SearchRepositoryImpl;
   private _notificationRepository?: NotificationRepositoryImpl;
   private _registerShopOwnerRepository?: RegisterShopOwnerRepositoryImpl;
+  private _aiAssistantRepository?: AiAssistantRepositoryImpl;
+  private _shareRepository?: ShareRepositoryImpl;
 
   private _getProductsUseCase?: GetProductsUseCase;
   private _getHomeDataUseCase?: GetHomeDataUseCase;
@@ -174,6 +185,9 @@ class DIContainer {
   private _getNotificationSummaryUseCase?: GetNotificationSummaryUseCase;
   private _getMyRegisterShopOwnerRequestUseCase?: GetMyRegisterShopOwnerRequestUseCase;
   private _submitRegisterShopOwnerRequestUseCase?: SubmitRegisterShopOwnerRequestUseCase;
+  private _askAiAssistantUseCase?: AskAiAssistantUseCase;
+  private _getPostShareInfoUseCase?: GetPostShareInfoUseCase;
+  private _getProductShareInfoUseCase?: GetProductShareInfoUseCase;
 
   private constructor() {}
 
@@ -282,6 +296,20 @@ class DIContainer {
     return this._registerShopOwnerApiDataSource;
   }
 
+  get aiAssistantApiDataSource(): AiAssistantApiDataSource {
+    if (!this._aiAssistantApiDataSource) {
+      this._aiAssistantApiDataSource = new AiAssistantApiDataSource(API_CONFIG.BASE_URL);
+    }
+    return this._aiAssistantApiDataSource;
+  }
+
+  get shareApiDataSource(): ShareApiDataSource {
+    if (!this._shareApiDataSource) {
+      this._shareApiDataSource = new ShareApiDataSource(API_CONFIG.BASE_URL);
+    }
+    return this._shareApiDataSource;
+  }
+
   get productRepository(): ProductRepositoryImpl {
     if (!this._productRepository) {
       this._productRepository = new ProductRepositoryImpl(this.productApiDataSource);
@@ -378,6 +406,20 @@ class DIContainer {
       this._registerShopOwnerRepository = new RegisterShopOwnerRepositoryImpl(this.registerShopOwnerApiDataSource);
     }
     return this._registerShopOwnerRepository;
+  }
+
+  get aiAssistantRepository(): AiAssistantRepositoryImpl {
+    if (!this._aiAssistantRepository) {
+      this._aiAssistantRepository = new AiAssistantRepositoryImpl(this.aiAssistantApiDataSource);
+    }
+    return this._aiAssistantRepository;
+  }
+
+  get shareRepository(): ShareRepositoryImpl {
+    if (!this._shareRepository) {
+      this._shareRepository = new ShareRepositoryImpl(this.shareApiDataSource);
+    }
+    return this._shareRepository;
   }
 
   get getProductsUseCase(): GetProductsUseCase {
@@ -766,6 +808,27 @@ class DIContainer {
       this._submitRegisterShopOwnerRequestUseCase = new SubmitRegisterShopOwnerRequestUseCase(this.registerShopOwnerRepository);
     }
     return this._submitRegisterShopOwnerRequestUseCase;
+  }
+
+  get askAiAssistantUseCase(): AskAiAssistantUseCase {
+    if (!this._askAiAssistantUseCase) {
+      this._askAiAssistantUseCase = new AskAiAssistantUseCase(this.aiAssistantRepository);
+    }
+    return this._askAiAssistantUseCase;
+  }
+
+  get getPostShareInfoUseCase(): GetPostShareInfoUseCase {
+    if (!this._getPostShareInfoUseCase) {
+      this._getPostShareInfoUseCase = new GetPostShareInfoUseCase(this.shareRepository);
+    }
+    return this._getPostShareInfoUseCase;
+  }
+
+  get getProductShareInfoUseCase(): GetProductShareInfoUseCase {
+    if (!this._getProductShareInfoUseCase) {
+      this._getProductShareInfoUseCase = new GetProductShareInfoUseCase(this.shareRepository);
+    }
+    return this._getProductShareInfoUseCase;
   }
 }
 

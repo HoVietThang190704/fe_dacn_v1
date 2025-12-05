@@ -14,6 +14,7 @@ import LoadingState from '@/presentation/components/ui/LoadingState';
 import ErrorState from '@/presentation/components/ui/ErrorState';
 import NotFoundState from '@/presentation/components/ui/NotFoundState';
 import Icon from '@/presentation/components/ui/Icon';
+import { ShareDialog } from '@/presentation/components/share/ShareDialog';
 import { container } from '@/presentation/di/container';
 import { useProductDetailViewModel } from '@/presentation/viewmodels/useProductDetailViewModel';
 import { useAuth } from '@/shared/hooks/useAuth';
@@ -35,6 +36,7 @@ export const ProductDetailPage: React.FC = () => {
   const tProductCard = useTranslations('productCard');
   const tFav = useTranslations('favorites');
   const t = useTranslations('product');
+  const shareProductLabel = t('shareThisProduct') || 'Share';
   const {
     addItem,
     isMutating: isCartMutating,
@@ -75,6 +77,7 @@ export const ProductDetailPage: React.FC = () => {
   const [newReviewContent, setNewReviewContent] = useState('');
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState('');
+  const [isProductShareOpen, setProductShareOpen] = useState(false);
   const cartActionMessage = cartMessage ? translateCart(`messages.${cartMessage}`) : null;
   const {
     isFavorite: isFavoriteHook,
@@ -101,6 +104,10 @@ export const ProductDetailPage: React.FC = () => {
     }
   }, [product, quantity, setQuantityHook]);
   const [reviewFormError, setReviewFormError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setProductShareOpen(false);
+  }, [productId]);
 
 
   const handleSubmitReview = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -226,15 +233,24 @@ export const ProductDetailPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 py-8">
       <div className="max-w-6xl mx-auto px-4 lg:px-0 space-y-10">
-        
-          <div className="flex items-center justify-start">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <button
             onClick={() => router.back()}
-            className="flex items-center gap-1 px-4 text-sm text-orange-500 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+            className="flex items-center gap-1 rounded-lg px-4 text-sm text-orange-500 transition-colors hover:bg-orange-50 hover:text-orange-600"
           >
-            <Icon name="ARROW_LEFT" alt="back" className="w-4 h-4" />
+            <Icon name="ARROW_LEFT" alt="back" className="h-4 w-4" />
             {t('backToProducts') || 'Quay lại'}
           </button>
+
+          {product && (
+            <button
+              onClick={() => setProductShareOpen(true)}
+              className="flex items-center gap-2 rounded-lg border border-orange-200 px-4 py-2 text-sm font-semibold text-orange-600 transition hover:border-orange-300 hover:bg-orange-50"
+            >
+              <Icon name="SHARE" alt={shareProductLabel} className="h-4 w-4" />
+              {shareProductLabel}
+            </button>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-9 -mt-8">
@@ -341,6 +357,14 @@ export const ProductDetailPage: React.FC = () => {
           isAuthenticated={isAuthenticated}
           handleSubmitReview={handleSubmitReview}
           reviewFormError={reviewFormError}
+        />
+
+        <ShareDialog
+          open={isProductShareOpen}
+          onClose={() => setProductShareOpen(false)}
+          resourceType="product"
+          resourceId={product.id}
+          locale={locale}
         />
       </div>
     </div>
