@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { CommunityPost } from '@/domain/entities/Community';
 import PostDetailModal from './PostDetailModal';
-import SharePostModal from './SharePostModal';
+import { ShareDialog } from '@/presentation/components/share/ShareDialog';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { ICONS } from '@/shared/constants/images';
 import { useTranslations } from 'next-intl';
@@ -355,11 +355,13 @@ const PostCard: React.FC<PostCardProps> = ({ post, onLike, onComment, onShare, o
 
       
       {isShareOpen && (
-        <SharePostModal
-          isOpen={isShareOpen}
+        <ShareDialog
+          open={isShareOpen}
           onClose={() => setIsShareOpen(false)}
-          post={post}
-          onShare={handleSharePost}
+          resourceType="post"
+          resourceId={post.id}
+          locale={locale}
+          onInternalShare={handleSharePost}
         />
       )}
     </div>

@@ -40,6 +40,7 @@ export const API_ENDPOINTS = {
   PRODUCT_REVIEWS: '/api/product-reviews',
   PRODUCT_REVIEWS_BY_PRODUCT: (productId: string) => `/api/product-reviews/product/${productId}`,
   PRODUCT_REVIEW_DETAIL: (reviewId: string) => `/api/product-reviews/${reviewId}`,
+  PRODUCT_SHARE_INFO: (productId: string) => `/api/products/${productId}/share-info`,
   
   // Orders (user-specific endpoints under /api/users/me/... as per docs)
   ORDERS: '/api/users/me/orders',
@@ -96,6 +97,7 @@ export const API_ENDPOINTS = {
   UPDATE_POST: (postId: string) => `/api/posts/${postId}`,
   DELETE_POST: (postId: string) => `/api/posts/${postId}`,
   TOGGLE_LIKE_POST: (postId: string) => `/api/posts/${postId}/like`,
+  POST_SHARE_INFO: (postId: string) => `/api/posts/${postId}/share-info`,
   SHARE_POST: (postId: string) => `/api/posts/${postId}/share`,
   
   // Comments
@@ -122,6 +124,7 @@ export const API_ENDPOINTS = {
   SUPPORT_CHAT_THREAD: '/api/support/chat/thread',
   SUPPORT_CHAT_MESSAGES: '/api/support/chat/messages',
   SUPPORT_CHAT_THREAD_READ: '/api/support/chat/thread/read',
+  AI_CHAT: '/api/ai/chat',
 
   // Notifications
   NOTIFICATIONS: '/api/notifications',

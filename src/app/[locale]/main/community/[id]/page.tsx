@@ -6,12 +6,11 @@ import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { postCommentContainer } from '@/presentation/di/PostCommentContainer';
 import { Post } from '@/domain/entities/Post';
-import { Comment } from '@/domain/entities/Comment';
 import PostHeader from './components/PostHeader';
 import PostImages from './components/PostImages';
 import PostActions from './components/PostActions';
-import CommentForm from './components/CommentForm';
-import CommentItem from './components/CommentItem';
+import { CommentSection } from '@/presentation/components/CommentSection';
+import { ShareDialog } from '@/presentation/components/share/ShareDialog';
 
 export default function PostDetailPage() {
   const params = useParams();
@@ -20,11 +19,11 @@ export default function PostDetailPage() {
   const postId = params.id as string;
 
   const [post, setPost] = useState<Post | null>(null);
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [newComment, setNewComment] = useState('');
+  // comments and comment input are handled by CommentSection in this page
   const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // CommentSection will handle comment submission UI/logic in this page
   const [error, setError] = useState<string | null>(null);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   const loadPostAndComments = useCallback(async () => {
     try {
@@ -33,10 +32,7 @@ export default function PostDetailPage() {
         .postRepository
         .getPostById(postId);
       setPost(postData);
-      const commentsData = await postCommentContainer
-        .getCommentsByPostIdUseCase
-        .execute(postId, 1, 100);
-      setComments(commentsData.comments);
+      // Comments will be loaded by the presentation CommentSection component
       
     } catch (err) {
       setError(err instanceof Error ? err.message : t('loading') || 'Unable to load post');
@@ -66,44 +62,14 @@ export default function PostDetailPage() {
     }
   };
 
-  const handleSubmitComment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newComment.trim() || isSubmitting) return;
 
-    try {
-      setIsSubmitting(true);
-      const comment = await postCommentContainer
-        .createCommentUseCase
-        .execute({
-          postId,
-          content: newComment.trim(),
-        });
-      
-      setComments([comment, ...comments]);
-      setNewComment('');
-      if (post) {
-        setPost({ ...post, commentsCount: post.commentsCount + 1 });
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('sending') || 'Error creating comment');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
-  const handleLikeComment = async (commentId: string) => {
+  const handleSharePost = async (content?: string) => {
     try {
-      const result = await postCommentContainer
-        .toggleLikeCommentUseCase
-        .execute(commentId);
-      
-      setComments(comments.map(c =>
-        c.id === commentId
-          ? { ...c, isLiked: result.liked, likesCount: result.likesCount }
-          : c
-      ));
+      await postCommentContainer.sharePostUseCase.execute({ originalPostId: postId, content });
+      if (post) setPost({ ...post, sharesCount: (post.sharesCount || 0) + 1 });
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('error') || 'Error liking comment');
+      setError(err instanceof Error ? err.message : t('error') || 'Error sharing post');
     }
   };
 
@@ -182,29 +148,25 @@ export default function PostDetailPage() {
             sharesCount={post.sharesCount}
             isLiked={post.isLiked}
             onLike={handleLike}
+            onShare={() => setIsShareOpen(true)}
           />
         </div>
+        {isShareOpen && (
+          <ShareDialog
+            open={isShareOpen}
+            onClose={() => setIsShareOpen(false)}
+            resourceType="post"
+            resourceId={postId}
+            locale={params.locale as string}
+            onInternalShare={async (content) => { await handleSharePost(content); setIsShareOpen(false); }}
+          />
+        )}
 
         <div className="bg-white mt-2 mb-4">
           <div className="p-4 border-b border-gray-200">
-            <h3 className="font-semibold text-lg">{t('comments')} ({comments.length})</h3>
+            <h3 className="font-semibold text-lg">{t('comments')} ({post?.commentsCount || 0})</h3>
           </div>
-          <CommentForm
-            value={newComment}
-            onChange={setNewComment}
-            onSubmit={handleSubmitComment}
-            disabled={isSubmitting}
-            avatar={post.user?.avatar}
-          />
-          <div className="divide-y divide-gray-100">
-            {comments.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">{t('emptyComments')}</div>
-            ) : (
-              comments.map((comment) => (
-                <CommentItem key={comment.id} comment={comment} onLike={handleLikeComment} formatTimeAgo={formatTimeAgo} />
-              ))
-            )}
-          </div>
+          <CommentSection postId={postId} />
         </div>
       </div>
     </div>

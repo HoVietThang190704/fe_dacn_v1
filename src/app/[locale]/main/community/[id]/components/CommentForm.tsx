@@ -26,14 +26,14 @@ export default function CommentForm({ value, onChange, onSubmit, disabled, avata
         )}
       </div>
       <div className="flex-1 flex gap-2">
-        <input
-          type="text"
+        <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={t('commentPlaceholder') || 'Write a comment...'}
-          className="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+          className="flex-1 px-4 py-2 bg-gray-100 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none h-10 overflow-hidden"
           disabled={disabled}
           aria-label={t('commentPlaceholder')}
+          rows={1}
         />
         <button
           type="submit"

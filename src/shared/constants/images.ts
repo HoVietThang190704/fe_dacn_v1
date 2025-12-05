@@ -73,4 +73,5 @@ export const ICONS = {
     NO_CAMERA: '/icons/no-video.png',
     HISTORY: '/icons/history.png',
     DIRECT: '/icons/direct.png',
+    COPY: '/icons/copy.png',
 }

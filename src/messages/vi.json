@@ -57,6 +57,38 @@
     "loginButton": "Đăng nhập",
     "registerButton": "Đăng ký"
   },
+  "aiAssistant": {
+    "launcher": {
+      "tooltipDesktop": "Hỏi FreshBuddy",
+      "tooltipMobile": "Chat với FreshBuddy",
+      "openLabel": "Mở trợ lý AI",
+      "closeLabel": "Đóng trợ lý AI"
+    },
+    "panel": {
+      "title": "FreshBuddy",
+      "subtitle": "Ưu tiên dữ liệu Fresh Food, chỉ hỏi Google khi thật sự cần",
+      "placeholder": "Hỏi về danh mục, sản phẩm hoặc ưu đãi...",
+      "send": "Gửi",
+      "clear": "Xóa hội thoại",
+      "empty": "Hãy thử hỏi: \"Rau hữu cơ hiện có những loại nào?\"",
+      "loading": "FreshBuddy đang suy nghĩ...",
+      "error": "Không thể kết nối với trợ lý AI. Vui lòng thử lại sau.",
+      "retry": "Thử lại",
+      "poweredBy": "Vận hành bởi Google Gemini + Programmable Search",
+      "privacy": "FreshBuddy dùng dữ liệu nội bộ trước và chỉ gửi truy vấn ẩn danh sang Google khi thiếu thông tin.",
+      "fallbackHint": "Google sẽ được gọi tự động khi câu hỏi cần thêm thông tin.",
+      "greeting": "Xin chào! Tôi có thể giúp bạn tìm danh mục, sản phẩm phù hợp hoặc ưu đãi đang có.",
+      "suggestions": {
+        "categories": "Danh mục đề xuất",
+        "products": "Sản phẩm gợi ý"
+      },
+      "status": {
+        "ready": "Sẵn sàng hỗ trợ",
+        "thinking": "Đang phản hồi...",
+        "failed": "Đã xảy ra lỗi"
+      }
+    }
+  },
   "navbar": {
     "searchPlaceholder": "Tìm kiếm rau, trái cây, thịt hoặc thực phẩm...",
     "deliveryPromise": "Đặt hàng ngay và nhận trong 15 phút!",
@@ -196,6 +228,7 @@
     "quantity": "Số lượng",
     "addToCart": "Thêm vào giỏ hàng",
     "buyNow": "Mua ngay",
+    "shareThisProduct": "Chia sẻ sản phẩm",
     "productDetails": "Chi tiết sản phẩm",
     "stock": "Tồn kho",
     "labelProduct": "Sản phẩm",
@@ -710,6 +743,39 @@
     "moreImages": "+{count}",
     "options": "Tùy chọn",
     "userFallback": "Người dùng"
+  },
+  "shareDialog": {
+    "title": {
+      "post": "Chia sẻ bài viết",
+      "product": "Chia sẻ sản phẩm"
+    },
+    "subtitle": {
+      "post": "Sao chép liên kết hoặc đưa mã QR để mọi người xem bài viết này.",
+      "product": "Sao chép liên kết hoặc đưa mã QR để khách hàng xem sản phẩm này."
+    },
+    "linkLabel": "Liên kết chia sẻ",
+    "copyAction": "Sao chép liên kết",
+    "openAction": "Mở liên kết",
+    "copySuccess": "Đã sao chép liên kết",
+    "copyError": "Không thể sao chép, vui lòng thử lại.",
+    "qrLabel": "Quét mã QR",
+    "scanHint": "Đưa camera điện thoại lên để mở liên kết ngay.",
+    "loading": "Đang chuẩn bị liên kết chia sẻ...",
+    "error": "Không thể tải thông tin chia sẻ.",
+    "retry": "Thử lại",
+    "close": "Đóng",
+    "preview": "Xem trước liên kết",
+    "metaFallback": {
+      "post": "Bài viết cộng đồng",
+      "product": "Sản phẩm"
+    },
+    "internalShare": {
+      "title": "Chia sẻ lại lên cộng đồng",
+      "helper": "Thêm lời nhắn và chia sẻ bài viết này lên bảng tin của bạn.",
+      "placeholder": "Hãy nói điều gì đó về bài viết này...",
+      "clear": "Xóa nội dung",
+      "cta": "Chia sẻ ngay"
+    }
   },
   "postEditor": {
     "title": "Chỉnh sửa bài viết",
