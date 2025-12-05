@@ -252,6 +252,186 @@ export function useAuth() {
     }
   };
 
+  const loginWithFacebook = async (accessToken: string) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      if (!accessToken) throw new Error('No access_token received from Facebook');
+
+      // Exchange access_token with backend for our app tokens & user
+      const result = await authAPI.facebookToken(accessToken);
+      if (result.success && result.data) {
+        if (result.data.accessToken && result.data.refreshToken && result.data.user) {
+          localStorage.setItem('authToken', result.data.accessToken);
+          localStorage.setItem('refreshToken', result.data.refreshToken);
+
+          postCommentContainer.setAuthToken(result.data.accessToken);
+
+          // Fetch profile and store user (similar to normal login flow)
+          try {
+            const profileResult = await usersAPI.getMyProfile(result.data.accessToken);
+            if (profileResult && profileResult.success && profileResult.data) {
+              const normalized = extractProfileFromPayload(profileResult.data);
+              const fullUser = { ...result.data.user, ...(normalized || {}) } as User;
+              localStorage.setItem('user', JSON.stringify(fullUser));
+              setUser(fullUser);
+            } else {
+              localStorage.setItem('user', JSON.stringify(result.data.user));
+              setUser(result.data.user as User);
+            }
+          } catch (profileError) {
+            console.error('Failed to fetch profile after facebook login:', profileError);
+            localStorage.setItem('user', JSON.stringify(result.data.user));
+            setUser(result.data.user as User);
+          }
+
+          setIsAuthenticated(true);
+        }
+
+        router.push('/main');
+        return true;
+      }
+
+      setError(result.error || 'Facebook login failed');
+      return false;
+    } catch (error) {
+      console.error('Facebook login error:', error);
+      let errMsg = 'Facebook login failed';
+      if (error instanceof Error && error.message) errMsg = error.message;
+      else if (typeof error === 'string') errMsg = error;
+      else if (error && typeof error === 'object') {
+        const maybe = error as { [key: string]: unknown };
+        if (typeof maybe.message === 'string') errMsg = maybe.message;
+      }
+      setError(errMsg);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginWithFirebase = async (idToken: string) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      if (!idToken) throw new Error('No Firebase idToken provided');
+
+      const result = await authAPI.firebaseVerify(idToken);
+      if (result.success && result.data) {
+        if (result.data.accessToken && result.data.refreshToken && result.data.user) {
+          localStorage.setItem('authToken', result.data.accessToken);
+          localStorage.setItem('refreshToken', result.data.refreshToken);
+
+          postCommentContainer.setAuthToken(result.data.accessToken);
+
+          try {
+            const profileResult = await usersAPI.getMyProfile(result.data.accessToken);
+            if (profileResult && profileResult.success && profileResult.data) {
+              const normalized = extractProfileFromPayload(profileResult.data);
+              const fullUser = { ...result.data.user, ...(normalized || {}) } as User;
+              localStorage.setItem('user', JSON.stringify(fullUser));
+              setUser(fullUser);
+            } else {
+              localStorage.setItem('user', JSON.stringify(result.data.user));
+              setUser(result.data.user as User);
+            }
+          } catch (profileError) {
+            console.error('Failed to fetch profile after firebase login:', profileError);
+            localStorage.setItem('user', JSON.stringify(result.data.user));
+            setUser(result.data.user as User);
+          }
+
+          setIsAuthenticated(true);
+        }
+
+        router.push('/main');
+        return true;
+      }
+
+      setError(result.error || 'Firebase login failed');
+      return false;
+    } catch (error) {
+      console.error('Firebase login error:', error);
+      let errMsg = 'Firebase login failed';
+      if (error instanceof Error && error.message) errMsg = error.message;
+      setError(errMsg);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const sendOTP = async (phone: string) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const result = await authAPI.sendOTP(phone);
+      if (result.success) {
+        return true;
+      } else {
+        setError(result.error || 'Failed to send OTP');
+        return false;
+      }
+    } catch (error) {
+      console.error('Send OTP error:', error);
+      setError('Failed to send OTP. Please try again.');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginWithPhone = async (phone: string, otp: string) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const result = await authAPI.verifyOTP(phone, otp);
+      if (result.success && result.data) {
+        if (result.data.accessToken && result.data.refreshToken && result.data.user) {
+          localStorage.setItem('authToken', result.data.accessToken);
+          localStorage.setItem('refreshToken', result.data.refreshToken);
+
+          postCommentContainer.setAuthToken(result.data.accessToken);
+
+          // Fetch profile and store user
+          try {
+            const profileResult = await usersAPI.getMyProfile(result.data.accessToken);
+            if (profileResult && profileResult.success && profileResult.data) {
+              const normalized = extractProfileFromPayload(profileResult.data);
+              const fullUser = { ...result.data.user, ...(normalized || {}) } as User;
+              localStorage.setItem('user', JSON.stringify(fullUser));
+              setUser(fullUser);
+            } else {
+              localStorage.setItem('user', JSON.stringify(result.data.user));
+              setUser(result.data.user as User);
+            }
+          } catch (profileError) {
+            console.error('Failed to fetch profile after phone login:', profileError);
+            localStorage.setItem('user', JSON.stringify(result.data.user));
+            setUser(result.data.user as User);
+          }
+
+          setIsAuthenticated(true);
+        }
+
+        router.push('/main');
+        return true;
+      }
+
+      setError(result.error || 'Phone verification failed');
+      return false;
+    } catch (error) {
+      console.error('Phone login error:', error);
+      let errMsg = 'Phone login failed';
+      if (error instanceof Error && error.message) errMsg = error.message;
+      else if (typeof error === 'string') errMsg = error;
+      setError(errMsg);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
@@ -265,7 +445,11 @@ export function useAuth() {
   return { 
     login, 
     register, 
-    loginWithGoogle, 
+    loginWithGoogle,
+    loginWithFacebook, 
+    sendOTP,
+    loginWithPhone,
+    loginWithFirebase,
     logout, 
     isLoading, 
     error, 

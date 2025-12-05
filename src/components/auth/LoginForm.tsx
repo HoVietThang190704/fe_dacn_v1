@@ -22,15 +22,19 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   
-  const { login, loginWithGoogle, isLoading, error } = useAuth();
+  const { login, loginWithGoogle, loginWithFacebook, isLoading, error } = useAuth();
   const t = useTranslations('auth');
 
   const handleGoogleSuccess = async (idToken: string) => {
     await loginWithGoogle(idToken);
   };
 
-  const loginWithFacebook = async () => {
-    console.log('Facebook login clicked - not implemented yet');
+  const handleFacebookSuccess = async (accessToken: string) => {
+    await loginWithFacebook(accessToken);
+  };
+
+  const handleFacebookError = (error: string) => {
+    console.error('Facebook login error:', error);
   };
 
   const validateForm = () => {
@@ -160,7 +164,8 @@ export default function LoginForm() {
             className="w-full"
           />
           <FacebookSignInButton 
-            onClick={loginWithFacebook}
+            onSuccess={handleFacebookSuccess}
+            onError={handleFacebookError}
             disabled={isLoading}
             isLoading={isLoading}
             className="w-full"
@@ -172,6 +177,13 @@ export default function LoginForm() {
           text={t('login.noAccount')}
           linkText={t('login.createAccount')}
           className="mt-3 sm:mt-4 text-xs sm:text-sm"
+        />
+        
+        <AuthLink 
+          href="/auth/phone-login"
+          text="Đăng nhập bằng"
+          linkText="Số điện thoại"
+          className="mt-2 text-xs sm:text-sm"
         />
       </div>
     </div>
