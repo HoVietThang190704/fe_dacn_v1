@@ -1,9 +1,12 @@
 import { UserTargetPage } from '@/presentation/pages/UserTargetPage';
 import type { UserProfile } from '@/presentation/viewmodels/useProfileViewModel';
 
+type RouteParams = Promise<{ userId: string }>;
+type RouteSearchParams = Promise<Record<string, string | string[] | undefined>>;
+
 interface PageProps {
-  params: { userId: string };
-  searchParams?: Record<string, string | string[] | undefined>;
+  params: RouteParams;
+  searchParams?: RouteSearchParams;
 }
 
 const toSingleValue = (value?: string | string[]) => {
@@ -25,13 +28,14 @@ const decode = (value?: string) => {
   }
 };
 
-export default function UserTargetRoute({ params, searchParams }: PageProps) {
-  const userId = params.userId;
+export default async function UserTargetRoute({ params, searchParams }: PageProps) {
+  const { userId } = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
 
   const fallbackProfile: Partial<UserProfile> = {
-    userName: decode(toSingleValue(searchParams?.userName)),
-    email: decode(toSingleValue(searchParams?.email)),
-    avatar: decode(toSingleValue(searchParams?.avatar)),
+    userName: decode(toSingleValue(resolvedSearchParams?.userName)),
+    email: decode(toSingleValue(resolvedSearchParams?.email)),
+    avatar: decode(toSingleValue(resolvedSearchParams?.avatar)),
   };
 
   return <UserTargetPage userId={userId} fallbackProfile={fallbackProfile} />;

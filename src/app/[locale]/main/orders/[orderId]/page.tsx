@@ -1,11 +1,10 @@
 import { OrderDetailPage } from '@/presentation/pages';
 
-interface OrderDetailProps {
-  params: {
-    orderId: string;
-  };
-}
+type OrderDetailProps = {
+  params: Promise<{ orderId: string }>;
+};
 
-export default function OrderDetail({ params }: OrderDetailProps) {
-  return <OrderDetailPage orderId={params.orderId} />;
+export default async function OrderDetail({ params }: OrderDetailProps) {
+  const { orderId } = await params;
+  return <OrderDetailPage orderId={orderId} />;
 }
