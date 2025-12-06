@@ -29,6 +29,27 @@
       "otpSendFailed": "Không thể gửi OTP. Vui lòng thử lại.",
       "devOtpPreview": "OTP thử nghiệm: {code}"
     },
+    "forgot": {
+      "title": "Đặt lại mật khẩu",
+      "description": "Nhập email để nhận mã OTP xác thực.",
+      "stepRequest": "Bước 1 · Yêu cầu OTP",
+      "stepVerify": "Bước 2 · Nhập OTP & mật khẩu mới",
+      "emailLabel": "Địa chỉ email",
+      "otpLabel": "Mã OTP",
+      "newPasswordLabel": "Mật khẩu mới",
+      "confirmPasswordLabel": "Xác nhận mật khẩu mới",
+      "requestOtp": "Gửi OTP",
+      "resetCta": "Đặt lại mật khẩu",
+      "otpSent": "Chúng tôi đã gửi mã OTP 6 chữ số tới {email}.",
+      "otpHint": "Hết hạn lúc {time}",
+      "devOtp": "OTP thử nghiệm",
+      "successTitle": "Cập nhật mật khẩu thành công",
+      "successDescription": "Bạn có thể đăng nhập bằng mật khẩu mới.",
+      "backToLogin": "Quay lại đăng nhập",
+      "helperText": "Email chỉ được dùng để gửi mã OTP.",
+      "passwordHint": "Mật khẩu cần tối thiểu 6 ký tự.",
+      "genericError": "Đã xảy ra lỗi, vui lòng thử lại."
+    },
     "validation": {
       "emailRequired": "Email là bắt buộc",
       "emailInvalid": "Email không hợp lệ",

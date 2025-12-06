@@ -28,6 +28,8 @@ export const API_ENDPOINTS = {
   AUTH_PROFILE: '/api/auth/profile',
   CHANGE_PASSWORD: '/api/auth/change-password',
   EMAIL_SEND_OTP: '/api/auth/email/send-otp',
+  PASSWORD_FORGOT: '/api/auth/password/forgot',
+  PASSWORD_RESET_WITH_OTP: '/api/auth/password/reset-with-otp',
   // Google auth (id_token -> backend)
   AUTH_GOOGLE_TOKEN: '/api/auth/google/token',
   // Facebook auth (access_token -> backend)

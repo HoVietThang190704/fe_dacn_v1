@@ -29,6 +29,27 @@
       "otpSendFailed": "Unable to send OTP email.",
       "devOtpPreview": "Dev OTP: {code}"
     },
+    "forgot": {
+      "title": "Reset your password",
+      "description": "Enter your email address to receive a one-time password (OTP).",
+      "stepRequest": "Step 1 · Request OTP",
+      "stepVerify": "Step 2 · Enter OTP & new password",
+      "emailLabel": "Email address",
+      "otpLabel": "OTP code",
+      "newPasswordLabel": "New password",
+      "confirmPasswordLabel": "Confirm new password",
+      "requestOtp": "Send OTP",
+      "resetCta": "Reset password",
+      "otpSent": "We sent a 6-digit OTP to {email}.",
+      "otpHint": "Expires at {time}",
+      "devOtp": "Dev OTP",
+      "successTitle": "Password updated successfully",
+      "successDescription": "You can now sign in with your new password.",
+      "backToLogin": "Back to login",
+      "helperText": "We only use this email to send the OTP.",
+      "passwordHint": "Password must contain at least 6 characters.",
+      "genericError": "Something went wrong. Please try again."
+    },
     "validation": {
       "emailRequired": "Email is required",
       "emailInvalid": "Invalid email format",
