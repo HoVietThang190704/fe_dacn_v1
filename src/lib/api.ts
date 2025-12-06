@@ -21,6 +21,7 @@ export interface LoginResponse {
 export interface RegisterRequest {
   email: string;
   password: string;
+  otp: string;
   userName?: string;
   phone?: string;
   date_of_birth?: string;
@@ -186,7 +187,7 @@ class APIClient {
 }
 
 export const apiClient = new APIClient();
-import { API_ENDPOINTS, API_CONFIG } from '@/shared/constants/api';
+import { API_ENDPOINTS } from '@/shared/constants/api';
 
 export const authAPI = {
   login: async (credentials: LoginRequest): Promise<ApiResponse<LoginResponse>> => {
@@ -195,8 +196,11 @@ export const authAPI = {
 
   register: async (userData: RegisterRequest): Promise<ApiResponse<RegisterResponse>> => {
     return apiClient.post<RegisterResponse>(API_ENDPOINTS.REGISTER, userData);
-  }
-  ,
+  },
+
+  sendEmailOTP: async (email: string): Promise<ApiResponse<{ expiresAt: string; devOtp?: string }>> => {
+    return apiClient.post<{ expiresAt: string; devOtp?: string }>(API_ENDPOINTS.EMAIL_SEND_OTP, { email });
+  },
   // Exchange Google id_token for app tokens/user
   googleToken: async (idToken: string): Promise<ApiResponse<LoginResponse>> => {
     return apiClient.post<LoginResponse>(API_ENDPOINTS.AUTH_GOOGLE_TOKEN, { id_token: idToken });

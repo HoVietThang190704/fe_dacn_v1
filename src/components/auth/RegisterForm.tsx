@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/dist/client/link';
 import { useTranslations } from 'next-intl';
@@ -24,9 +24,22 @@ export default function RegisterForm() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [registrationSuccess, setRegistrationSuccess] = useState(false);
-    const { register, loginWithGoogle, isLoading, error } = useAuth();
+    const { register, loginWithGoogle, requestRegistrationOtp, isLoading, error } = useAuth();
     const [fullName, setFullName] = useState('');
+    const [otp, setOtp] = useState('');
+    const [otpCountdown, setOtpCountdown] = useState(0);
+    const [isRequestingOtp, setIsRequestingOtp] = useState(false);
+    const [otpStatus, setOtpStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const t = useTranslations('auth');
+
+    useEffect(() => {
+        if (otpCountdown <= 0) return;
+        const timer = setInterval(() => {
+            setOtpCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [otpCountdown]);
 
     const handleFacebookSuccess = async (accessToken: string) => {
         console.log('Facebook register with access token:', accessToken);
@@ -61,9 +74,44 @@ export default function RegisterForm() {
             errors.confirmPassword = t('validation.passwordMismatch');
         }
 
+        if(!otp) {
+            errors.otp = t('validation.otpRequired');
+        } else if (otp.trim().length !== 6) {
+            errors.otp = t('validation.otpInvalid');
+        }
+
         setValidationErrors(errors);
         return Object.keys(errors).length === 0;
     }
+
+    const handleRequestOtp = async () => {
+        setOtpStatus(null);
+
+        if (!email) {
+            setValidationErrors((prev) => ({ ...prev, email: t('validation.emailRequired') }));
+            return;
+        }
+
+        if (!validateEmail(email)) {
+            setValidationErrors((prev) => ({ ...prev, email: t('validation.emailInvalid') }));
+            return;
+        }
+
+        setIsRequestingOtp(true);
+        const result = await requestRegistrationOtp(email);
+        setIsRequestingOtp(false);
+
+        if (result.success) {
+            setOtpCountdown(60);
+            const baseMessage = t('register.otpSent', { email });
+            const message = result.devOtp
+                ? `${baseMessage} (${t('register.devOtpPreview', { code: result.devOtp })})`
+                : baseMessage;
+            setOtpStatus({ type: 'success', message });
+        } else {
+            setOtpStatus({ type: 'error', message: result.message || t('register.otpSendFailed') });
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +123,8 @@ export default function RegisterForm() {
     const success = await register({
         fullName,
         email,
-        password
+        password,
+        otp
     });
 
     if (success) {
@@ -84,6 +133,9 @@ export default function RegisterForm() {
         setPassword('');
         setConfirmPassword('');
         setFullName('');
+        setOtp('');
+        setOtpCountdown(0);
+        setOtpStatus(null);
         setValidationErrors({});
         setTimeout(() => {
             setRegistrationSuccess(false);
@@ -201,6 +253,59 @@ export default function RegisterForm() {
                             error={validationErrors.confirmPassword}
                             disabled={isLoading || registrationSuccess}
                         />
+                    </div>
+
+                    <div className="space-y-2">
+                        <div className="flex flex-col gap-3 sm:flex-row">
+                            <div className="flex-1">
+                                <Input
+                                    type="text"
+                                    inputMode="numeric"
+                                    placeholder={t('register.otpPlaceholder')}
+                                    value={otp}
+                                    onChange={(e) => {
+                                        const nextValue = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
+                                        setOtp(nextValue);
+                                        if (validationErrors.otp) {
+                                            setValidationErrors(prev => ({ ...prev, otp: '' }));
+                                        }
+                                    }}
+                                    error={validationErrors.otp}
+                                    disabled={isLoading || registrationSuccess}
+                                />
+                            </div>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleRequestOtp}
+                                disabled={
+                                    isLoading ||
+                                    registrationSuccess ||
+                                    isRequestingOtp ||
+                                    otpCountdown > 0
+                                }
+                                isLoading={isRequestingOtp}
+                                className="w-full sm:w-auto"
+                            >
+                                {otpCountdown > 0
+                                    ? t('register.resendIn', { seconds: otpCountdown })
+                                    : t(isRequestingOtp ? 'register.sendingOtp' : 'register.sendOtp')}
+                            </Button>
+                        </div>
+                        <p className="text-xs text-gray-600">
+                            {t('register.otpHint')}
+                        </p>
+                        {otpStatus && (
+                            <div
+                                className={`text-xs rounded-md border px-3 py-2 ${
+                                    otpStatus.type === 'success'
+                                        ? 'text-green-700 bg-green-50 border-green-200'
+                                        : 'text-red-700 bg-red-50 border-red-200'
+                                }`}
+                            >
+                                {otpStatus.message}
+                            </div>
+                        )}
                     </div>
 
                     <Button 

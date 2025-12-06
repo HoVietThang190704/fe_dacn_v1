@@ -19,7 +19,15 @@
       "hasAccount": "Already have an account?",
       "signIn": "Sign in",
       "success": "Account created successfully!",
-      "redirectingToLogin": "Redirecting to login page..."
+      "redirectingToLogin": "Redirecting to login page...",
+      "otpPlaceholder": "Enter the 6-digit OTP",
+      "otpHint": "Request and enter the OTP sent to your inbox. It expires in 5 minutes.",
+      "sendOtp": "Send OTP",
+      "sendingOtp": "Sending...",
+      "resendIn": "Resend in {seconds}s",
+      "otpSent": "OTP sent to {email}",
+      "otpSendFailed": "Unable to send OTP email.",
+      "devOtpPreview": "Dev OTP: {code}"
     },
     "validation": {
       "emailRequired": "Email is required",
@@ -29,7 +37,9 @@
       "fullNameRequired": "Full name is required",
       "fullNameMinLength": "Full name must be at least 2 characters",
       "confirmPasswordRequired": "Confirm password is required",
-      "passwordMismatch": "Passwords do not match"
+      "passwordMismatch": "Passwords do not match",
+      "otpRequired": "OTP is required",
+      "otpInvalid": "OTP must be 6 digits"
     },
     "social": {
       "orLoginWith": "Or login with",

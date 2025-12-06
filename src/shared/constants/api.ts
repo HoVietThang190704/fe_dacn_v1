@@ -27,6 +27,7 @@ export const API_ENDPOINTS = {
   REFRESH_TOKEN: '/api/auth/refresh',
   AUTH_PROFILE: '/api/auth/profile',
   CHANGE_PASSWORD: '/api/auth/change-password',
+  EMAIL_SEND_OTP: '/api/auth/email/send-otp',
   // Google auth (id_token -> backend)
   AUTH_GOOGLE_TOKEN: '/api/auth/google/token',
   // Facebook auth (access_token -> backend)
