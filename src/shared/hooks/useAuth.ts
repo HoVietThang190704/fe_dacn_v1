@@ -164,7 +164,7 @@ export function useAuth() {
     }
   };
 
-  const register = async (userData: { fullName: string; email: string; password: string }) => {
+  const register = async (userData: { fullName: string; email: string; password: string; otp: string }) => {
     setIsLoading(true);
     setError('');
 
@@ -172,7 +172,8 @@ export function useAuth() {
       const registerData: RegisterRequest = {
         email: userData.email,
         password: userData.password,
-        userName: userData.fullName
+        userName: userData.fullName,
+        otp: userData.otp
       };
 
       const result = await authAPI.register(registerData);
@@ -190,6 +191,34 @@ export function useAuth() {
       return false;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const requestRegistrationOtp = async (email: string): Promise<{ success: boolean; expiresAt?: string; message?: string; devOtp?: string }> => {
+    setError('');
+
+    const normalizedEmail = email.trim();
+    if (!normalizedEmail) {
+      const message = 'Email is required';
+      setError(message);
+      return { success: false, message };
+    }
+
+    try {
+      const result = await authAPI.sendEmailOTP(normalizedEmail);
+      if (result.success && result.data) {
+        const payload = result.data as { expiresAt?: string; devOtp?: string };
+        return { success: true, expiresAt: payload?.expiresAt, devOtp: payload?.devOtp };
+      }
+
+      const message = result.error || 'Failed to send OTP email.';
+      setError(message);
+      return { success: false, message };
+    } catch (error) {
+      console.error('Send email OTP error:', error);
+      const message = 'Failed to send OTP email. Please try again.';
+      setError(message);
+      return { success: false, message };
     }
   };
 
@@ -445,6 +474,7 @@ export function useAuth() {
   return { 
     login, 
     register, 
+    requestRegistrationOtp,
     loginWithGoogle,
     loginWithFacebook, 
     sendOTP,

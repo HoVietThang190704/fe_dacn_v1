@@ -19,7 +19,15 @@
       "hasAccount": "Đã có tài khoản?",
       "signIn": "Đăng nhập",
       "success": "Tạo tài khoản thành công!",
-      "redirectingToLogin": "Đang chuyển đến trang đăng nhập..."
+      "redirectingToLogin": "Đang chuyển đến trang đăng nhập...",
+      "otpPlaceholder": "Nhập mã OTP 6 chữ số",
+      "otpHint": "Nhấn gửi để nhận mã OTP qua email. Mã sẽ hết hạn sau 5 phút.",
+      "sendOtp": "Gửi mã OTP",
+      "sendingOtp": "Đang gửi...",
+      "resendIn": "Gửi lại sau {seconds}s",
+      "otpSent": "OTP đã được gửi tới {email}",
+      "otpSendFailed": "Không thể gửi OTP. Vui lòng thử lại.",
+      "devOtpPreview": "OTP thử nghiệm: {code}"
     },
     "validation": {
       "emailRequired": "Email là bắt buộc",
@@ -29,7 +37,9 @@
       "fullNameRequired": "Họ tên là bắt buộc",
       "fullNameMinLength": "Họ tên phải có ít nhất 2 ký tự",
       "confirmPasswordRequired": "Xác nhận mật khẩu là bắt buộc",
-      "passwordMismatch": "Mật khẩu không khớp"
+      "passwordMismatch": "Mật khẩu không khớp",
+      "otpRequired": "Vui lòng nhập mã OTP",
+      "otpInvalid": "OTP phải gồm 6 chữ số"
     },
     "social": {
       "orLoginWith": "Hoặc đăng nhập với",
