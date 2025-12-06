@@ -175,13 +175,13 @@ const ProfileProductCard: React.FC<ProfileProductCardProps> = ({
         )}
       </div>
 
-      <div className="p-4" onClick={handleClick}>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 leading-tight min-h-[2rem]">
+      <div className="p-3 sm:p-4" onClick={handleClick}>
+        <h3 className="text-sm sm:text-lg font-semibold text-gray-900 mb-2 line-clamp-2 leading-tight min-h-[2rem]">
           {product.name}
         </h3>
 
         <div className="flex items-center justify-between -mt-3">
-          <span className="text-2xl font-bold text-orange-500">
+          <span className="text-xl sm:text-2xl font-bold text-orange-500">
             {priceLabel}
           </span>
           

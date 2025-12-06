@@ -5,6 +5,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { ICONS } from '@/shared/constants/images'
+import { CATEGORY_ICONS } from '@/shared/constants/categoryIcons'
+import { useTranslations } from 'next-intl'
 
 type Category = {
   id: string
@@ -16,28 +18,11 @@ type Category = {
 export default function CategoriesCarousel({ categories }: { categories: Category[] }) {
   const params = useParams();
   const locale = (params?.locale as string) ?? 'vi'
+  const t = useTranslations('home')
   const [isExpanded, setIsExpanded] = useState(false)
   const [windowWidth, setWindowWidth] = useState(0)
 
-  const slugToIcon: Record<string, string> = {
-    'rau-cu': ICONS.VEGETABLE,
-    'trai-cay': ICONS.FRUITS,
-    'rau_cu_qua': ICONS.RAU_CU_QUA,
-    'rau-la': ICONS.LEAFY_VEGETABLES,
-    'xa-lach-lo-lo': ICONS.ICEBERG_LETTUCE,
-    'san-pham-huu-co': ICONS.ORGANIC_PRODUCTS,
-    'sua': ICONS.MILK,
-    'eggs': ICONS.EGGS,
-    'rau-mam-hon-hop': ICONS.MIXED_SPROUTS,
-    'gao': ICONS.RICE,
-    'chuoi-gia': ICONS.RIPE_BANANA,
-    'hai-san': ICONS.SEAFOOD,
-    'cu-goc': ICONS.ROOT_VEGETABLES,
-    'rau-thom-gia-vi': ICONS.HERBS_SPICES,
-    'ngu-coc': ICONS.GRAINS,
-    'thit': ICONS.MEAT,
-    'ca-chua-bi': ICONS.CHERRY_TOMATO
-  }
+  const slugToIcon = CATEGORY_ICONS
 
   // Update window width on mount and resize
   useEffect(() => {
@@ -62,7 +47,7 @@ export default function CategoriesCarousel({ categories }: { categories: Categor
 
   return (
     <section className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
-      <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">Danh mục sản phẩm</h2>
+      <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">{t('sections.categories.title')}</h2>
       <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-3 sm:gap-4">
         {displayedCategories.map((category) => {
           const src = slugToIcon[category.slug || ''] ?? category.icon ?? ICONS.GOODS
@@ -83,8 +68,8 @@ export default function CategoriesCarousel({ categories }: { categories: Categor
                 />
               </div>
               <span className="text-xs sm:text-sm text-center text-gray-700 group-hover:text-orange-600 transition-colors line-clamp-2 w-full px-1">
-                {category.name}
-              </span>
+                  {category.name}
+                </span>
             </Link>
           )
         })}
@@ -105,7 +90,7 @@ export default function CategoriesCarousel({ categories }: { categories: Categor
               </svg>
             </div>
             <span className="text-xs sm:text-sm text-center text-gray-700 group-hover:text-orange-600 transition-colors line-clamp-2 w-full px-1">
-              {isExpanded ? 'Thu gọn' : `+${categories.length - maxItemsPerView}`}
+              {isExpanded ? t('sections.categories.collapse') : t('sections.categories.showMore', { count: categories.length - maxItemsPerView })}
             </span>
           </button>
         )}

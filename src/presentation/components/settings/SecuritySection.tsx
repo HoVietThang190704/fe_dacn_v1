@@ -11,12 +11,13 @@ const SecuritySection: React.FC = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const viewModel = useChangePasswordViewModel(container.changePasswordUseCase);
 
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
-      alert('Mật khẩu xác nhận không khớp');
+      setFeedback({ type: 'error', message: t('passwordsNotMatch') });
       return;
     }
 
@@ -25,15 +26,19 @@ const SecuritySection: React.FC = () => {
       newPassword: newPassword,
     };
 
-    await viewModel.changePassword(data);
-
-    if (viewModel.success) {
-      alert('Đổi mật khẩu thành công!');
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-    } else if (viewModel.error) {
-      alert(viewModel.error);
+    try {
+      await viewModel.changePassword(data);
+      if (viewModel.success) {
+        setFeedback({ type: 'success', message: t('passwordUpdated') });
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else if (viewModel.error) {
+        setFeedback({ type: 'error', message: viewModel.error });
+      }
+    } catch (e) {
+      const message = e instanceof Error ? e.message : t('updateError');
+      setFeedback({ type: 'error', message });
     }
   };
 
@@ -48,31 +53,27 @@ const SecuritySection: React.FC = () => {
         <h3 className="font-semibold text-green-800 mb-3">{t('changePasswordTitle')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <Input
-            label={t('currentPassword') || 'Mật khẩu hiện tại'}
+            label={t('currentPassword')}
             type="password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
           />
           <Input
-            label={t('newPassword') || 'Mật khẩu mới'}
+            label={t('newPassword')}
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
           />
           <Input
-            label={t('confirmNewPassword') || 'Xác nhận mật khẩu mới'}
+            label={t('confirmNewPassword')}
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
         </div>
         <div>
-          <Button
-            variant="primary"
-            onClick={handleChangePassword}
-            disabled={viewModel.isLoading}
-          >
-            {viewModel.isLoading ? 'Đang xử lý...' : (t('updatePassword') || 'Cập nhật mật khẩu')}
+          <Button variant="primary" onClick={handleChangePassword} disabled={viewModel.isLoading}>
+            {viewModel.isLoading ? t('processing') : (t('updatePassword') || t('saveChanges'))}
           </Button>
         </div>
       </div>
@@ -83,17 +84,22 @@ const SecuritySection: React.FC = () => {
             <h3 className="font-semibold text-green-800">{t('twoFactorTitle')}</h3>
             <p className="text-sm text-gray-600">{t('twoFactorDesc')}</p>
           </div>
-          <ToggleSwitch label="" enabled={false} description={undefined} />
+          <ToggleSwitch label={t('twoFactorToggle') || ''} enabled={false} description={undefined} />
         </div>
       </div>
 
       <div className="bg-green-50 p-4 sm:p-6 rounded-2xl border border-green-100">
         <h3 className="font-semibold text-green-800 mb-3">{t('devicesTitle')}</h3>
         <div className="space-y-3">
-          <DeviceItem name="Chrome trên Windows" location="TP.HCM, Việt Nam" time={t('now') || 'Hiện tại'} isCurrent t={t} />
-          <DeviceItem name="Safari trên iPhone" location="Hà Nội, Việt Nam" time={t('hoursAgo', { hours: 2 }) || '2 giờ trước'} t={t} />
+          <DeviceItem name={t('device_chrome_window')} location={t('location_hcm')} time={t('now')} isCurrent t={t} />
+          <DeviceItem name={t('device_safari_iphone')} location={t('location_hanoi')} time={t('hoursAgo', { hours: 2 })} t={t} />
         </div>
       </div>
+      {feedback && (
+        <div className={`mt-4 rounded-xl p-3 text-sm ${feedback.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+          {feedback.message}
+        </div>
+      )}
     </div>
   );
 };

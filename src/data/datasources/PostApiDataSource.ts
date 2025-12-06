@@ -245,6 +245,9 @@ export class PostApiDataSource {
 
     const url = this.getFullUrl('/api/upload/images');
     console.log('[PostApiDataSource] Uploading images to:', url);
+    if (!API_CONFIG.BASE_URL) {
+      console.warn('[PostApiDataSource] API_CONFIG.BASE_URL is empty. Request will be sent to the frontend host. In production, set NEXT_PUBLIC_API_URL to your backend.');
+    }
     
     const response = await fetch(url, {
       method: 'POST',
@@ -256,8 +259,15 @@ export class PostApiDataSource {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[PostApiDataSource] Upload error:', errorText);
+      console.error('[PostApiDataSource] Upload error (bad status):', response.status, response.statusText, errorText);
       throw new Error('Failed to upload images');
+    }
+
+    const ct = response.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) {
+      const text = await response.text();
+      console.error('[PostApiDataSource] Upload error (invalid content-type):', ct, text);
+      throw new Error(`Invalid response from upload endpoint: expected JSON but got ${ct || 'non-JSON'}`);
     }
 
     const result = await response.json();

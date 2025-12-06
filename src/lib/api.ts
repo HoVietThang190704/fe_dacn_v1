@@ -187,7 +187,8 @@ class APIClient {
 }
 
 export const apiClient = new APIClient();
-import { API_ENDPOINTS } from '@/shared/constants/api';
+import { API_ENDPOINTS, API_CONFIG } from '@/shared/constants/api';
+import type { SearchApiResponse } from '@/data/datasources/SearchApiDataSource';
 
 export const authAPI = {
   login: async (credentials: LoginRequest): Promise<ApiResponse<LoginResponse>> => {
@@ -265,4 +266,77 @@ export const usersAPI = {
   setDefaultAddress: async (addressId: string, token?: string, includeCredentials = true) => {
     return apiClient.put<unknown>(API_ENDPOINTS.SET_DEFAULT_ADDRESS(addressId), {}, { token, includeCredentials });
   },
+};
+
+const buildAbsoluteUrl = (endpoint: string) => {
+  if (endpoint.startsWith('http')) return endpoint;
+  const base = API_CONFIG.BASE_URL || '';
+  return `${base}${endpoint}`;
+};
+
+export type ProductSuggestion = {
+  id: string;
+  name: string;
+  price: number;
+  image?: string;
+};
+
+type SearchRequestParams = {
+  productsLimit?: number;
+  postsLimit?: number;
+  usersLimit?: number;
+};
+
+export const searchApi = {
+  async search(query: string, params?: SearchRequestParams): Promise<{ success: boolean; data?: SearchApiResponse; error?: string }> {
+    const keyword = (query ?? '').trim();
+    if (!keyword) {
+      return { success: false, error: 'Keyword is required' };
+    }
+
+    const urlParams = new URLSearchParams({ q: keyword });
+    if (params?.productsLimit) urlParams.set('productsLimit', String(params.productsLimit));
+    if (params?.postsLimit) urlParams.set('postsLimit', String(params.postsLimit));
+    if (params?.usersLimit) urlParams.set('usersLimit', String(params.usersLimit));
+
+    const response = await fetch(`${buildAbsoluteUrl(API_ENDPOINTS.GLOBAL_SEARCH)}?${urlParams.toString()}`, {
+      credentials: 'include'
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || payload?.success === false) {
+      return {
+        success: false,
+        error: payload?.message || 'Không thể tìm kiếm, vui lòng thử lại sau.'
+      };
+    }
+
+    return {
+      success: true,
+      data: (payload?.data as SearchApiResponse) ?? payload
+    };
+  },
+
+  async suggest(text: string, limit: number = 8): Promise<ProductSuggestion[]> {
+    const keyword = (text ?? '').trim();
+    if (keyword.length < 1) {
+      return [];
+    }
+
+    const params = new URLSearchParams({ text: keyword, limit: String(limit) });
+    const response = await fetch(`${buildAbsoluteUrl(API_ENDPOINTS.SEARCH_SUGGEST)}?${params.toString()}`, {
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const payload = await response.json().catch(() => ({}));
+    if (payload?.success === false) {
+      return [];
+    }
+
+    return Array.isArray(payload?.data) ? (payload.data as ProductSuggestion[]) : [];
+  }
 };

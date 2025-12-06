@@ -67,6 +67,38 @@
     "loginButton": "Đăng nhập",
     "registerButton": "Đăng ký"
   },
+  "aiAssistant": {
+    "launcher": {
+      "tooltipDesktop": "Hỏi FreshBuddy",
+      "tooltipMobile": "Chat với FreshBuddy",
+      "openLabel": "Mở trợ lý AI",
+      "closeLabel": "Đóng trợ lý AI"
+    },
+    "panel": {
+      "title": "FreshBuddy",
+      "subtitle": "Ưu tiên dữ liệu Fresh Food, chỉ hỏi Google khi thật sự cần",
+      "placeholder": "Hỏi về danh mục, sản phẩm hoặc ưu đãi...",
+      "send": "Gửi",
+      "clear": "Xóa hội thoại",
+      "empty": "Hãy thử hỏi: \"Rau hữu cơ hiện có những loại nào?\"",
+      "loading": "FreshBuddy đang suy nghĩ...",
+      "error": "Không thể kết nối với trợ lý AI. Vui lòng thử lại sau.",
+      "retry": "Thử lại",
+      "poweredBy": "Vận hành bởi Google Gemini + Programmable Search",
+      "privacy": "FreshBuddy dùng dữ liệu nội bộ trước và chỉ gửi truy vấn ẩn danh sang Google khi thiếu thông tin.",
+      "fallbackHint": "Google sẽ được gọi tự động khi câu hỏi cần thêm thông tin.",
+      "greeting": "Xin chào! Tôi có thể giúp bạn tìm danh mục, sản phẩm phù hợp hoặc ưu đãi đang có.",
+      "suggestions": {
+        "categories": "Danh mục đề xuất",
+        "products": "Sản phẩm gợi ý"
+      },
+      "status": {
+        "ready": "Sẵn sàng hỗ trợ",
+        "thinking": "Đang phản hồi...",
+        "failed": "Đã xảy ra lỗi"
+      }
+    }
+  },
   "navbar": {
     "searchPlaceholder": "Tìm kiếm rau, trái cây, thịt hoặc thực phẩm...",
     "deliveryPromise": "Đặt hàng ngay và nhận trong 15 phút!",
@@ -83,6 +115,11 @@
     "pleaseSignIn": "Vui lòng đăng nhập để tiếp tục",
     "cartAria": "Xem giỏ hàng",
     "notificationsAria": "Xem thông báo"
+  },
+  "searchSuggestions": {
+    "loading": "Đang gợi ý...",
+    "empty": "Không tìm thấy gợi ý phù hợp.",
+    "viewAll": "Xem tất cả kết quả cho \"{query}\""
   },
   "sidebar": {
     "home": "Trang chủ",
@@ -106,6 +143,7 @@
   }
   ,
   "products": {
+    "anonymousUser": "Người dùng ẩn danh",
     "title": "Tất Cả Sản Phẩm",
     "found": "Tìm thấy {count} sản phẩm",
     "sort": "Giá",
@@ -200,21 +238,55 @@
     "quantity": "Số lượng",
     "addToCart": "Thêm vào giỏ hàng",
     "buyNow": "Mua ngay",
+    "shareThisProduct": "Chia sẻ sản phẩm",
     "productDetails": "Chi tiết sản phẩm",
+    "stock": "Tồn kho",
+    "labelProduct": "Sản phẩm",
+    "skuLabel": "Mã sản phẩm",
+    "savings": "Tiết kiệm {amount}",
+    "maxQuantity": "Tối đa {count} sản phẩm",
+    "adding": "Đang thêm...",
+    "noImage": "Không có hình ảnh",
+    "unknownSeller": "Người bán ẩn danh",
+    "notPublic": "Không công khai",
+    "anonymousUser": "Người dùng ẩn danh",
+    "reviewPlaceholder": "Chia sẻ cảm nhận của bạn về sản phẩm...",
+    "reviewHint": "Đánh giá của bạn sẽ giúp khách hàng khác lựa chọn dễ dàng hơn",
+    "reviewEmptyError": "Vui lòng nhập nội dung đánh giá.",
+    "replyEmptyError": "Vui lòng nhập nội dung phản hồi.",
+    "selectStars": "Chọn số sao ({rating})",
     "category": "Danh mục",
     "unit": "Đơn vị",
     "brand": "Thương hiệu",
     "origin": "Xuất xứ",
     "description": "Mô tả",
     "noReviewsYet": "Chưa có đánh giá nào",
+    "writeReview": "Viết đánh giá của bạn",
+    "reply": "Trả lời",
+    "delete": "Xóa",
+    "replyPlaceholder": "Viết phản hồi của bạn...",
+    "sending": "Đang gửi...",
+    "alreadyRatedMessage": "Bạn đã đánh giá sản phẩm này — lần đăng tiếp theo sẽ được coi là phản hồi (reply).",
+    "replyLoading": "Đang gửi...",
+    "submitReply": "Gửi",
+    "cancel": "Hủy",
+    "submit": "Gửi đánh giá",
+    "allReviews": "Tất cả đánh giá",
+    "onReviews": "Trên {count} lượt đánh giá",
+    "pageInfo": "Trang {page}/{total}",
+    "prev": "Trước",
+    "next": "Sau",
+    "loadingReviews": "Đang tải đánh giá...",
     "backToProducts": "Quay lại sản phẩm",
     "notFound": "Sản phẩm không tồn tại",
     "notFoundMessage": "Sản phẩm bạn tìm kiếm có thể đã bị xóa hoặc không tồn tại."
   },
+  "temporarilyUnavailable": "Tạm ngưng bán ({count})",
   "productCard": {
     "seller": "Người bán",
     "unknownSeller": "Chưa rõ người bán",
     "available": "Còn lại",
+    "discountLabel": "Giảm {discount}%",
     "sold": "Đã bán",
     "outOfStock": "Hết hàng",
     "inStock": "{count} có sẵn",
@@ -319,6 +391,7 @@
       "promotions": {
         "title": "Ưu đãi nổi bật",
         "subtitle": "Áp dụng ngay để tiết kiệm cho đơn hàng của bạn",
+        "saveDiscount": "Giảm {discount}%",
         "validUntil": "Áp dụng đến {date}"
       },
       "bestSellers": {
@@ -346,6 +419,12 @@
           "title": "Bền lâu trên 1 tháng",
           "subtitle": "Hạn sử dụng > 30 ngày"
         }
+      }
+      ,
+      "categories": {
+        "title": "Danh mục sản phẩm",
+        "collapse": "Thu gọn",
+        "showMore": "+{count}"
       }
     }
   },
@@ -384,7 +463,11 @@
       "cod": "Thanh toán khi nhận hàng",
       "vnpay": "VNPay"
     },
+    "paymentMethod": "Thanh toán",
     "labels": {
+      "placeholder": "—",
+      "customer": "Khách hàng",
+      "orderNumberWithHash": "#{orderNumber}",
       "total": "Tổng cộng",
       "estimatedDelivery": "Dự kiến giao {date}",
       "cancelReason": "Lý do hủy: {reason}",
@@ -399,6 +482,7 @@
     "emptyFilterHint": "Hãy thử bộ lọc khác hoặc quay lại sau.",
     "amountLabel": "Thành tiền",
     "actions": {
+      "search": "Tìm kiếm",
       "refresh": "Làm mới",
       "update": "Cập nhật",
       "updating": "Đang cập nhật...",
@@ -418,6 +502,8 @@
     "dialog": {
       "cancelTitle": "Hủy đơn hàng",
       "cancelSubtitle": "Đơn hàng",
+      "warningAlt": "Cảnh báo",
+      "errorAlt": "Lỗi",
       "cancelWarning": "Việc hủy đơn hàng không thể được hoàn tác. Vui lòng xác nhận lý do hủy.",
       "reasonLabel": "Lý do hủy đơn",
       "reasonPlaceholder": "Vui lòng nhập lý do hủy đơn (tối thiểu 10 ký tự)...",
@@ -425,9 +511,16 @@
       "cancel": "Hủy bỏ",
       "cancelling": "Đang hủy...",
       "confirmCancel": "Xác nhận hủy"
+      ,
+      "successAlt": "Thành công"
     },
     "success": {
-      "cancelledSuccessfully": "Hủy đơn hàng thành công"
+      "cancelledSuccessfully": "Hủy đơn hàng thành công",
+      "statusUpdated": "Cập nhật trạng thái đơn hàng thành công"
+    },
+    "errors": {
+      "loadOrders": "Không thể tải danh sách đơn hàng",
+      "updateStatus": "Không thể cập nhật trạng thái đơn hàng"
     }
   },
   "favorites": {
@@ -461,6 +554,10 @@
     "noScheduled": "Không có livestream đã lên lịch",
     "liveBadge": "LIVE",
     "upcomingBadge": "SẮP DIỄN RA",
+    "playAlt": "Phát",
+    "viewersAlt": "Biểu tượng lượt xem",
+    "productsAlt": "Biểu tượng sản phẩm",
+    "startAlt": "Bắt đầu phát trực tiếp",
     "viewer": "người xem",
     "viewers": "người xem",
     "live": "Đang live",
@@ -495,6 +592,7 @@
       "productsCounter": "{count}/{total} sản phẩm được chọn",
       "productsRequired": "Vui lòng chọn ít nhất một sản phẩm",
       "createProductCta": "Tạo sản phẩm mới",
+      "removeProduct": "Xóa sản phẩm",
       "cancel": "Hủy",
       "createAndStart": "Tạo và Bắt đầu",
       "creating": "Đang tạo..."
@@ -528,6 +626,13 @@
       "productsError": "Không thể tải danh sách sản phẩm",
       "noProductsSelected": "Chưa chọn sản phẩm nào cho livestream"
     },
+    "chatBox": {
+      "title": "Trò chuyện",
+      "empty": "Chưa có tin nhắn nào. Hãy là người đầu tiên chat!",
+      "placeholder": "Nhập tin nhắn...",
+      "send": "Gửi",
+      "characters": "ký tự"
+    },
     "watch": {
       "scheduled": "Livestream này đã được lên lịch",
       "startTime": "Thời gian bắt đầu",
@@ -546,6 +651,7 @@
       "follow": "Theo dõi"
     },
     "errors": {
+      "invalidResponse": "Tạo livestream thành công nhưng không nhận được ID. Vui lòng kiểm tra danh sách livestream.",
       "notAuthenticated": "Vui lòng đăng nhập để tạo livestream",
       "titleRequired": "Vui lòng nhập tiêu đề",
       "createFailed": "Không thể tạo livestream. Vui lòng thử lại",
@@ -578,7 +684,8 @@
         "startTime": "Giờ bắt đầu",
         "endTime": "Giờ kết thúc",
         "duration": "Thời lượng",
-        "viewers": "Lượt xem"
+        "viewers": "Lượt xem",
+        "status": "Trạng thái"
       },
       "duration": {
         "hours": "giờ",
@@ -597,13 +704,35 @@
     "maxImages": "Tối đa 4 ảnh được phép",
     "emptyPost": "Vui lòng nhập nội dung hoặc chọn ảnh",
     "post": "Đăng",
-    "cancel": "Hủy",
+    "shareModal": {
+      "title": "Chia sẻ bài viết",
+      "placeholder": "Chia sẻ suy nghĩ của bạn...",
+      "sharing": "Đang chia sẻ..."
+    },
+    "icons": {
+      "closeAlt": "Đóng"
+    },
+    
     "noPosts": "Chưa có bài viết nào",
     "likes": "lượt thích",
     "comments": "bình luận",
     "shares": "chia sẻ",
     "like": "Thích",
     "comment": "Bình luận",
+    "reply": "Trả lời",
+    "delete": "Xóa",
+    "commentPlaceholder": "Viết bình luận...",
+    "loadingComments": "Đang tải bình luận...",
+    "emptyComments": "Chưa có bình luận nào. Hãy là người đầu tiên bình luận!",
+    "loadMoreComments": "Tải thêm bình luận",
+    "send": "Gửi",
+    "cancel": "Hủy",
+    "replyPlaceholder": "Viết phản hồi của bạn...",
+    "viewReplies": "Xem {count} câu trả lời",
+    "hide": "Ẩn",
+    "confirmDeleteComment": "Bạn có chắc muốn xóa bình luận này? (các trả lời con sẽ bị xóa)",
+    "deleteError": "Lỗi khi xóa bình luận",
+    "sending": "Đang gửi...",
   "share": "Chia sẻ",
   "editPost": "Chỉnh sửa bài viết",
   "deletePost": "Xóa bài viết",
@@ -614,10 +743,49 @@
     "emptyTitle": "Chưa có bài viết nào",
     "emptyDesc": "Hãy là người đầu tiên chia sẻ!"
   ,
-    "confirmDelete": "Bạn có chắc muốn xóa bài viết này?",
+    "confirmDeletePost": "Bạn có chắc muốn xóa bài viết này?",
     "allDisplayed": "Đã hiển thị tất cả bài viết",
     "unknownUser": "Người dùng chưa xác định",
+    "justNow": "Vừa xong",
+    "minutesAgo": "{count} phút trước",
+    "hoursAgo": "{hours} giờ trước",
+    "daysAgo": "{days} ngày trước",
+    "moreImages": "+{count}",
+    "options": "Tùy chọn",
     "userFallback": "Người dùng"
+  },
+  "shareDialog": {
+    "title": {
+      "post": "Chia sẻ bài viết",
+      "product": "Chia sẻ sản phẩm"
+    },
+    "subtitle": {
+      "post": "Sao chép liên kết hoặc đưa mã QR để mọi người xem bài viết này.",
+      "product": "Sao chép liên kết hoặc đưa mã QR để khách hàng xem sản phẩm này."
+    },
+    "linkLabel": "Liên kết chia sẻ",
+    "copyAction": "Sao chép liên kết",
+    "openAction": "Mở liên kết",
+    "copySuccess": "Đã sao chép liên kết",
+    "copyError": "Không thể sao chép, vui lòng thử lại.",
+    "qrLabel": "Quét mã QR",
+    "scanHint": "Đưa camera điện thoại lên để mở liên kết ngay.",
+    "loading": "Đang chuẩn bị liên kết chia sẻ...",
+    "error": "Không thể tải thông tin chia sẻ.",
+    "retry": "Thử lại",
+    "close": "Đóng",
+    "preview": "Xem trước liên kết",
+    "metaFallback": {
+      "post": "Bài viết cộng đồng",
+      "product": "Sản phẩm"
+    },
+    "internalShare": {
+      "title": "Chia sẻ lại lên cộng đồng",
+      "helper": "Thêm lời nhắn và chia sẻ bài viết này lên bảng tin của bạn.",
+      "placeholder": "Hãy nói điều gì đó về bài viết này...",
+      "clear": "Xóa nội dung",
+      "cta": "Chia sẻ ngay"
+    }
   },
   "postEditor": {
     "title": "Chỉnh sửa bài viết",
@@ -632,6 +800,13 @@
       "private": "Chỉ mình tôi"
     },
     "imagesSection": "Hình ảnh",
+    "imageCount": "{current}/{max}",
+    "loading": "Đang tải...",
+    "prevImage": "Ảnh trước",
+    "nextImage": "Ảnh tiếp theo",
+    "imageAlt": "Ảnh {index}",
+    "thumbAlt": "Ảnh thu nhỏ {index}",
+    "close": "Đóng",
     "noImages": "Bài viết hiện chưa có hình ảnh.",
     "addImages": "Thêm hình ảnh",
     "addImagesHint": "Có thể thêm tối đa 10 ảnh. Ảnh mới sẽ được đặt ở cuối danh sách.",
@@ -661,7 +836,7 @@
     "faqsEmpty": "Chúng tôi đang cập nhật thêm câu hỏi thường gặp. Hãy tạo yêu cầu nếu bạn cần hỗ trợ ngay.",
     "yes": "Có",
     "no": "Không",
-    "viewDetails": "Xem chi tiết →",
+    "viewDetails": "Xem chi tiết",
     "loading": "Đang tải...",
     "error": "Có lỗi xảy ra",
     "retry": "Thử lại",
@@ -683,6 +858,18 @@
       "turnOffMic": "Tắt mic",
       "turnOnMic": "Bật mic"
     },
+    "contactEmail": "quangnguyen310720042@gmail.com",
+    "icons": {
+      "successAlt": "Thành công",
+      "addAlt": "Tạo yêu cầu mới",
+      "likeAlt": "Thích",
+      "dislikeAlt": "Không thích",
+      "closeAlt": "Đóng",
+      "closeAria": "Đóng hộp thoại chat",
+      "sendAlt": "Gửi tin nhắn",
+      "arrowAlt": "Mũi tên",
+      "expandAlt": "Mở rộng"
+    },
     "chatBox": {
       "title": "Chat với CSKH",
       "subtitle": "Để lại tin nhắn và chúng tôi sẽ phản hồi sớm nhất có thể",
@@ -693,7 +880,18 @@
       "placeholder": "Nhập nội dung bạn cần hỗ trợ...",
       "send": "Gửi tin nhắn",
       "noteTitle": "Lưu ý",
-      "noteContent": "Tính năng chat hiện đang ở giai đoạn thử nghiệm. Đội ngũ CSKH sẽ phản hồi qua email hoặc điện thoại."
+      "noteContent": "Tính năng chat hiện đang ở giai đoạn thử nghiệm. Đội ngũ CSKH sẽ phản hồi qua email hoặc điện thoại.",
+      "connection": {
+        "connected": "Đã kết nối",
+        "connecting": "Đang kết nối",
+        "disconnected": "Mất kết nối"
+      },
+      "connectionLost": "Mất kết nối. Chúng tôi đang thử kết nối lại, bạn có thể làm mới để tiếp tục.",
+      "loading": "Đang tải cuộc trò chuyện...",
+      "loginPrompt": "Hãy đăng nhập để tiếp tục chat với đội ngũ CSKH.",
+      "loginCta": "Đăng nhập ngay",
+      "sending": "Đang gửi...",
+      "unreadBadge": "{count} tin chưa đọc"
     },
     "statuses": {
       "open": "Mới",
@@ -753,6 +951,7 @@
     "notifications": "Thông báo",
     "preferences": "Tùy chọn",
     "changeAvatar": "Thay đổi ảnh",
+    "uploading": "Đang tải...",
     "saveChanges": "Lưu thay đổi",
     "cancel": "Hủy",
     "deleteAccount": "Xóa tài khoản",
@@ -762,10 +961,14 @@
     "newPassword": "Mật khẩu mới",
     "confirmNewPassword": "Xác nhận mật khẩu mới",
     "updatePassword": "Cập nhật mật khẩu",
+    "passwordsNotMatch": "Mật khẩu không khớp",
+    "passwordUpdated": "Cập nhật mật khẩu thành công",
     "twoFactorTitle": "Xác thực hai yếu tố",
     "twoFactorDesc": "Bảo vệ tài khoản bằng bước xác thực bổ sung",
     "twoFactorToggle": "Bật xác thực hai yếu tố",
     "devicesTitle": "Thiết bị đã đăng nhập",
+    "device_chrome_window": "Chrome trên Windows",
+    "device_safari_iphone": "Safari trên iPhone",
     "now": "Hiện tại",
     "hoursAgo": "{hours} giờ trước",
     "notificationsTitle": "Thông báo",
@@ -800,6 +1003,12 @@
     "notificationsDesc": "Chọn loại thông báo bạn muốn nhận",
     "preferencesDesc": "Tùy chỉnh trải nghiệm của bạn",
     "manageDevices": "Quản lý các thiết bị đã đăng nhập",
+    "location_hcm": "Thành phố Hồ Chí Minh, Việt Nam",
+    "location_hanoi": "Hà Nội, Việt Nam",
+    "unknown": "Không xác định",
+    "expand": "Mở rộng",
+    "collapse": "Thu gọn",
+    "close": "Đóng",
     "logout": "Đăng xuất",
     "male": "Nam",
     "female": "Nữ",
@@ -854,6 +1063,59 @@
     "role": "Vai trò",
     "preferences": "Tùy chọn",
     "preferencesHelp": "Quản lý ngôn ngữ, thông báo và các tùy chọn tài khoản khác trong Cài đặt."
+    ,
+    "manageOrders": "Quản lý đơn hàng",
+    "unknownUser": "Người dùng không xác định",
+    "confirmDeletePost": "Bạn có chắc muốn xóa bài viết này?",
+    "emptyPosts": "Chưa có bài viết nào",
+    "emptyProducts": "Chưa có sản phẩm nào",
+    "tabs": {
+      "posts": "Bài viết ({count})",
+      "products": "Sản phẩm ({count})"
+    }
+      ,
+      "deleteError": "Lỗi khi xóa bài viết",
+      "sharePostError": "Lỗi khi chia sẻ bài viết",
+      "deleteProductError": "Lỗi khi xóa sản phẩm",
+      "updateProductStatusError": "Lỗi khi cập nhật trạng thái sản phẩm",
+      "registerShopOwner": {
+        "title": "Đăng ký trở thành chủ shop",
+        "subtitle": "Gửi giấy phép kinh doanh để mở khóa công cụ bán hàng và quản lý chuyên sâu.",
+        "button": "Đăng ký chủ shop",
+        "ctaDescription": "Tải lên giấy tờ chứng nhận để yêu cầu quyền bán hàng.",
+        "status": {
+          "pending": "Đang duyệt",
+          "approved": "Đã phê duyệt",
+          "rejected": "Bị từ chối",
+          "none": "Chưa gửi yêu cầu"
+        },
+        "statusDescription": {
+          "pending": "Vui lòng chờ đội ngũ kiểm duyệt tài liệu của bạn.",
+          "approved": "Tài khoản đã được phê duyệt, bạn có thể sử dụng tính năng bán hàng.",
+          "rejected": "Yêu cầu trước đó bị từ chối. Hãy cập nhật giấy tờ và gửi lại.",
+          "none": "Bạn chưa gửi yêu cầu nào."
+        },
+        "messages": {
+          "success": "Gửi yêu cầu thành công. Chúng tôi sẽ liên hệ sớm.",
+          "error": "Không thể gửi yêu cầu. Vui lòng thử lại."
+        },
+        "form": {
+          "userInfoTitle": "Thông tin của bạn",
+          "certificateTitle": "Giấy phép kinh doanh",
+          "uploadHint": "Tải ảnh rõ nét của giấy phép/giấy chứng nhận hợp lệ.",
+          "selectFile": "Chọn ảnh",
+          "replaceFile": "Chọn ảnh khác",
+          "selectedFile": "Tệp đã chọn: {name}",
+          "preview": "Xem trước",
+          "locked": "Bạn không thể tải ảnh mới khi yêu cầu đang được duyệt.",
+          "submit": "Gửi yêu cầu",
+          "submitting": "Đang gửi...",
+          "required": "Vui lòng tải lên ảnh giấy phép.",
+          "address": "Địa chỉ",
+          "noAddress": "Chưa có địa chỉ",
+          "noPhone": "Chưa có số điện thoại"
+        }
+      }
   },
   "order": {
     "orderDetails": "Chi tiết đơn hàng",
@@ -919,6 +1181,7 @@
   "checkout": {
     "title": "Thanh toán",
     "backToCart": "Quay lại giỏ hàng",
+    "backToProduct": "Quay lại sản phẩm",
     "loading": "Đang tải đơn hàng...",
     "noItems": "Không có sản phẩm nào được chọn",
     "noItemsMessage": "Vui lòng quay lại giỏ hàng và chọn sản phẩm cần mua.",
@@ -962,6 +1225,10 @@
       }
     },
     "products": {
+      "writeReview": "Viết đánh giá của bạn",
+      "reviewHint": "Đánh giá của bạn sẽ giúp khách hàng khác lựa chọn dễ dàng hơn",
+      "submit": "Gửi đánh giá",
+      "loading": "Đang tải...",
       "title": "Sản phẩm đã chọn",
       "fallbackAlt": "Hình ảnh sản phẩm",
       "quantity": "Số lượng: {count}",
@@ -974,8 +1241,16 @@
       "remove": "Gỡ mã",
       "placeholder": "Nhập mã giảm giá",
       "applying": "Đang áp dụng...",
-      "apply": "Áp dụng"
+      "apply": "Áp dụng",
+      "errors": {
+        "expired": "Mã giảm giá đã hết hạn.",
+        "alreadyUsed": "Bạn đã sử dụng mã này rồi.",
+        "notOwned": "Mã giảm giá không thuộc về bạn.",
+        "notFound": "Không tìm thấy mã giảm giá."
+      }
     },
+    
+    
     "payment": {
       "title": "Phương thức thanh toán",
       "options": {
@@ -1007,7 +1282,21 @@
       "createOrder": "Không thể tạo đơn hàng. Vui lòng thử lại."
     }
   },
+
+  "voucher": {
+    "errors": {
+      "expired": "Mã giảm giá đã hết hạn.",
+      "alreadyUsed": "Bạn đã sử dụng mã này rồi.",
+      "notOwned": "Mã giảm giá không thuộc về bạn.",
+      "notFound": "Không tìm thấy mã giảm giá."
+    }
+  },
   "paymentResult": {
+    "status": {
+      "success": "Thành công",
+      "failed": "Không thành công",
+      "unknown": "Đang xác minh"
+    },
     "title": "Kết quả thanh toán",
     "successTitle": "Thanh toán VNPay thành công!",
     "successMessage": "Đơn hàng {orderNumber} đã được ghi nhận thanh toán.",
@@ -1056,12 +1345,29 @@
       "cta": "Trở về trang chủ"
     },
     "post": {
-      "likes": "❤",
-      "comments": "💬",
-      "shares": "🔁"
+      "likes": "Thích",
+      "comments": "Bình luận",
+      "shares": "Chia sẻ"
     },
+    "userAnonymous": "Người dùng ẩn danh",
+    "userFallback": "Người dùng",
+    "postOfUser": "Bài viết của {userName}",
     "user": {
       "profile": "Hồ sơ người dùng"
     }
+  }
+  ,
+  "imageUploader": {
+    "loginRequired": "Vui lòng đăng nhập trước khi upload ảnh",
+    "uploadFailed": "Không thể tải ảnh lên",
+    "uploadError": "Lỗi upload: {error}",
+    "uploadImage": "Tải ảnh lên",
+    "selectMultiple": "Chọn nhiều ảnh cùng lúc",
+    "dropHere": "Thả ảnh vào đây",
+    "hint": "Kéo thả hoặc click để chọn • Tối đa {maxFiles} ảnh • Còn {remainingSlots} slot",
+    "uploading": "Đang upload... {progress}%",
+    "selectedImages": "Ảnh đã chọn ({count}/{max})",
+    "add": "Thêm ảnh",
+    "remove": "Xóa ảnh"
   }
 }

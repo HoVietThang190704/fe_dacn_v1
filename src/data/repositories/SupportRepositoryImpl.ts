@@ -32,4 +32,16 @@ export class SupportRepositoryImpl implements ISupportRepository {
   async voteOnFAQ(faqId: string, vote: 'helpful' | 'not_helpful') {
     return await this.apiDataSource.voteFaq(faqId, vote);
   }
+
+  async getChatThread() {
+    return await this.apiDataSource.getChatThread();
+  }
+
+  async sendChatMessage(content: string) {
+    return await this.apiDataSource.sendChatMessage(content);
+  }
+
+  async markChatThreadRead() {
+    return await this.apiDataSource.markChatThreadRead();
+  }
 }

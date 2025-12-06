@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
+import { ICONS } from '@/shared/constants/images';
 import { Button } from '@/components/ui';
 import { useUserProfileViewModel } from '../../viewmodels/useUserProfileViewModel';
 import { container } from '../../di/container';
@@ -61,6 +62,7 @@ export const SettingsSections: React.FC<Props> = ({ activeTab, userId }) => {
 };
 
 const ProfileSection: React.FC<{ t: ReturnType<typeof useTranslations>; viewModel: ProfileViewModel }> = ({ t, viewModel }) => {
+  const locale = useLocale();
   const { user, isLoading, error, isUpdating, updateProfile, uploadAvatar, refresh } = viewModel;
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackState | null>(null);
@@ -71,13 +73,13 @@ const ProfileSection: React.FC<{ t: ReturnType<typeof useTranslations>; viewMode
     return () => window.clearTimeout(timer);
   }, [feedback]);
 
-  const label = useCallback((key: string, fallback: string) => {
+  const label = useCallback((key: string) => {
     try {
       const value = t(key as never) as string;
-      if (!value || value.includes('.')) return fallback;
+      if (!value || value.includes('.')) return key;
       return value;
     } catch {
-      return fallback;
+      return key;
     }
   }, [t]);
 
@@ -96,6 +98,8 @@ const ProfileSection: React.FC<{ t: ReturnType<typeof useTranslations>; viewMode
 
       if (values.removeAvatar) {
         updates.avatar = null;
+      } else if (values.avatarUploadedUrl) {
+        updates.avatar = values.avatarUploadedUrl;
       } else if (values.avatarFile) {
         try {
           const avatarUrl = await uploadAvatar(values.avatarFile);
@@ -113,12 +117,11 @@ const ProfileSection: React.FC<{ t: ReturnType<typeof useTranslations>; viewMode
 
       setFeedback({
         status: 'success',
-        message: t('profileUpdated') || 'Cập nhật hồ sơ thành công',
+        message: t('profileUpdated'),
       });
       setIsEditOpen(false);
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : t('updateError') || 'Không thể cập nhật hồ sơ';
+      const message = err instanceof Error ? err.message : t('updateError');
       setFeedback({ status: 'error', message });
       throw err;
     }
@@ -126,46 +129,46 @@ const ProfileSection: React.FC<{ t: ReturnType<typeof useTranslations>; viewMode
 
   const fields = useMemo<ProfileField[]>(() => {
     if (!user) return [];
-    const yesText = t('yes') || 'Có';
-    const noText = t('no') || 'Không';
+    const yesText = t('yes');
+    const noText = t('no');
 
     return [
       {
         key: 'userName',
-        label: label('name', 'Họ và tên'),
-        value: user.userName || '–',
+        label: label('name'),
+        value: user.userName || t('unknown'),
       },
       {
         key: 'email',
-        label: label('email', 'Email'),
-        value: user.email || '–',
+        label: label('email'),
+        value: user.email || t('unknown'),
       },
       {
         key: 'phone',
-        label: label('phone', 'Số điện thoại'),
-        value: user.phone || '–',
+        label: label('phone'),
+        value: user.phone || t('unknown'),
       },
       {
         key: 'dateOfBirth',
-        label: label('birthDate', 'Ngày sinh'),
-        value: formatDateOnly(user.dateOfBirth) || '–',
+        label: label('birthDate'),
+        value: formatDateOnly(user.dateOfBirth, locale) || t('unknown'),
       },
       {
         key: 'address',
-        label: label('address', 'Địa chỉ'),
-        value: formatAddress(user.address) || '–',
+        label: label('address'),
+        value: formatAddress(user.address) || t('unknown'),
       },
       {
         key: 'role',
-        label: label('role', 'Vai trò'),
+        label: label('role'),
         value: formatRole(user.role),
       },
       {
         key: 'isVerified',
-        label: label('verified', 'Đã xác thực'),
+        label: label('verified'),
         value:
           user.isVerified === undefined
-            ? '–'
+            ? t('unknown')
             : (
                 <span
                   className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
@@ -178,16 +181,16 @@ const ProfileSection: React.FC<{ t: ReturnType<typeof useTranslations>; viewMode
       },
       {
         key: 'createdAt',
-        label: label('createdAt', 'Ngày tạo'),
-        value: formatDateTime(user.createdAt) || '–',
+        label: label('createdAt'),
+        value: formatDateTime(user.createdAt, locale) || t('unknown'),
       },
       {
         key: 'updatedAt',
-        label: label('updatedAt', 'Cập nhật'),
-        value: formatDateTime(user.updatedAt) || '–',
+        label: label('updatedAt'),
+        value: formatDateTime(user.updatedAt, locale) || t('unknown'),
       },
     ];
-  }, [label, t, user]);
+  }, [label, t, user, locale]);
 
   let body: React.ReactNode;
 
@@ -196,13 +199,13 @@ const ProfileSection: React.FC<{ t: ReturnType<typeof useTranslations>; viewMode
   } else if (error) {
     body = (
       <div className="rounded-2xl border border-red-200 bg-red-50 p-6">
-        <h3 className="text-lg font-semibold text-red-700">
-          {t('updateError') || 'Không thể cập nhật hồ sơ'}
+          <h3 className="text-lg font-semibold text-red-700">
+          {t('updateError')}
         </h3>
         <p className="mt-2 text-sm text-red-600">{error}</p>
         <div className="mt-4">
           <Button type="button" variant="primary" onClick={refresh}>
-            {t('retry') || 'Thử lại'}
+            {t('retry')}
           </Button>
         </div>
       </div>
@@ -210,7 +213,7 @@ const ProfileSection: React.FC<{ t: ReturnType<typeof useTranslations>; viewMode
   } else if (!user) {
     body = (
       <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-600">
-        {t('userNotFound') || 'Không tìm thấy thông tin người dùng'}
+        {t('userNotFound')}
       </div>
     );
   } else {
@@ -232,7 +235,7 @@ const ProfileSection: React.FC<{ t: ReturnType<typeof useTranslations>; viewMode
 
           <div className="w-full md:w-auto">
             <Button variant="primary" onClick={() => setIsEditOpen(true)} className="w-full md:w-auto">
-              {t('editProfile') || 'Chỉnh sửa thông tin'}
+              {t('editProfile')}
             </Button>
           </div>
         </div>
@@ -261,9 +264,9 @@ const ProfileSection: React.FC<{ t: ReturnType<typeof useTranslations>; viewMode
                 type="button"
                 className="rounded-full px-2 py-1 text-xs font-semibold uppercase tracking-wide"
                 onClick={() => setFeedback(null)}
-                aria-label="Close notification"
+                aria-label={t('close')}
               >
-                ×
+                <Image src={ICONS.CROSS || ICONS.PLACEHOLDER} width={12} height={12} alt={t('close')} />
               </button>
             </div>
           )}
@@ -275,6 +278,7 @@ const ProfileSection: React.FC<{ t: ReturnType<typeof useTranslations>; viewMode
         onClose={() => setIsEditOpen(false)}
         onSubmit={handleFormSubmit}
         isSubmitting={isUpdating}
+        onAvatarUpload={uploadAvatar}
         t={t}
         user={user}
       />
@@ -294,11 +298,12 @@ const ProfileSkeleton: React.FC = () => (
 );
 
 const AvatarPreview: React.FC<{ user: User | null }> = ({ user }) => {
+  const t = useTranslations('settings');
   if (user?.avatar) {
     return (
       <Image
         src={user.avatar}
-        alt={user.userName || user.email || 'Avatar'}
+        alt={user.userName || user.email || t('avatar')}
         width={80}
         height={80}
         className="h-16 w-16 md:h-20 md:w-20 rounded-full border border-gray-200 object-cover"
@@ -317,9 +322,10 @@ const AvatarPreview: React.FC<{ user: User | null }> = ({ user }) => {
 };
 
 const InfoField: React.FC<ProfileField> = ({ label, value }) => {
+  const tLocal = useTranslations('settings');
   const content = typeof value === 'string'
-    ? value.trim().length ? value : '–'
-    : value ?? '–';
+    ? value.trim().length ? value : tLocal('unknown')
+    : value ?? tLocal('unknown');
 
   return (
     <div className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
@@ -334,7 +340,7 @@ const getInitials = (user: User | null): string => {
   if (!source) return '?';
   const parts = source.trim().split(/\s+/).filter(Boolean);
   if (!parts.length) {
-    return source.slice(0, 2).toUpperCase() || '?';
+    return source.slice(0, 2).toUpperCase() || '';
   }
   return parts
     .slice(0, 2)
@@ -342,22 +348,22 @@ const getInitials = (user: User | null): string => {
     .join('') || '?';
 };
 
-const formatDateOnly = (value?: string | null): string => {
+const formatDateOnly = (value?: string | null, locale = 'en-US'): string => {
   if (!value) return '';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat('vi-VN', {
+  return new Intl.DateTimeFormat(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
   }).format(date);
 };
 
-const formatDateTime = (value?: string | null): string => {
+const formatDateTime = (value?: string | null, locale = 'en-US'): string => {
   if (!value) return '';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat('vi-VN', {
+  return new Intl.DateTimeFormat(locale, {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',

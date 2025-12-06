@@ -67,6 +67,38 @@
     "loginButton": "Login",
     "registerButton": "Register"
   },
+  "aiAssistant": {
+    "launcher": {
+      "tooltipDesktop": "Chat with FreshBuddy",
+      "tooltipMobile": "Ask FreshBuddy",
+      "openLabel": "Open AI assistant",
+      "closeLabel": "Close AI assistant"
+    },
+    "panel": {
+      "title": "FreshBuddy",
+      "subtitle": "Catalog-first AI helper that only goes to Google when your data runs out",
+      "placeholder": "Ask about categories, products or deals...",
+      "send": "Send",
+      "clear": "Clear chat",
+      "empty": "Ask something like \"Which organic vegetables are available today?\"",
+      "loading": "FreshBuddy is thinking...",
+      "error": "Unable to reach the AI assistant right now. Please try again soon.",
+      "retry": "Retry",
+      "poweredBy": "Powered by Google Gemini + Programmable Search",
+      "privacy": "FreshBuddy answers with Fresh Food data first and only shares anonymized snippets with Google when needed.",
+      "fallbackHint": "Fallback search triggers automatically whenever your question needs extra context.",
+      "greeting": "Hi there! I can help you explore categories, find matching products or highlight current promotions.",
+      "suggestions": {
+        "categories": "Suggested categories",
+        "products": "Suggested products"
+      },
+      "status": {
+        "ready": "Ready to help",
+        "thinking": "Preparing a reply...",
+        "failed": "Something went wrong"
+      }
+    }
+  },
   "navbar": {
     "searchPlaceholder": "Search for Grocery, Stores, Vegetable or Meat...",
     "deliveryPromise": "Order now and get it within 15 mins!",
@@ -83,6 +115,11 @@
     "pleaseSignIn": "Please sign in to continue",
     "cartAria": "View shopping cart",
     "notificationsAria": "View notifications"
+  },
+  "searchSuggestions": {
+    "loading": "Fetching suggestions...",
+    "empty": "No matching suggestions.",
+    "viewAll": "View all results for \"{query}\""
   },
   "sidebar": {
     "home": "Home",
@@ -105,6 +142,7 @@
   }
   ,
   "products": {
+    "anonymousUser": "Anonymous user",
     "title": "All Products",
     "found": "Found {count} products",
     "sort": "Price",
@@ -199,21 +237,55 @@
     "quantity": "Quantity",
     "addToCart": "Add to cart",
     "buyNow": "Buy now",
+    "shareThisProduct": "Share product",
     "productDetails": "Product details",
+    "stock": "Stock",
+    "labelProduct": "Product",
+    "skuLabel": "SKU",
+    "savings": "Save {amount}",
+    "maxQuantity": "Max {count} items",
+    "adding": "Adding...",
+    "noImage": "No image",
+    "unknownSeller": "Unknown seller",
+    "notPublic": "Not public",
+    "anonymousUser": "Anonymous user",
+    "reviewPlaceholder": "Share your thoughts about the product...",
+    "reviewHint": "Your review will help others choose.",
+    "reviewEmptyError": "Please enter your review content.",
+    "replyEmptyError": "Please enter a reply.",
+    "selectStars": "Choose stars ({rating})",
     "category": "Category",
     "unit": "Unit",
     "brand": "Brand",
     "origin": "Origin",
     "description": "Description",
     "noReviewsYet": "No reviews yet",
+    "writeReview": "Write your review",
+    "reply": "Reply",
+    "delete": "Delete",
+    "replyPlaceholder": "Write a reply...",
+    "sending": "Sending...",
+    "alreadyRatedMessage": "You already rated this product — additional submissions will be treated as replies.",
+    "replyLoading": "Sending...",
+    "submitReply": "Submit",
+    "cancel": "Cancel",
+    "submit": "Submit review",
+    "allReviews": "All reviews",
+    "onReviews": "On {count} reviews",
+    "pageInfo": "Page {page}/{total}",
+    "prev": "Prev",
+    "next": "Next",
+    "loadingReviews": "Loading reviews...",
     "backToProducts": "Back to Products",
     "notFound": "Product Not Found",
     "notFoundMessage": "The product you're looking for might have been removed or doesn't exist."
   },
+  "temporarilyUnavailable": "Temporarily unavailable ({count})",
   "productCard": {
     "seller": "Seller",
     "unknownSeller": "Unknown seller",
     "available": "Available",
+    "discountLabel": "{discount}% OFF",
     "sold": "Sold",
     "outOfStock": "Out of stock",
     "inStock": "{count} in stock",
@@ -323,6 +395,7 @@
       "promotions": {
         "title": "Featured offers",
         "subtitle": "Redeem now and save on your next order",
+        "saveDiscount": "Save {discount}%",
         "validUntil": "Valid until {date}"
       },
       "bestSellers": {
@@ -350,6 +423,12 @@
           "title": "Long-lasting beyond 1 month",
           "subtitle": "Shelf life > 30 days"
         }
+      }
+      ,
+      "categories": {
+        "title": "Categories",
+        "collapse": "Collapse",
+        "showMore": "+{count}"
       }
     }
   },
@@ -388,7 +467,11 @@
       "cod": "Cash on Delivery",
       "vnpay": "VNPay"
     },
+    "paymentMethod": "Payment",
     "labels": {
+      "placeholder": "—",
+      "customer": "Customer",
+      "orderNumberWithHash": "#{orderNumber}",
       "total": "Total",
       "estimatedDelivery": "Estimated delivery {date}",
       "cancelReason": "Cancellation reason: {reason}",
@@ -403,6 +486,7 @@
     "emptyFilterHint": "Try a different filter or check back later.",
     "amountLabel": "Amount",
     "actions": {
+      "search": "Search",
       "refresh": "Refresh",
       "update": "Update",
       "updating": "Updating...",
@@ -421,16 +505,24 @@
     "dialog": {
       "cancelTitle": "Cancel Order",
       "cancelSubtitle": "Order",
+      "warningAlt": "Warning",
+      "errorAlt": "Error",
       "cancelWarning": "Cancelling an order cannot be undone. Please confirm your reason for cancellation.",
       "reasonLabel": "Reason for Cancellation",
       "reasonPlaceholder": "Please enter the reason for cancellation (minimum 10 characters)...",
       "characters": "characters",
       "cancel": "Dismiss",
       "cancelling": "Cancelling...",
-      "confirmCancel": "Confirm Cancellation"
+      "confirmCancel": "Confirm Cancellation",
+      "successAlt": "Success"
     },
     "success": {
-      "cancelledSuccessfully": "Order cancelled successfully"
+      "cancelledSuccessfully": "Order cancelled successfully",
+      "statusUpdated": "Order status updated successfully"
+    },
+    "errors": {
+      "loadOrders": "Failed to load orders",
+      "updateStatus": "Failed to update order status"
     }
   },
   "favorites": {
@@ -464,6 +556,10 @@
     "noScheduled": "No scheduled livestreams",
     "liveBadge": "LIVE",
     "upcomingBadge": "SCHEDULED",
+    "playAlt": "Play",
+    "viewersAlt": "Viewers icon",
+    "productsAlt": "Products icon",
+    "startAlt": "Start stream",
     "viewer": "viewer",
     "viewers": "viewers",
     "live": "Live now",
@@ -498,6 +594,7 @@
       "productsCounter": "{count}/{total} products selected",
       "productsRequired": "Please select at least one product",
       "createProductCta": "Create product",
+      "removeProduct": "Remove product",
       "cancel": "Cancel",
       "createAndStart": "Create and Start",
       "creating": "Creating..."
@@ -531,6 +628,13 @@
       "productsError": "Unable to load products",
       "noProductsSelected": "No products selected for this livestream"
     },
+    "chatBox": {
+      "title": "Chat",
+      "empty": "No messages yet. Be the first to chat!",
+      "placeholder": "Type your message...",
+      "send": "Send",
+      "characters": "characters"
+    },
     "watch": {
       "scheduled": "This livestream is scheduled",
       "startTime": "Start time",
@@ -549,6 +653,7 @@
       "follow": "Follow"
     },
     "errors": {
+      "invalidResponse": "Livestream was created but no ID was returned. Please check your livestream list.",
       "notAuthenticated": "Please login to create livestream",
       "titleRequired": "Please enter a title",
       "createFailed": "Failed to create livestream. Please try again",
@@ -581,7 +686,8 @@
         "startTime": "Start Time",
         "endTime": "End Time",
         "duration": "Duration",
-        "viewers": "Views"
+        "viewers": "Views",
+        "status": "Status"
       },
       "duration": {
         "hours": "hours",
@@ -590,6 +696,9 @@
     }
   },
   "community": {
+        "icons": {
+          "closeAlt": "Close"
+        },
     "title": "Community",
     "placeholder": "What's on your mind?",
     "postPlaceholder": "What would you like to share today?",
@@ -600,13 +709,33 @@
     "maxImages": "Maximum 4 images allowed",
     "emptyPost": "Please enter content or select images",
     "post": "Post",
-    "cancel": "Cancel",
+    "shareModal": {
+      "title": "Share post",
+      "placeholder": "Share your thoughts...",
+      "sharing": "Sharing..."
+    },
+    
     "noPosts": "No posts yet",
     "likes": "likes",
     "comments": "comments",
     "shares": "shares",
     "like": "Like",
     "comment": "Comment",
+    "reply": "Reply",
+    "delete": "Delete",
+    "commentPlaceholder": "Write a comment...",
+    "loadingComments": "Loading comments...",
+    "emptyComments": "No comments yet. Be the first to comment!",
+    "loadMoreComments": "Load more comments",
+    "send": "Send",
+    "cancel": "Cancel",
+    "replyPlaceholder": "Write a reply...",
+    "viewReplies": "View {count} replies",
+    "hide": "Hide",
+    "confirmDeleteComment": "Are you sure you want to delete this comment? Replies will be removed too.",
+    "deleteError": "Failed to delete the comment",
+    "sending": "Sending...",
+    
   "share": "Share",
   "editPost": "Edit post",
   "deletePost": "Delete post",
@@ -616,13 +745,53 @@
     "emptyTitle": "No posts yet",
     "emptyDesc": "Be the first to share!"
   ,
-    "confirmDelete": "Are you sure you want to delete this post?",
+    "confirmDeletePost": "Are you sure you want to delete this post?",
     "allDisplayed": "All posts displayed",
-    "userFallback": "User"
-  ,
+    "userFallback": "User",
+    "postOfUser": "Post by {userName}",
     "unknownUser": "Unknown User"
+    ,
+    "justNow": "Just now",
+    "minutesAgo": "{count} minutes ago",
+    "hoursAgo": "{hours} hours ago",
+    "daysAgo": "{days} days ago",
+    "moreImages": "+{count}",
+    "options": "Options"
   },
-  "postEditor": {
+  "shareDialog": {
+    "title": {
+      "post": "Share post",
+      "product": "Share product"
+    },
+    "subtitle": {
+      "post": "Copy the link or let friends scan the QR code to view this post.",
+      "product": "Copy the link or show the QR code so customers can view this product."
+    },
+    "linkLabel": "Share link",
+    "copyAction": "Copy link",
+    "openAction": "Open link",
+    "copySuccess": "Link copied to clipboard",
+    "copyError": "Unable to copy link. Please try again.",
+    "qrLabel": "Scan QR code",
+    "scanHint": "Point any mobile camera to open the link instantly.",
+    "loading": "Preparing share link...",
+    "error": "Unable to load share information.",
+    "retry": "Try again",
+    "close": "Close",
+    "preview": "Link preview",
+    "metaFallback": {
+      "post": "Community post",
+      "product": "Product"
+    },
+    "internalShare": {
+      "title": "Reshare to community",
+      "helper": "Add a note and share this post back to your feed.",
+      "placeholder": "Say something about this post...",
+      "clear": "Clear",
+      "cta": "Share now"
+    }
+  },
+  "postEditor": { 
     "title": "Edit post",
     "description": "Update your post content, images, or visibility settings.",
     "back": "Back",
@@ -635,6 +804,13 @@
       "private": "Only me"
     },
     "imagesSection": "Images",
+    "imageCount": "{current}/{max}",
+    "loading": "Loading...",
+    "prevImage": "Previous image",
+    "nextImage": "Next image",
+    "imageAlt": "Image {index}",
+    "thumbAlt": "Thumbnail {index}",
+    "close": "Close",
     "noImages": "This post does not have any images yet.",
     "addImages": "Add images",
     "addImagesHint": "You can attach up to 10 images. New uploads will appear at the end of the list.",
@@ -664,11 +840,12 @@
     "faqsEmpty": "We're updating our FAQs. Create a ticket if you need help right away.",
     "yes": "Yes",
     "no": "No",
-    "viewDetails": "View details →",
+    "viewDetails": "View details",
     "loading": "Loading...",
     "error": "An error occurred",
     "retry": "Retry",
     "actions": {
+      "close": "Close",
       "refresh": "Refresh",
       "newTicket": "Create new ticket",
       "openEmail": "Compose email",
@@ -685,6 +862,18 @@
     "messages": {
       "ticketCreated": "Your support request has been submitted successfully!"
     },
+    "contactEmail": "quangnguyen310720042@gmail.com",
+    "icons": {
+      "successAlt": "Success",
+      "addAlt": "New ticket",
+      "closeAlt": "Close",
+      "likeAlt": "Like",
+      "dislikeAlt": "Dislike",
+      "closeAria": "Close chat",
+      "sendAlt": "Send message",
+      "arrowAlt": "Arrow",
+      "expandAlt": "Expand"
+    },
     "chatBox": {
       "title": "Chat with Support",
       "subtitle": "Leave a message and we'll reply as soon as possible",
@@ -694,8 +883,21 @@
       "empty": "No conversations yet. Send your first message!",
       "placeholder": "Type what you need help with...",
       "send": "Send message",
+      "enterToSend": "Enter to send · Shift+Enter for newline",
+      "enterToSendShort": "Enter to send",
       "noteTitle": "Note",
-      "noteContent": "Chat is currently in beta. Our support team will follow up via email or phone."
+      "noteContent": "Chat is currently in beta. Our support team will follow up via email or phone.",
+      "connection": {
+        "connected": "Connected",
+        "connecting": "Connecting",
+        "disconnected": "Offline"
+      },
+      "connectionLost": "Connection lost. We're trying to reconnect, please wait or refresh.",
+      "loading": "Loading your conversation...",
+      "loginPrompt": "Please sign in so we can continue helping you via chat.",
+      "loginCta": "Login to chat",
+      "sending": "Sending...",
+      "unreadBadge": "{count} unread messages"
     },
     "statuses": {
       "open": "New",
@@ -755,6 +957,7 @@
     "notifications": "Notifications",
     "preferences": "Preferences",
     "changeAvatar": "Change avatar",
+    "uploading": "Uploading...",
     "saveChanges": "Save changes",
     "cancel": "Cancel",
     "deleteAccount": "Delete account",
@@ -764,10 +967,14 @@
     "newPassword": "New password",
     "confirmNewPassword": "Confirm new password",
     "updatePassword": "Update password",
+    "passwordsNotMatch": "Passwords do not match",
+    "passwordUpdated": "Password updated successfully",
     "twoFactorTitle": "Two-factor authentication",
     "twoFactorDesc": "Protect your account with an additional verification step",
     "twoFactorToggle": "Enable two-factor authentication",
     "devicesTitle": "Logged in devices",
+    "device_chrome_window": "Chrome on Windows",
+    "device_safari_iphone": "Safari on iPhone",
     "now": "Now",
     "hoursAgo": "{hours} hours ago",
     "notificationsTitle": "Notifications",
@@ -802,6 +1009,12 @@
     "notificationsDesc": "Choose which notifications you want to receive",
     "preferencesDesc": "Customize your experience",
     "manageDevices": "Manage logged in devices",
+    "location_hcm": "Ho Chi Minh City, Vietnam",
+    "location_hanoi": "Hanoi, Vietnam",
+    "unknown": "Unknown",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "close": "Close",
     "logout": "Logout",
     "male": "Male",
     "female": "Female",
@@ -855,6 +1068,59 @@
     "role": "Role",
     "preferences": "Preferences",
     "preferencesHelp": "Manage your language, notifications and other account preferences in Settings."
+    ,
+    "manageOrders": "Manage orders",
+    "unknownUser": "Unknown user",
+    "confirmDeletePost": "Are you sure you want to delete this post?",
+    "emptyPosts": "No posts yet",
+    "emptyProducts": "No products yet",
+    "tabs": {
+      "posts": "Posts ({count})",
+      "products": "Products ({count})"
+    }
+      ,
+      "deleteError": "Error deleting the post",
+      "sharePostError": "Error sharing the post",
+      "deleteProductError": "Error deleting the product",
+      "updateProductStatusError": "Error updating the product status",
+      "registerShopOwner": {
+        "title": "Register as shop owner",
+        "subtitle": "Submit your business certificate to unlock selling tools and analytics dashboards.",
+        "button": "Register as shop owner",
+        "ctaDescription": "Upload your certificate to request selling permissions.",
+        "status": {
+          "pending": "Pending review",
+          "approved": "Approved",
+          "rejected": "Rejected",
+          "none": "No request yet"
+        },
+        "statusDescription": {
+          "pending": "Hang tight while our team reviews your certificate.",
+          "approved": "Your account is approved. Selling tools are now available.",
+          "rejected": "Your previous request was rejected. Update the document and try again.",
+          "none": "You have not submitted any request yet."
+        },
+        "messages": {
+          "success": "Request submitted successfully. We will contact you soon.",
+          "error": "Unable to submit your request. Please try again."
+        },
+        "form": {
+          "userInfoTitle": "Your information",
+          "certificateTitle": "Business certificate",
+          "uploadHint": "Upload a clear image of your legitimate business certificate.",
+          "selectFile": "Choose image",
+          "replaceFile": "Replace image",
+          "selectedFile": "Selected file: {name}",
+          "preview": "Preview",
+          "locked": "You cannot upload a new certificate while we are reviewing your request.",
+          "submit": "Send request",
+          "submitting": "Submitting...",
+          "required": "Certificate image is required.",
+          "address": "Address",
+          "noAddress": "No address on file",
+          "noPhone": "No phone number"
+        }
+      }
   },
   "order": {
     "orderDetails": "Order Details",
@@ -920,6 +1186,7 @@
   "checkout": {
     "title": "Checkout",
     "backToCart": "Back to Cart",
+    "backToProduct": "Back to product",
     "loading": "Loading your cart...",
     "noItems": "No items selected",
     "noItemsMessage": "Please return to your cart and choose the products you want to buy.",
@@ -963,6 +1230,10 @@
       }
     },
     "products": {
+      "writeReview": "Write your review",
+      "reviewHint": "Your review will help other customers decide",
+      "submit": "Submit review",
+      "loading": "Loading...",
       "title": "Selected Products",
       "fallbackAlt": "Product image",
       "quantity": "Quantity: {count}",
@@ -975,7 +1246,13 @@
       "remove": "Remove",
       "placeholder": "Enter voucher code",
       "applying": "Applying...",
-      "apply": "Apply"
+      "apply": "Apply",
+      "errors": {
+        "expired": "Voucher has expired.",
+        "alreadyUsed": "You have already used this voucher.",
+        "notOwned": "This voucher does not belong to you.",
+        "notFound": "Voucher not found."
+      }
     },
     "payment": {
       "title": "Payment Method",
@@ -1008,7 +1285,21 @@
       "createOrder": "Could not create order. Please try again."
     }
   },
+
+  "voucher": {
+    "errors": {
+      "expired": "Voucher has expired.",
+      "alreadyUsed": "You have already used this voucher.",
+      "notOwned": "This voucher does not belong to you.",
+      "notFound": "Voucher not found."
+    }
+  },
   "paymentResult": {
+    "status": {
+      "success": "Success",
+      "failed": "Failed",
+      "unknown": "Unknown"
+    },
     "title": "Payment Result",
     "successTitle": "VNPay payment successful!",
     "successMessage": "Order {orderNumber} has been marked as paid.",
@@ -1057,12 +1348,28 @@
       "cta": "Back to home"
     },
     "post": {
-      "likes": "❤",
-      "comments": "💬",
-      "shares": "🔁"
+      "likes": "Likes",
+      "comments": "Comments",
+      "shares": "Shares"
     },
+    "userAnonymous": "Anonymous user",
+    "userFallback": "User",
     "user": {
       "profile": "User profile"
     }
+  }
+  ,
+  "imageUploader": {
+    "loginRequired": "Please login before uploading images",
+    "uploadFailed": "Failed to upload images",
+    "uploadError": "Upload error: {error}",
+    "uploadImage": "Upload image",
+    "selectMultiple": "Select multiple images at once",
+    "dropHere": "Drop images here",
+    "hint": "Drag & drop or click to select • Up to {maxFiles} images • {remainingSlots} slot(s)",
+    "uploading": "Uploading... {progress}%",
+    "selectedImages": "Selected images ({count}/{max})",
+    "add": "Add images",
+    "remove": "Remove image"
   }
 }

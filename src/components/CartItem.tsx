@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { ICONS } from '@/shared/constants/images';
 import { useTranslations } from 'next-intl';
 import { CartItem as CartItemEntity } from '@/domain/entities/Cart';
 import { useFormatCurrency } from '@/lib/utils';
@@ -33,9 +34,9 @@ export function CartItem({ item, isSelected, onSelect, onRemove, isItemUpdating,
             className="mt-2 h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-400"
           />
           <div className="flex items-center gap-4">
-            <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+              <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
               <Image
-                src={item.thumbnail || '/icons/shopping-cart.svg'}
+                src={item.thumbnail || ICONS.SHOPPING_CART}
                 alt={item.title || 'Product'}
                 fill
                 className="object-cover"

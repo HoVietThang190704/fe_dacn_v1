@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { ORDER_STATUS, OrderStatus } from '@/domain/entities/Order';
 import { ORDER_CONFIG } from '../config/orderConfig';
-import { translateSafely } from '../utils/translate';
+import OrdersHeader from '../components/orders/OrdersHeader';
 import FilterPill from '../components/orders/FilterPill';
 import OrderCard from '../components/orders/OrderCard';
 import OrdersLoadingState from '../components/orders/LoadingState';
@@ -41,16 +41,15 @@ export const OrdersPage = () => {
   const getOrdersUseCase = container.getOrdersUseCase;
   const getOrderStatisticsUseCase = container.getOrderStatisticsUseCase;
 
-  const title = translateSafely(t, 'title', 'Đơn hàng của bạn');
-  const subtitle = translateSafely(t, 'subtitle', 'Theo dõi trạng thái và quản lý đơn hàng gần đây.');
-  const refreshLabel = translateSafely(t, 'actions.refresh', 'Làm mới');
-  const filterLabelAll = translateSafely(t, 'filter.all', 'Tất cả');
-  const filterLabelPending = translateSafely(t, 'filter.pending', 'Chờ xác nhận');
-  const filterLabelConfirmed = translateSafely(t, 'filter.confirmed', 'Đã xác nhận');
-  const filterLabelPreparing = translateSafely(t, 'filter.preparing', 'Đang chuẩn bị');
-  const filterLabelShipping = translateSafely(t, 'filter.shipping', 'Đang giao');
-  const filterLabelDelivered = translateSafely(t, 'filter.delivered', 'Đã giao');
-  const filterLabelCancelled = translateSafely(t, 'filter.cancelled', 'Đã hủy');
+  const title = t('title');
+  const subtitle = t('subtitle');
+  const filterLabelAll = t('filter.all');
+  const filterLabelPending = t('filter.pending');
+  const filterLabelConfirmed = t('filter.confirmed');
+  const filterLabelPreparing = t('filter.preparing');
+  const filterLabelShipping = t('filter.shipping');
+  const filterLabelDelivered = t('filter.delivered');
+  const filterLabelCancelled = t('filter.cancelled');
 
   const {
     orders,
@@ -118,7 +117,7 @@ export const OrdersPage = () => {
     
     try {
       await cancelOrder(cancelDialogState.orderId, reason);
-      const successMsg = translateSafely(t, 'success.cancelledSuccessfully', 'Hủy đơn hàng thành công');
+      const successMsg = t('success.cancelledSuccessfully');
       setSuccessMessage(successMsg);
       handleCloseCancelDialog();
       refresh();
@@ -135,39 +134,15 @@ export const OrdersPage = () => {
   return (
     <section className="min-h-screen bg-gray-50 px-3 pb-8 pt-4 sm:px-6 lg:px-10">
       
-      {successMessage && (
-        <div className="fixed top-4 right-4 z-50 rounded-lg bg-green-50 border border-green-200 px-4 py-3 shadow-lg animate-in fade-in slide-in-from-top-2 duration-300">
-          <div className="flex items-start gap-3">
-            <span className="text-xl">✅</span>
-            <div>
-              <p className="text-sm font-medium text-green-800">{successMessage}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <header className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900 md:text-3xl">{title}</h1>
-          {subtitle && <p className="mt-1 text-sm text-gray-500 md:text-base">{subtitle}</p>}
-        </div>
-        <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
-          {statsError && (
-            <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-600">
-              {statsError}
-            </span>
-          )}
-          <button
-            onClick={refresh}
-            className="inline-flex items-center gap-2 rounded-full border border-orange-500 px-4 py-2 text-sm font-medium text-orange-500 transition-colors hover:bg-orange-50"
-          >
-            <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path d="M4 4v3h.01L4 7a6 6 0 111.757 4.242l1.415-1.414A4 4 0 104 7h3V4H4z" />
-            </svg>
-            {refreshLabel}
-          </button>
-        </div>
-      </header>
+      <OrdersHeader
+        title={title}
+        subtitle={subtitle}
+        statsError={statsError}
+        isStatsLoading={isStatsLoading}
+        onRefresh={refresh}
+        successMessage={successMessage}
+        onCloseSuccess={() => setSuccessMessage(null)}
+      />
 
       <nav className="sticky top-0 z-20 mb-6 border-y border-gray-200 bg-white/95 backdrop-blur mx-0 sm:mx-0 sm:rounded-2xl sm:border overflow-hidden">
   <div className="flex flex-wrap gap-2 px-3 py-3 sm:flex-nowrap sm:snap-x sm:snap-mandatory sm:gap-2 sm:overflow-x-auto sm:px-4">

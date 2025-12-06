@@ -47,6 +47,7 @@ export const API_ENDPOINTS = {
   PRODUCT_REVIEWS: '/api/product-reviews',
   PRODUCT_REVIEWS_BY_PRODUCT: (productId: string) => `/api/product-reviews/product/${productId}`,
   PRODUCT_REVIEW_DETAIL: (reviewId: string) => `/api/product-reviews/${reviewId}`,
+  PRODUCT_SHARE_INFO: (productId: string) => `/api/products/${productId}/share-info`,
   
   // Orders (user-specific endpoints under /api/users/me/... as per docs)
   ORDERS: '/api/users/me/orders',
@@ -72,6 +73,8 @@ export const API_ENDPOINTS = {
   USER_ADDRESSES: '/api/users/me/addresses',
   USER_ADDRESS_DETAIL: (id: string) => `/api/users/me/addresses/${id}`,
   SET_DEFAULT_ADDRESS: (id: string) => `/api/users/me/addresses/${id}/default`,
+  REGISTER_SHOP_OWNER: '/api/register-shop-owner',
+  REGISTER_SHOP_OWNER_ME: '/api/register-shop-owner/me',
   
   WISHLIST: '/api/wishlist',
   WISHLIST_ITEM: (productId: string) => `/api/wishlist/${productId}`,
@@ -94,12 +97,14 @@ export const API_ENDPOINTS = {
   POSTS_SEARCH: '/api/posts/search/query',
   POSTS_TRENDING: '/api/posts/trending/now',
   // Search
-  GLOBAL_SEARCH: '/api/search',
+  GLOBAL_SEARCH: '/api/v1/search',
+  SEARCH_SUGGEST: '/api/search/suggest',
   POST_DETAIL: (postId: string) => `/api/posts/${postId}`,
   CREATE_POST: '/api/posts',
   UPDATE_POST: (postId: string) => `/api/posts/${postId}`,
   DELETE_POST: (postId: string) => `/api/posts/${postId}`,
   TOGGLE_LIKE_POST: (postId: string) => `/api/posts/${postId}/like`,
+  POST_SHARE_INFO: (postId: string) => `/api/posts/${postId}/share-info`,
   SHARE_POST: (postId: string) => `/api/posts/${postId}/share`,
   
   // Comments
@@ -123,6 +128,10 @@ export const API_ENDPOINTS = {
   SUPPORT_FAQS: '/api/support/faqs',
   SUPPORT_FAQ_SEARCH: '/api/support/faqs/search',
   SUPPORT_FAQ_VOTE: (id: string) => `/api/support/faqs/${id}/vote`,
+  SUPPORT_CHAT_THREAD: '/api/support/chat/thread',
+  SUPPORT_CHAT_MESSAGES: '/api/support/chat/messages',
+  SUPPORT_CHAT_THREAD_READ: '/api/support/chat/thread/read',
+  AI_CHAT: '/api/ai/chat',
 
   // Notifications
   NOTIFICATIONS: '/api/notifications',

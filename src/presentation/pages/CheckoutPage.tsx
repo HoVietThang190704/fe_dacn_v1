@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
+import { LanguageSwitcher } from '@/components/ui';
 import { useCart } from '@/shared/hooks/useCart';
 import { container } from '../di/container';
 import { checkoutConfig } from '@/config/checkoutConfig';
@@ -126,15 +127,45 @@ export const CheckoutPage = () => {
     try {
       setIsApplyingVoucher(true);
       setError(null);
-      const result = await applyVoucherUseCase.execute(voucherCode.trim(), subtotal);
+      // Apply voucher on the full order total (subtotal + shipping fee)
+      const orderTotalForVoucher = subtotal + shippingFee;
+      const result = await applyVoucherUseCase.execute(voucherCode.trim(), orderTotalForVoucher);
       setAppliedVoucher({
         code: voucherCode.trim(),
         discount: result.discount,
         voucher: result.voucher,
       });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('errors.applyVoucher'));
-      setAppliedVoucher(null);
+      } catch (err) {
+        const raw = err instanceof Error ? err.message : undefined;
+
+        if (raw) {
+          const lower = raw.toLowerCase();
+          if (lower.includes('hết hạn') || lower.includes('expired')) {
+            setError(t('voucher.errors.expired'));
+            setAppliedVoucher(null);
+            return;
+          }
+
+          if (lower.includes('đã dùng') || lower.includes('đã sử dụng') || lower.includes('already used') || lower.includes('perUserLimit')) {
+            setError(t('voucher.errors.alreadyUsed'));
+            setAppliedVoucher(null);
+            return;
+          }
+
+          if (lower.includes('không thuộc') || lower.includes("doesn't belong") || lower.includes('not belong') || lower.includes('not belong to')) {
+            setError(t('voucher.errors.notOwned'));
+            setAppliedVoucher(null);
+            return;
+          }
+
+          if (lower.includes('not found') || lower.includes('không tồn tại') || lower.includes('voucher not found')) {
+            setError(t('voucher.errors.notFound'));
+            setAppliedVoucher(null);
+            return;
+          }
+        }
+
+        setError(raw ?? t('errors.applyVoucher'));
     } finally {
       setIsApplyingVoucher(false);
     }

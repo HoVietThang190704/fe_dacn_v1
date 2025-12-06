@@ -4,15 +4,16 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { User } from '@/domain/entities/User';
 
-export type UserProfile = {
-  id: string;
-  userName?: string;
-  email: string;
-  avatar?: string;
-  phone?: string;
-  role?: string;
-  isVerified?: boolean;
-};
+export type UserProfile = Pick<User,
+  'id' |
+  'userName' |
+  'email' |
+  'avatar' |
+  'phone' |
+  'role' |
+  'isVerified' |
+  'address'
+>;
 
 export type GetUserProfileUseCase = {
   execute: (userId: string) => Promise<User>;
@@ -35,6 +36,8 @@ export const useProfileViewModel = (getUserProfileUseCase?: GetUserProfileUseCas
           phone: user.phone,
           role: user.role,
           isVerified: user.isVerified,
+          avatar: user.avatar,
+          address: user.address,
         });
       }
       return;
@@ -50,7 +53,16 @@ export const useProfileViewModel = (getUserProfileUseCase?: GetUserProfileUseCas
       setIsLoading(true);
       setError(null);
       const data = await getUserProfileUseCase.execute(userId);
-      setProfile(data);
+      setProfile({
+        id: data.id,
+        userName: data.userName,
+        email: data.email,
+        phone: data.phone,
+        role: data.role,
+        isVerified: data.isVerified,
+        avatar: data.avatar,
+        address: data.address
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load profile');
       console.error('Profile load error:', err);

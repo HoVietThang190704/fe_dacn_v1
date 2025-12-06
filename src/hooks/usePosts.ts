@@ -22,9 +22,10 @@ export function usePosts() {
       }
       setError(null);
 
-      const result = await postCommentContainer
-        .getPublicPostsUseCase
-        .execute(pageNum, limit);
+      const result = await (user?.id
+        ? postCommentContainer.getPostsFeedUseCase.execute(pageNum, limit)
+        : postCommentContainer.getPublicPostsUseCase.execute(pageNum, limit)
+      );
 
       if (append) {
         setPosts((prev) => [...prev, ...result.posts]);
@@ -42,7 +43,7 @@ export function usePosts() {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
-  }, [limit]);
+  }, [limit, user?.id]);
 
   const loadMore = useCallback(async () => {
     if (!hasMore || isLoadingMore) return;

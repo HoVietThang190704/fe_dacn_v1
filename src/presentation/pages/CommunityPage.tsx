@@ -123,7 +123,7 @@ export const CommunityPage: React.FC = () => {
                   isLiked: post.isLiked,
                   createdAt: post.createdAt,
                 }}
-                t={t}
+                
                 onLike={() => handleToggleLike(post.id)}
                 onDelete={() => handleDeletePost(post.id)}
                 onShare={() => handleSharePost(post.id)}

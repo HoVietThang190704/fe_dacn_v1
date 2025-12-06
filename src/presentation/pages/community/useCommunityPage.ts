@@ -52,7 +52,7 @@ export const useCommunityPage = () => {
   }, [toggleLike]);
 
   const handleDeletePost = useCallback(async (postId: string) => {
-    const confirmed = confirm(t('confirmDelete'));
+    const confirmed = confirm(t('confirmDeletePost'));
     if (!confirmed) return;
     try {
       await deletePost(postId);

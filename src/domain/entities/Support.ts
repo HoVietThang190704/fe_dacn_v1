@@ -57,6 +57,31 @@ export interface FAQ {
   userVote?: 'helpful' | 'not_helpful' | null;
 }
 
+export type SupportChatSender = 'user' | 'admin' | 'system';
+
+export interface SupportChatMessage {
+  id: string;
+  sender: SupportChatSender;
+  senderName?: string | null;
+  senderRole?: 'user' | 'admin' | null;
+  content: string;
+  createdAt: Date;
+}
+
+export interface SupportChatThread {
+  threadId: string;
+  userId: string;
+  userName?: string | null;
+  userEmail?: string | null;
+  userAvatar?: string | null;
+  lastMessage?: string | null;
+  lastSender?: SupportChatSender | null;
+  lastMessageAt?: Date | null;
+  unreadByAdmin?: number;
+  unreadByUser?: number;
+  messages: SupportChatMessage[];
+}
+
 export interface CreateSupportTicketInput {
   title: string;
   description?: string;
