@@ -24,16 +24,12 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ messages, onSendMessage, curre
   const [inputMessage, setInputMessage] = useState('');
   const messagesStartRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    messagesStartRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
 
   const handleSend = () => {
     const trimmed = inputMessage.trim();
     if (!trimmed) return;
     onSendMessage(trimmed);
     setInputMessage('');
-    messagesStartRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
