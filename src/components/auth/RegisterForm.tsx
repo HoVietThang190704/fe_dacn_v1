@@ -172,7 +172,7 @@ export default function RegisterForm() {
                 </svg>
                 <span className="hidden sm:inline text-sm font-medium">{t('backToHome')}</span>
             </Link>
-            <div className="relative z-10 bg-white/50 backdrop-blur-sm p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-[var(--shadow)] w-full max-w-[95%] sm:max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="relative z-10 bg-white/50 backdrop-blur-sm p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-[var(--shadow)] w-full max-w-[95%] sm:max-w-md">
                 <h1 className="text-center text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 text-[var(--foreground)]">
                     {t('register.title')}
                 </h1>
