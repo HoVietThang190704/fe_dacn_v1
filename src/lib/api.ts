@@ -42,6 +42,24 @@ export interface RegisterResponse {
     refreshToken?: string;
 }
 
+export interface ForgotPasswordResponse {
+  success: boolean;
+  message: string;
+  expiresAt?: string;
+  devOtp?: string;
+}
+
+export interface ResetPasswordWithOtpRequest {
+  email: string;
+  otp: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordWithOtpResponse {
+  success: boolean;
+  message: string;
+}
+
 export interface ChangePasswordRequest {
   oldPassword: string;
   newPassword: string;
@@ -201,6 +219,16 @@ export const authAPI = {
 
   sendEmailOTP: async (email: string): Promise<ApiResponse<{ expiresAt: string; devOtp?: string }>> => {
     return apiClient.post<{ expiresAt: string; devOtp?: string }>(API_ENDPOINTS.EMAIL_SEND_OTP, { email });
+  },
+
+  forgotPassword: async (email: string): Promise<ApiResponse<ForgotPasswordResponse>> => {
+    return apiClient.post<ForgotPasswordResponse>(API_ENDPOINTS.PASSWORD_FORGOT, { email });
+  },
+
+  resetPasswordWithOtp: async (
+    payload: ResetPasswordWithOtpRequest
+  ): Promise<ApiResponse<ResetPasswordWithOtpResponse>> => {
+    return apiClient.post<ResetPasswordWithOtpResponse>(API_ENDPOINTS.PASSWORD_RESET_WITH_OTP, payload);
   },
   // Exchange Google id_token for app tokens/user
   googleToken: async (idToken: string): Promise<ApiResponse<LoginResponse>> => {
