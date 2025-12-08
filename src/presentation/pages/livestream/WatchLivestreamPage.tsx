@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import Image from 'next/image';
 import { container } from '@/presentation/di/container';
-import { Livestream, LivestreamStatus } from '@/domain/entities/Livestream';
+import { Livestream, LivestreamProductSummary, LivestreamStatus } from '@/domain/entities/Livestream';
 import type { IAgoraRTCClient, IAgoraRTCRemoteUser } from 'agora-rtc-sdk-ng';
 import { io, Socket } from 'socket.io-client';
 import { ChatBox, ChatMessage } from '@/components/livestream/ChatBox';
@@ -15,7 +15,9 @@ import { ICONS } from '@/shared/constants/images';
 import LivestreamHeader from './components/watchlivestreampage/LivestreamHeader';
 import LivestreamProductList from './components/watchlivestreampage/LivestreamProductList';
 import LivestreamPlaceholder from './components/watchlivestreampage/LivestreamPlaceholder';
+import ProductModal from './components/watchlivestreampage/ProductModal';
 import { useLivestreamProducts } from '@/shared/hooks/useLivestreamProducts';
+import { useRouter } from '@/i18n/routing';
  
 
 interface WatchLivestreamPageProps {
@@ -26,6 +28,7 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
   const t = useTranslations('livestream');
   const locale = useLocale();
   const { user } = useAuth();
+  const router = useRouter();
 
   const [livestream, setLivestream] = useState<Livestream | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,6 +41,8 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
   const remoteVideoRef = useRef<HTMLDivElement | null>(null);
   const userAudioElementsRef = useRef<Map<string | number, HTMLAudioElement>>(new Map());
   const [needsAudioPermission, setNeedsAudioPermission] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<LivestreamProductSummary | null>(null);
+  const [selectedQuantity, setSelectedQuantity] = useState<number>(1);
   const currencyFormatter = React.useMemo(() => {
     const intlLocale = locale === 'en' ? 'en-US' : 'vi-VN';
     return new Intl.NumberFormat(intlLocale, {
@@ -60,6 +65,76 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
 
   const shouldShowProductPanel =
     (livestream?.products && livestream.products.length > 0) || isLoadingLinkedProducts || Boolean(linkedProductsError);
+
+  const pricingMap = useMemo(() => {
+    const map: Record<string, { livePrice?: number; remaining?: number | null }> = {};
+    livestream?.productPricing?.forEach((item) => {
+      const remaining = item.maxQuantity != null ? Math.max((item.maxQuantity ?? 0) - (item.claimedQuantity ?? 0), 0) : null;
+      map[item.productId] = {
+        livePrice: item.active ? item.livePrice : undefined,
+        remaining,
+      };
+    });
+    return map;
+  }, [livestream?.productPricing]);
+
+  const getPurchaseInfo = useCallback((product: LivestreamProductSummary) => {
+    const pricing = pricingMap[product.id];
+    const remainingRaw = pricing?.remaining ?? null;
+    const livePrice = pricing?.livePrice;
+    const stockQty = typeof product.stockQuantity === 'number' ? product.stockQuantity : Infinity;
+    const remaining = remainingRaw != null ? Math.min(remainingRaw, stockQty) : null;
+    const limitByPromo = remaining != null && remaining > 0 ? remaining : Infinity;
+    const maxAllowed = Math.max(0, Math.min(limitByPromo, stockQty));
+    const activeLivePrice = livePrice != null && (remaining == null || remaining > 0) ? livePrice : undefined;
+    const disableBuy = stockQty <= 0;
+
+    return {
+      maxAllowed,
+      activeLivePrice,
+      remaining,
+      stock: stockQty,
+      disableBuy,
+    };
+  }, [pricingMap]);
+
+  const openProductModal = (product: (typeof linkedProducts)[number]) => {
+    const info = getPurchaseInfo(product);
+    const initialQty = info.maxAllowed > 0 ? 1 : 0;
+    setSelectedProduct(product);
+    setSelectedQuantity(initialQty);
+  };
+
+  const closeProductModal = () => {
+    setSelectedProduct(null);
+    setSelectedQuantity(1);
+  };
+
+  const updateQuantity = (delta: number) => {
+    if (!selectedProduct) return;
+    const { maxAllowed } = getPurchaseInfo(selectedProduct);
+    const capped = maxAllowed > 0 ? maxAllowed : 0;
+    const base = Math.max(selectedQuantity + delta, 1);
+    const next = capped > 0 ? Math.min(base, capped) : 0;
+    setSelectedQuantity(next);
+  };
+
+  const handleBuyNow = () => {
+    if (!selectedProduct) return;
+    const { activeLivePrice } = getPurchaseInfo(selectedProduct);
+    const price = activeLivePrice ?? selectedProduct.price ?? 0;
+    const params = new URLSearchParams({
+      buyNow: 'true',
+      productId: selectedProduct.id,
+      quantity: String(selectedQuantity),
+      price: String(price),
+      title: selectedProduct.name,
+      thumbnail: selectedProduct.thumbnail || '',
+      unit: selectedProduct.unit || '',
+      livestreamId: livestream?.id || '',
+    });
+    router.push(`/main/checkout?${params.toString()}`);
+  };
   
 
   const joinLivestream = useCallback(async (data: Livestream) => {
@@ -246,6 +321,23 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
       setViewerCount(count);
     });
 
+    socket.on('livestream:pricing-updated', (payload: { productPricing: Livestream['productPricing'] }) => {
+      setLivestream((prev) => (prev ? { ...prev, productPricing: payload.productPricing } : prev));
+    });
+    socket.on('livestream:product-stock-updated', (payload: { products: Array<{ productId: string; stockQuantity: number | null }> }) => {
+      setLivestream((prev) => {
+        if (!prev) return prev;
+        if (!Array.isArray(prev.productSummaries)) return prev;
+        const map = new Map(payload.products.map(p => [p.productId, p.stockQuantity]));
+        const updatedSummaries = prev.productSummaries.map(s => {
+          const val = map.get(s.id);
+          if (val == null) return s;
+          return { ...s, stockQuantity: val };
+        });
+        return { ...prev, productSummaries: updatedSummaries } as Livestream;
+      });
+    });
+
     socket.on('disconnect', () => {
     });
 
@@ -373,6 +465,8 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
                   error={linkedProductsError}
                   variant="grid"
                   formatPrice={(n) => currencyFormatter.format(n ?? 0)}
+                  livePricing={pricingMap}
+                  onSelect={openProductModal}
                 />
               </div>
             )}
@@ -401,6 +495,8 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
                     error={linkedProductsError}
                     variant="list"
                     formatPrice={(n) => currencyFormatter.format(n ?? 0)}
+                    livePricing={pricingMap}
+                    onSelect={openProductModal}
                   />
                 </div>
               )}
@@ -408,6 +504,19 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
           </div>
         </div>
       </div>
+
+      {selectedProduct && (
+        <ProductModal
+          product={selectedProduct}
+          selectedQuantity={selectedQuantity}
+          purchaseInfo={getPurchaseInfo(selectedProduct)}
+          currencyFormatter={(n) => currencyFormatter.format(n ?? 0)}
+          onClose={closeProductModal}
+          updateQuantity={(delta) => updateQuantity(delta)}
+          onBuyNow={handleBuyNow}
+          t={t}
+        />
+      )}
     </div>
   );
 };

@@ -58,6 +58,8 @@ export const useCheckoutAddresses = ({ t, setError }: UseCheckoutAddressesParams
   const [showAddAddressForm, setShowAddAddressForm] = useState(false);
   const [newAddress, setNewAddress] = useState(initialAddressState);
   const [isCreatingAddress, setIsCreatingAddress] = useState(false);
+  const [deletingAddressId, setDeletingAddressId] = useState<string | null>(null);
+  const [settingDefaultAddressId, setSettingDefaultAddressId] = useState<string | null>(null);
 
   const displayAddresses = useMemo(() => {
     if (profileAddress) {
@@ -191,6 +193,86 @@ export const useCheckoutAddresses = ({ t, setError }: UseCheckoutAddressesParams
     }
   }, [newAddress, profileAddress, setError, t]);
 
+  const handleDeleteAddress = useCallback(async (addressId?: string) => {
+    const token = getAuthToken();
+    if (!token) {
+      setError(t('errors.authRequired'));
+      return;
+    }
+
+    if (!addressId) {
+      setError(t('errors.deleteAddressFailed'));
+      return;
+    }
+
+    if (addressId === profileAddressId) {
+      return;
+    }
+
+    try {
+      setDeletingAddressId(addressId);
+      setError(null);
+
+      const response = await usersAPI.deleteAddress(addressId, token);
+      if (!response.success) {
+        setError(response.error || t('errors.deleteAddressFailed'));
+        return;
+      }
+
+      setAddresses((prev) => {
+        const next = prev.filter((addr) => addr.id !== addressId);
+        setSelectedAddressId((current) => {
+          if (current && current !== addressId) return current;
+          const defaultOption = next.find((addr) => Boolean(addr.isDefault && addr.id));
+          if (defaultOption?.id) return defaultOption.id;
+          const firstWithId = next.find((addr) => Boolean(addr.id))?.id;
+          if (firstWithId) return firstWithId;
+          return profileAddress ? profileAddressId : '';
+        });
+        return next;
+      });
+    } catch {
+      setError(t('errors.deleteAddressFailed'));
+    } finally {
+      setDeletingAddressId(null);
+    }
+  }, [addresses, profileAddress, setError, t]);
+
+  const handleSetDefaultAddress = useCallback(async (addressId?: string) => {
+    const token = getAuthToken();
+    if (!token) {
+      setError(t('errors.authRequired'));
+      return;
+    }
+
+    if (!addressId || addressId === profileAddressId) {
+      return;
+    }
+
+    try {
+      setSettingDefaultAddressId(addressId);
+      setError(null);
+
+      const response = await usersAPI.setDefaultAddress(addressId, token);
+      if (!response.success) {
+        setError(response.error || t('errors.setDefaultAddressFailed'));
+        return;
+      }
+
+      setAddresses((prev) =>
+        prev.map((addr) => ({
+          ...addr,
+          isDefault: addr.id === addressId,
+        }))
+      );
+      setSelectedAddressId(addressId);
+    } catch {
+      setError(t('errors.setDefaultAddressFailed'));
+    } finally {
+      setSettingDefaultAddressId(null);
+    }
+  }, [setError, t]);
+
   return {
     displayAddresses,
     selectedAddress,
@@ -203,5 +285,9 @@ export const useCheckoutAddresses = ({ t, setError }: UseCheckoutAddressesParams
     isCreatingAddress,
     isLoadingAddresses,
     handleCreateAddress,
+    handleDeleteAddress,
+    deletingAddressId,
+    handleSetDefaultAddress,
+    settingDefaultAddressId,
   };
 };

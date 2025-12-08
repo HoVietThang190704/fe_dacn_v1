@@ -9,7 +9,7 @@ interface UsersSectionProps {
   hasMore: boolean;
   onLoadMore: () => void;
   total: number;
-  onUserClick?: (id: string) => void;
+  onUserClick?: (user: User) => void;
   isLoadingMore?: boolean;
 }
 
@@ -29,10 +29,10 @@ const UsersSection: React.FC<UsersSectionProps> = ({ users, hasMore, onLoadMore,
           {users.map((user) => (
             <article
               key={user.id}
-              onClick={() => onUserClick?.(user.id)}
+              onClick={() => onUserClick?.(user)}
               role="button"
               tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onUserClick?.(user.id); }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onUserClick?.(user); }}
               className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm flex gap-3 hover:shadow-md cursor-pointer"
             >
               {user.avatar ? (

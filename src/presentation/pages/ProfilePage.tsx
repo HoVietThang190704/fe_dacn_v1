@@ -157,7 +157,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
                 />
               ))
             ) : (
-              <ProfileEmptyState iconSrc={ICONS.PLACEHOLDER} title={t("emptyPosts")} />
+              <ProfileEmptyState iconSrc={ICONS.POST} title={t("emptyPosts")} />
             )}
           </div>
         )}
@@ -183,7 +183,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ profile }) => {
                 ))}
               </div>
             ) : (
-              <ProfileEmptyState iconSrc={ICONS.PLACEHOLDER} title={t("emptyProducts")} />
+              <ProfileEmptyState iconSrc={ICONS.BOX} title={t("emptyProducts")} />
             )}
           </div>
         )}

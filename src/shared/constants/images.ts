@@ -74,4 +74,6 @@ export const ICONS = {
     HISTORY: '/icons/history.png',
     DIRECT: '/icons/direct.png',
     COPY: '/icons/copy.png',
+    MONITOR: '/icons/monitor.png',
+    POST: '/icons/post.png',
 }

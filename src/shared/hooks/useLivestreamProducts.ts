@@ -91,6 +91,12 @@ export const useLivestreamProducts = (
     };
   }, [idsKey, initialKey, initialProducts, productIds]);
 
+  // Also update products list when initialProducts change (e.g., stock updates from WS)
+  useEffect(() => {
+    if (!initialProducts || initialProducts.length === 0) return;
+    setProducts(initialProducts);
+  }, [initialProducts]);
+
   return {
     products,
     isLoading,

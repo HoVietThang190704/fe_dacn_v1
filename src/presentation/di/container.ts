@@ -70,6 +70,7 @@ import { GetLivestreamByIdUseCase } from '@/domain/usecases/GetLivestreamByIdUse
 import { UpdateLivestreamStatusUseCase } from '@/domain/usecases/UpdateLivestreamStatusUseCase';
 import { GetAgoraTokenUseCase } from '@/domain/usecases/GetAgoraTokenUseCase';
 import { GetMyLivestreamHistoryUseCase } from '@/domain/usecases/GetMyLivestreamHistoryUseCase';
+import { UpdateLivestreamProductsUseCase } from '@/domain/usecases/UpdateLivestreamProductsUseCase';
 import { CreateProductUseCase } from '@/domain/usecases/CreateProductUseCase';
 import { UpdateProductUseCase } from '@/domain/usecases/UpdateProductUseCase';
 import { DeleteProductUseCase } from '@/domain/usecases/DeleteProductUseCase';
@@ -169,6 +170,7 @@ class DIContainer {
   private _updateLivestreamStatusUseCase?: UpdateLivestreamStatusUseCase;
   private _getAgoraTokenUseCase?: GetAgoraTokenUseCase;
   private _getMyLivestreamHistoryUseCase?: GetMyLivestreamHistoryUseCase;
+  private _updateLivestreamProductsUseCase?: UpdateLivestreamProductsUseCase;
   private _getProductReviewsUseCase?: GetProductReviewsUseCase;
   private _createProductReviewUseCase?: CreateProductReviewUseCase;
   private _updateProductReviewUseCase?: UpdateProductReviewUseCase;
@@ -682,6 +684,13 @@ class DIContainer {
       this._updateLivestreamStatusUseCase = new UpdateLivestreamStatusUseCase(this.livestreamRepository);
     }
     return this._updateLivestreamStatusUseCase;
+  }
+
+  get updateLivestreamProductsUseCase(): UpdateLivestreamProductsUseCase {
+    if (!this._updateLivestreamProductsUseCase) {
+      this._updateLivestreamProductsUseCase = new UpdateLivestreamProductsUseCase(this.livestreamRepository);
+    }
+    return this._updateLivestreamProductsUseCase;
   }
 
   get getAgoraTokenUseCase(): GetAgoraTokenUseCase {

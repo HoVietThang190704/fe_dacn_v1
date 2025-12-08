@@ -43,6 +43,7 @@ export interface CreateOrderPayload {
   saveShippingAddress?: boolean;
   productId?: string; // buy now
   quantity?: number; // buy now
+  livestreamId?: string; // buy now from livestream
 }
 
 export interface OrderStatistics {
