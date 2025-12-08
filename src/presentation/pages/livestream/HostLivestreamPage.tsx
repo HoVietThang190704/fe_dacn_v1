@@ -6,11 +6,12 @@ import LivestreamHeader from './components/hostlivestreampage/LivestreamHeader';
 import VideoPreview from './components/hostlivestreampage/VideoPreview';
 import Controls from './components/hostlivestreampage/Controls';
 import LinkedProductsList from './components/hostlivestreampage/LinkedProductsList';
+import PricingEditor from './components/hostlivestreampage/PricingEditor';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { container } from '@/presentation/di/container';
-import { Livestream, LivestreamStatus } from '@/domain/entities/Livestream';
+import { Livestream, LivestreamProductPricing, LivestreamStatus } from '@/domain/entities/Livestream';
 import type { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack } from 'agora-rtc-sdk-ng';
 import { io, Socket } from 'socket.io-client';
 import { ChatBox, ChatMessage } from '@/components/livestream/ChatBox';
@@ -36,6 +37,10 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
   const [isMicOn, setIsMicOn] = useState(true);
   const [viewerCount, setViewerCount] = useState(0);
   const [isInitializing, setIsInitializing] = useState(false);
+
+  const [pricingDraft, setPricingDraft] = useState<Record<string, { livePrice: string; maxQuantity: string }>>({});
+  const [isSavingPricing, setIsSavingPricing] = useState(false);
+  const [pricingMessage, setPricingMessage] = useState('');
 
   
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -66,9 +71,110 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
   const shouldShowLinkedProducts =
     (livestream?.products && livestream.products.length > 0) || isLoadingLinkedProducts || Boolean(linkedProductsError);
 
+  const hostPricingMap = React.useMemo(() => {
+    const map: Record<string, { livePrice?: number; remaining?: number | null }> = {};
+    livestream?.productPricing?.forEach((item) => {
+      const remaining = item.maxQuantity != null ? Math.max((item.maxQuantity ?? 0) - (item.claimedQuantity ?? 0), 0) : null;
+      map[item.productId] = {
+        livePrice: item.active ? item.livePrice : undefined,
+        remaining,
+      };
+    });
+    return map;
+  }, [livestream?.productPricing]);
+
   const renderLinkedProducts = () => (
-    <LinkedProductsList products={linkedProducts} isLoading={isLoadingLinkedProducts} error={linkedProductsError} formatter={priceFormatter} />
+    <LinkedProductsList products={linkedProducts} isLoading={isLoadingLinkedProducts} error={linkedProductsError} formatter={priceFormatter} livePricing={hostPricingMap} />
   );
+
+  useEffect(() => {
+    if (!linkedProducts.length) return;
+
+    setPricingDraft((prev) => {
+      const nextDraft = { ...prev } as Record<string, { livePrice: string; maxQuantity: string }>;
+      let hasChanges = false;
+
+      const linkedIds = linkedProducts.map((product) => product.id);
+      Object.keys(nextDraft).forEach((productId) => {
+        if (!linkedIds.includes(productId)) {
+          delete nextDraft[productId];
+          hasChanges = true;
+        }
+      });
+
+      linkedProducts.forEach((product) => {
+        if (nextDraft[product.id]) return;
+        const existing = livestream?.productPricing?.find((pricing) => pricing.productId === product.id);
+        nextDraft[product.id] = {
+          livePrice: existing ? String(existing.livePrice) : product.price ? String(product.price) : '',
+          maxQuantity: existing?.maxQuantity != null ? String(existing.maxQuantity) : ''
+        };
+        hasChanges = true;
+      });
+
+      return hasChanges ? nextDraft : prev;
+    });
+  }, [linkedProducts, livestream?.productPricing]);
+
+  const handlePricingChange = (productId: string, field: 'livePrice' | 'maxQuantity', value: string) => {
+    setPricingDraft((prev) => ({
+      ...prev,
+      [productId]: {
+        livePrice: prev[productId]?.livePrice ?? '',
+        maxQuantity: prev[productId]?.maxQuantity ?? '',
+        [field]: value
+      }
+    }));
+  };
+
+  const buildPricingPayload = (): LivestreamProductPricing[] => {
+    return linkedProducts.map((product) => {
+      const draft = pricingDraft[product.id] ?? { livePrice: '', maxQuantity: '' };
+      const existing = livestream?.productPricing?.find((pricing) => pricing.productId === product.id);
+
+      const livePriceNumber = Number(draft.livePrice);
+      const maxQuantityNumber = draft.maxQuantity !== '' ? Number(draft.maxQuantity) : null;
+      const stockQty = typeof product.stockQuantity === 'number' ? product.stockQuantity : null;
+
+      const livePrice = Number.isFinite(livePriceNumber) && livePriceNumber > 0
+        ? livePriceNumber
+        : existing?.livePrice ?? product.price ?? 0;
+
+      let maxQuantity =
+        maxQuantityNumber !== null && Number.isFinite(maxQuantityNumber) && maxQuantityNumber > 0
+          ? maxQuantityNumber
+          : (stockQty ?? null);
+
+      if (stockQty !== null && maxQuantity !== null) {
+        maxQuantity = Math.min(maxQuantity, stockQty);
+      }
+
+      return {
+        productId: product.id,
+        livePrice,
+        maxQuantity,
+        claimedQuantity: 0,
+        active: existing?.active ?? true
+      };
+    });
+  };
+
+  const handleSavePricing = async () => {
+    setIsSavingPricing(true);
+    setPricingMessage('');
+    try {
+      const updateLivestreamProductsUseCase = container.updateLivestreamProductsUseCase;
+      const updatedLivestream = await updateLivestreamProductsUseCase.execute(livestreamId, buildPricingPayload());
+      setLivestream((prev) => (prev ? { ...prev, productPricing: updatedLivestream.productPricing } : updatedLivestream));
+      setPricingMessage(t('host.pricingSaved'));
+    } catch {
+      setPricingMessage(t('host.pricingError'));
+    } finally {
+      setIsSavingPricing(false);
+    }
+  };
+
+  
 
   const loadLivestream = useCallback(async () => {
     try {
@@ -274,6 +380,23 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
       setViewerCount(count);
     });
 
+    socket.on('livestream:pricing-updated', (payload: { productPricing: Livestream['productPricing'] }) => {
+      setLivestream((prev) => (prev ? { ...prev, productPricing: payload.productPricing } : prev));
+    });
+    socket.on('livestream:product-stock-updated', (payload: { products: Array<{ productId: string; stockQuantity: number | null }> }) => {
+      setLivestream((prev) => {
+        if (!prev) return prev;
+        if (!Array.isArray(prev.productSummaries)) return prev;
+        const map = new Map(payload.products.map(p => [p.productId, p.stockQuantity]));
+        const updatedSummaries = prev.productSummaries.map(s => {
+          const val = map.get(s.id);
+          if (val == null) return s;
+          return { ...s, stockQuantity: val };
+        });
+        return { ...prev, productSummaries: updatedSummaries } as Livestream;
+      });
+    });
+
     socket.on('user-joined', () => {});
 
     return () => {
@@ -432,6 +555,18 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
                 {renderLinkedProducts()}
               </div>
             )}
+
+            <PricingEditor
+              livestream={livestream}
+              linkedProducts={linkedProducts}
+              pricingDraft={pricingDraft}
+              handlePricingChange={handlePricingChange}
+              handleSavePricing={handleSavePricing}
+              isSavingPricing={isSavingPricing}
+              pricingMessage={pricingMessage}
+              priceFormatter={(n) => priceFormatter.format(n)}
+              t={t}
+            />
           </div>
           <div className="xl:col-span-1 space-y-4">
             <div className="h-[400px] sm:h-[500px]">

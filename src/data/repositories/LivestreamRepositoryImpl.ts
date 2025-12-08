@@ -40,4 +40,8 @@ export class LivestreamRepositoryImpl implements ILivestreamRepository {
   async getAgoraToken(channel: string, uid: number, role: 'publisher' | 'audience'): Promise<AgoraToken> {
     return await this.apiDataSource.getAgoraToken(channel, uid, role);
   }
+
+  async updateLivestreamProducts(id: string, pricing: Livestream['productPricing']): Promise<Livestream> {
+    return await this.apiDataSource.updateLivestreamProducts(id, pricing);
+  }
 }

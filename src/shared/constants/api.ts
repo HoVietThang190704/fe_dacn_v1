@@ -78,6 +78,9 @@ export const API_ENDPOINTS = {
   REGISTER_SHOP_OWNER: '/api/register-shop-owner',
   REGISTER_SHOP_OWNER_ME: '/api/register-shop-owner/me',
   
+  // User endpoints (public - for viewing other users)
+  USER_PUBLIC_PROFILE: (userId: string) => `/api/users/${userId}/public-profile`,
+  
   WISHLIST: '/api/wishlist',
   WISHLIST_ITEM: (productId: string) => `/api/wishlist/${productId}`,
   WISHLIST_TOGGLE: (productId: string) => `/api/wishlist/toggle/${productId}`,

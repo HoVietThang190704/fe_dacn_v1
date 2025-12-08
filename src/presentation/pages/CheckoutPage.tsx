@@ -46,6 +46,10 @@ export const CheckoutPage = () => {
     isCreatingAddress,
     isLoadingAddresses,
     handleCreateAddress,
+    handleDeleteAddress,
+    deletingAddressId,
+    handleSetDefaultAddress,
+    settingDefaultAddressId,
   } = useCheckoutAddresses({ t, setError });
 
   const buyNowItem = useMemo(() => {
@@ -56,6 +60,7 @@ export const CheckoutPage = () => {
     const title = searchParams.get('title') || '';
     const thumbnail = searchParams.get('thumbnail') || '';
     const unit = searchParams.get('unit') || '';
+    const livestreamId = searchParams.get('livestreamId') || undefined;
     if (!productId || !title) return null;
     return {
       id: `buynow-${productId}`,
@@ -65,6 +70,7 @@ export const CheckoutPage = () => {
       title,
       thumbnail,
       unit,
+      livestreamId,
     };
   }, [isBuyNow, searchParams]);
 
@@ -214,6 +220,7 @@ export const CheckoutPage = () => {
       const orderPayload = isBuyNow && buyNowItem ? {
         productId: buyNowItem.productId,
         quantity: buyNowItem.quantity,
+        livestreamId: buyNowItem.livestreamId,
         paymentMethod,
         note: orderNote || undefined,
         voucherCode: appliedVoucher?.code || undefined,
@@ -325,6 +332,10 @@ export const CheckoutPage = () => {
               isCreatingAddress={isCreatingAddress}
               isLoadingAddresses={isLoadingAddresses}
               handleCreateAddress={handleCreateAddress}
+              handleDeleteAddress={handleDeleteAddress}
+              deletingAddressId={deletingAddressId}
+              handleSetDefaultAddress={handleSetDefaultAddress}
+              settingDefaultAddressId={settingDefaultAddressId}
               resolveAddressLabel={resolveAddressLabel}
             />
 

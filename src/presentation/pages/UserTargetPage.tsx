@@ -1,17 +1,20 @@
 "use client";
 
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 
 import type { UserProfile } from '@/presentation/viewmodels/useProfileViewModel';
 import { usePostsByUser } from '@/hooks/usePostsByUser';
 import { useUserProducts } from '@/hooks/useUserProducts';
+import { useUserPublicProfile } from '@/hooks/useUserPublicProfile';
 import PostCard from '../components/PostCard';
 import ProfileProductCard from '../components/ProfileProductCard';
-import ProfileHeader from '@/presentation/components/UserTargetPage/ProfileHeader';
-import Tabs from '@/presentation/components/UserTargetPage/Tabs';
-import EmptyState from '@/presentation/components/UserTargetPage/EmptyState';
+import ProfileHeader from '../components/profile/ProfileHeader';
+import ProfileTabs from '../components/profile/ProfileTabs';
+import ProfileEmptyState from '../components/profile/ProfileEmptyState';
+import LoadingSpinner from '../components/profile/LoadingSpinner';
+import { ICONS } from '@/shared/constants/images';
 import { useAuth } from '@/shared/hooks/useAuth';
 
 interface UserTargetPageProps {
@@ -27,6 +30,11 @@ export const UserTargetPage: React.FC<UserTargetPageProps> = ({ userId, fallback
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'posts' | 'products'>('posts');
   const { user: currentUser } = useAuth();
+
+  const {
+    profile: fetchedProfile,
+    isLoading: isLoadingProfile,
+  } = useUserPublicProfile(userId);
 
   const {
     posts,
@@ -46,21 +54,16 @@ export const UserTargetPage: React.FC<UserTargetPageProps> = ({ userId, fallback
     isLoading: isLoadingProducts,
   } = useUserProducts(userId);
 
-  const profile: UserProfile = useMemo(() => {
-    const postUser = posts.find((post) => post.user)?.user;
-    const productOwner = products.find((product) => product.owner)?.owner;
-    const fallbackName = fallbackProfile?.userName || fallbackProfile?.email || tProfile('userFallback');
-
-    return {
-      id: userId,
-      userName: postUser?.userName || productOwner?.userName || fallbackName,
-      email: postUser?.email || productOwner?.email || fallbackProfile?.email || '',
-      avatar: postUser?.avatar || productOwner?.avatar || fallbackProfile?.avatar,
-      phone: fallbackProfile?.phone,
-      role: fallbackProfile?.role,
-      isVerified: fallbackProfile?.isVerified,
-    };
-  }, [fallbackProfile, posts, products, userId, tProfile]);
+  // Use fetched profile data, fallback to props if API hasn't loaded yet
+  const profile: UserProfile = {
+    id: userId,
+    userName: fetchedProfile?.userName || fallbackProfile?.userName || fallbackProfile?.email || tProfile('userFallback'),
+    email: fetchedProfile?.email || fallbackProfile?.email || '',
+    avatar: fetchedProfile?.avatar || fallbackProfile?.avatar,
+    phone: fallbackProfile?.phone,
+    role: fetchedProfile?.role || fallbackProfile?.role,
+    isVerified: fetchedProfile?.isVerified ?? fallbackProfile?.isVerified,
+  };
 
   const userPosts = posts;
 
@@ -68,7 +71,7 @@ export const UserTargetPage: React.FC<UserTargetPageProps> = ({ userId, fallback
     if (isLoading && userPosts.length === 0) {
       return (
         <div className="text-center py-12">
-          <div className="inline-block w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <LoadingSpinner />
         </div>
       );
     }
@@ -126,21 +129,25 @@ export const UserTargetPage: React.FC<UserTargetPageProps> = ({ userId, fallback
       );
     }
 
-    return <EmptyState title={tCommunity('emptyTitle')} description={tCommunity('emptyDesc')} iconName={'PLACEHOLDER'} />;
+    return (
+      <div className="min-h-[40vh] flex items-center justify-center">
+        <ProfileEmptyState iconSrc={ICONS.POST} title={tCommunity('emptyTitle')} description={tCommunity('emptyDesc')} />
+      </div>
+    );
   };
 
   const renderProductsSection = () => {
     if (isLoadingProducts && products.length === 0) {
       return (
         <div className="text-center py-12">
-          <div className="inline-block w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <LoadingSpinner />
         </div>
       );
     }
 
     if (products.length > 0) {
       return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-1 -mx-2 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
           {products.map((product) => (
             <ProfileProductCard
               key={product.id}
@@ -153,7 +160,11 @@ export const UserTargetPage: React.FC<UserTargetPageProps> = ({ userId, fallback
       );
     }
 
-    return <EmptyState title={tProfile('emptyProducts')} description={undefined} iconName={'PLACEHOLDER'} />;
+    return (
+      <div className="min-h-[40vh] flex items-center justify-center">
+        <ProfileEmptyState iconSrc={ICONS.BOX} title={tProfile('emptyProducts')} />
+      </div>
+    );
   };
 
   const handleToggleLike = async (postId: string) => {
@@ -194,8 +205,8 @@ export const UserTargetPage: React.FC<UserTargetPageProps> = ({ userId, fallback
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ProfileHeader profile={profile} />
-      <Tabs active={activeTab} postsCount={userPosts.length} productsCount={products.length} onChange={setActiveTab} />
+      <ProfileHeader profile={profile} t={tProfile} isLoading={isLoadingProfile} />
+      <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} postsCount={userPosts.length} productsCount={products.length} t={tProfile} />
 
       <div className="max-w-4xl mx-auto px-4 py-6">
         {activeTab === 'posts' && <div className="space-y-4">{renderPostsSection()}</div>}

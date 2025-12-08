@@ -14,6 +14,7 @@ interface ProfileHeaderProps {
   canRegisterShopOwner?: boolean;
   onRegisterShopOwnerClick?: () => void;
   t: ReturnType<typeof useTranslations> | ((key: string, values?: Record<string, unknown>) => string);
+  isLoading?: boolean;
 }
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({
@@ -22,7 +23,8 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   onManageOrdersClick,
   canRegisterShopOwner = false,
   onRegisterShopOwnerClick,
-  t
+  t,
+  isLoading = false
 }) => {
   const renderActionSection = () => {
     if (canManageShopOrders) {
@@ -43,9 +45,9 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
           <p className="text-sm text-gray-600">{t('registerShopOwner.ctaDescription')}</p>
           <button
             onClick={onRegisterShopOwnerClick}
-            className="inline-flex items-center justify-center gap-2 rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-green-300 px-4 py-2 text-sm font-medium text-black shadow-sm transition hover:bg-green-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
           >
-            <Image src={ICONS.PREFERENCES || ICONS.WARNING || ICONS.PLACEHOLDER} alt="register" width={16} height={16} />
+            <Image src={ICONS.MONITOR} alt="register" width={20} height={20} />
             <span>{t('registerShopOwner.button')}</span>
           </button>
         </div>
@@ -60,7 +62,9 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
-            {profile.avatar ? (
+            {isLoading ? (
+              <div className="w-24 h-24 rounded-full bg-gray-200 animate-pulse" />
+            ) : profile.avatar ? (
               <Image
                 src={profile.avatar}
                 alt={profile.userName || profile.email || "User"}
@@ -75,19 +79,28 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             )}
 
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900">{profile.userName || profile.email}</h1>
-              <div className="mt-2 space-y-1">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Image src={ICONS.EMAIL_ICON || ICONS.PLACEHOLDER} alt="email" width={16} height={16} />
-                  <span>{profile.email}</span>
-                </div>
-                {profile.phone && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Image src={ICONS.PHONE_CALL || ICONS.PLACEHOLDER} alt="phone" width={16} height={16} />
-                    <span>{profile.phone}</span>
+              {isLoading ? (
+                <>
+                  <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-2" />
+                  <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+                </>
+              ) : (
+                <>
+                  <h1 className="text-2xl font-bold text-gray-900">{profile.userName || profile.email}</h1>
+                  <div className="mt-2 space-y-1">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Image src={ICONS.EMAIL_ICON || ICONS.PLACEHOLDER} alt="email" width={16} height={16} />
+                      <span>{profile.email}</span>
+                    </div>
+                    {profile.phone && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Image src={ICONS.PHONE_CALL || ICONS.PLACEHOLDER} alt="phone" width={16} height={16} />
+                        <span>{profile.phone}</span>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </>
+              )}
             </div>
           </div>
 

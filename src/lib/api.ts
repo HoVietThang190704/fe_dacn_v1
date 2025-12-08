@@ -139,7 +139,7 @@ class APIClient {
       credentials: includeCredentials ? 'include' : 'same-origin',
     };
 
-    if (data && (method === 'POST' || method === 'PUT')) {
+    if (data && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
       fetchOptions.body = JSON.stringify(data);
     }
 
@@ -172,7 +172,7 @@ class APIClient {
           localStorage.removeItem('refreshToken');
           localStorage.removeItem('token');
           localStorage.removeItem('accessToken');
-          window.location.href = '/login';
+          window.location.href = '/auth/login';
           return { error: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', success: false };
         }
       }
@@ -197,6 +197,10 @@ class APIClient {
 
   async put<T>(endpoint: string, data: Record<string, unknown>, options?: { token?: string; includeCredentials?: boolean }): Promise<ApiResponse<T>> {
     return this.makeRequest<T>('PUT', endpoint, { ...options, data });
+  }
+
+  async patch<T>(endpoint: string, data: Record<string, unknown>, options?: { token?: string; includeCredentials?: boolean }): Promise<ApiResponse<T>> {
+    return this.makeRequest<T>('PATCH', endpoint, { ...options, data });
   }
 
   async delete<T>(endpoint: string, options?: { token?: string; includeCredentials?: boolean }): Promise<ApiResponse<T>> {
@@ -292,7 +296,19 @@ export const usersAPI = {
 
   // set default address
   setDefaultAddress: async (addressId: string, token?: string, includeCredentials = true) => {
-    return apiClient.put<unknown>(API_ENDPOINTS.SET_DEFAULT_ADDRESS(addressId), {}, { token, includeCredentials });
+    return apiClient.patch<unknown>(API_ENDPOINTS.SET_DEFAULT_ADDRESS(addressId), {}, { token, includeCredentials });
+  },
+
+  // get public profile of any user by ID (no auth required)
+  getPublicProfile: async (userId: string) => {
+    return apiClient.get<{
+      id: string;
+      userName: string;
+      email: string;
+      avatar?: string;
+      role?: string;
+      isVerified?: boolean;
+    }>(API_ENDPOINTS.USER_PUBLIC_PROFILE(userId), { includeCredentials: false });
   },
 };
 

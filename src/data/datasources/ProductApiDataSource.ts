@@ -130,12 +130,12 @@ export const mapProductDtoToDomain = (dto: ProductDto): Product => {
     tags,
     createdAt: dto.createdAt,
     updatedAt: dto.updatedAt,
-    sold: dto.reviewCount,
+    sold: dto.sold ?? dto.reviewCount,
     isAvailable: dto.isAvailable,
     isHighRated: dto.isHighRated,
     isPopular: dto.isPopular,
     hasValidPrice: dto.hasValidPrice,
-    isBestSeller: (dto.reviewCount ?? 0) > 100,
+    isBestSeller: (dto.sold ?? dto.reviewCount ?? 0) > 100,
     isNew: (() => {
       if (!dto.createdAt) return false;
       const date = new Date(dto.createdAt);

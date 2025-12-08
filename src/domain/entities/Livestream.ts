@@ -18,6 +18,7 @@ export interface Livestream {
   startTime?: Date;
   endTime?: Date;
   products: string[];
+  productPricing?: LivestreamProductPricing[];
   channelName: string;
   productSummaries?: LivestreamProductSummary[];
   createdAt?: Date;
@@ -33,6 +34,15 @@ export interface LivestreamProductSummary {
   stockQuantity?: number;
 }
 
+export interface LivestreamProductPricing {
+  productId: string;
+  livePrice: number;
+  maxQuantity?: number | null;
+  claimedQuantity: number;
+  remainingQuantity?: number;
+  active: boolean;
+}
+
 export interface CreateLivestreamDto {
   title: string;
   description?: string;
@@ -46,6 +56,7 @@ export interface UpdateLivestreamDto {
   description?: string;
   thumbnail?: string;
   products?: string[];
+  productPricing?: LivestreamProductPricing[];
 }
 
 export interface AgoraToken {

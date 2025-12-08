@@ -1,4 +1,4 @@
-import { Livestream, LivestreamStatus, CreateLivestreamDto, UpdateLivestreamDto, AgoraToken } from '@/domain/entities/Livestream';
+import { Livestream, LivestreamStatus, CreateLivestreamDto, UpdateLivestreamDto, AgoraToken, LivestreamProductPricing } from '@/domain/entities/Livestream';
 
 export class LivestreamApiDataSource {
   private baseUrl: string;
@@ -82,9 +82,16 @@ export class LivestreamApiDataSource {
   }
 
   private mapToLivestream(data: Record<string, unknown>): Livestream {
+    const raw = data as unknown as {
+      _id?: string;
+      id?: string;
+      productPricing?: unknown;
+    } & Partial<Livestream>;
+
     return {
-      ...data,
-      id: (data._id as string) || (data.id as string),
+      ...raw,
+      id: raw._id ?? (raw.id as string),
+      productPricing: raw.productPricing as LivestreamProductPricing[] | undefined,
     } as Livestream;
   }
 
@@ -114,6 +121,21 @@ export class LivestreamApiDataSource {
       throw new Error(`Failed to update livestream status: ${response.statusText}`);
     }
     
+    const result = await response.json();
+    return this.mapToLivestream(result);
+  }
+
+  async updateLivestreamProducts(id: string, pricing: Livestream['productPricing']): Promise<Livestream> {
+    const response = await fetch(`${this.baseUrl}/api/livestreams/${id}`, {
+      method: 'PUT',
+      headers: this.buildAuthHeaders(),
+      body: JSON.stringify({ productPricing: pricing }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update livestream products: ${response.statusText}`);
+    }
+
     const result = await response.json();
     return this.mapToLivestream(result);
   }

@@ -18,6 +18,10 @@ interface AddressSectionProps {
   isCreatingAddress: boolean;
   isLoadingAddresses: boolean;
   handleCreateAddress: () => void;
+  handleDeleteAddress: (id?: string) => void;
+  deletingAddressId: string | null;
+  handleSetDefaultAddress: (id?: string) => void;
+  settingDefaultAddressId: string | null;
   resolveAddressLabel: (label?: string | null) => string;
 }
 
@@ -34,6 +38,10 @@ export const AddressSection = memo(({
   isCreatingAddress,
   isLoadingAddresses,
   handleCreateAddress,
+  handleDeleteAddress,
+  deletingAddressId,
+  handleSetDefaultAddress,
+  settingDefaultAddressId,
   resolveAddressLabel,
 }: AddressSectionProps) => (
   <div className="bg-white rounded-lg shadow-sm p-6">
@@ -146,6 +154,8 @@ export const AddressSection = memo(({
           const fallbackKey = `${address.phone}-${address.address}-${address.district}-${address.province}`;
           const optionValue = address.id ?? fallbackKey;
           const isSelected = selectedAddressId === optionValue;
+          const canDelete = Boolean(address.id && address.id !== profileAddressId);
+          const canSetDefault = Boolean(address.id && address.id !== profileAddressId && !address.isDefault);
 
           return (
             <label
@@ -184,6 +194,38 @@ export const AddressSection = memo(({
                   </span>
                 )}
                 {address.note && <div className="text-xs text-gray-500 mt-1">{address.note}</div>}
+                {canDelete && (
+                  <div className="mt-3">
+                    <div className="flex gap-4 items-center text-sm">
+                      {canSetDefault && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleSetDefaultAddress(address.id);
+                          }}
+                          disabled={settingDefaultAddressId === address.id}
+                          className="text-orange-500 hover:text-orange-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {settingDefaultAddressId === address.id ? t('address.settingDefault') : t('address.setDefault')}
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleDeleteAddress(address.id);
+                        }}
+                        disabled={deletingAddressId === address.id}
+                        className="text-red-500 hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {deletingAddressId === address.id ? t('address.deleting') : t('address.delete')}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </label>
           );

@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { container } from '@/presentation/di/container';
 import { DEFAULT_SEARCH_LIMITS, useSearchViewModel } from '@/presentation/viewmodels/useSearchViewModel';
 import type { SearchQueryParams } from '@/domain/repositories/ISearchRepository';
+import type { User } from '@/domain/entities/User';
  
 import PostDetailModal from '@/presentation/components/PostDetailModal';
 import { useSearchSuggestions } from '@/shared/hooks/useSearchSuggestions';
@@ -110,8 +111,13 @@ export const SearchPage: React.FC = () => {
 
   const closePostDetail = () => setOpenPostId(null);
 
-  const handleUserClick = (userId: string) => {
-    router.push(`/${locale}/main/users/${encodeURIComponent(userId)}`);
+  const handleUserClick = (user: User) => {
+    const query = new URLSearchParams();
+    if (user.userName) query.set('userName', user.userName);
+    if (user.email) query.set('email', user.email);
+    if (user.avatar) query.set('avatar', user.avatar);
+    const queryString = query.toString();
+    router.push(`/${locale}/main/users/${encodeURIComponent(user.id)}${queryString ? `?${queryString}` : ''}`);
   };
 
   const totalProducts = results?.products.total ?? products.length;
