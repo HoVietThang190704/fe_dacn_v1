@@ -39,6 +39,7 @@ export type ProductDto = {
   stockQuantity?: number;
   rating?: number;
   reviewCount?: number;
+  sold?: number;
   harvestDate?: string;
   tags?: string[];
   createdAt?: string;
