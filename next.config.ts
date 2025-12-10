@@ -5,7 +5,10 @@
 
   const nextConfig: NextConfig = {
     images: {
-      unoptimized: true, // Tắt image optimization để fix lỗi
+      // Allow Contentful and Cloudinary image domains so `next/image` can load remote images.
+      domains: ['images.ctfassets.net', 'images.contentful.com', 'res.cloudinary.com'],
+      // Set `unoptimized` to false so Next can optimize images locally in dev/prod.
+      unoptimized: false,
     },
     async rewrites() {
       return [
