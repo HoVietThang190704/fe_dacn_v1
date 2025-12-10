@@ -63,7 +63,7 @@ export const ICONS = {
     STAR: '/icons/star.png',
     WARNING: '/icons/warning.png',
     EVALUATION: '/icons/evaluation.png',
-    PREFERENCES: '/icons/preferences.png',
+    PREFERENCES: '/icons/Preferences.png',
     LOCATION: '/icons/location.png',
     IMAGE: '/icons/image.png',
     CHECK: '/icons/check.png',
