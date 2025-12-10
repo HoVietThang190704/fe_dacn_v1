@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { HeroBanner } from '@/components/ui/HeroBanner';
+import CmsAdBanner from '@/components/home/CmsAdBanner';
 import CategoriesCarousel from '@/components/home/CategoriesCarousel';
 import LoadingState from '../components/LoadingState';
 import ErrorState from '../components/ErrorState';
@@ -151,6 +152,9 @@ export const HomePage: React.FC = () => {
     <div className="min-h-screen bg-gray-50 pb-16">
       <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 space-y-6 sm:space-y-8 md:space-y-10 py-4 sm:py-6 md:py-8">
         <HeroBanner onShopNowClick={() => (window.location.href = '/main/products')} />
+
+        {/* CMS App-managed advertisement banner (Contentful) */}
+        <CmsAdBanner />
 
         <StatsHighlight stats={stats} />
 
