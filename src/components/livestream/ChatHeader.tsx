@@ -19,7 +19,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({ viewerCount, hideOnMobile }) =>
 
   return (
     <div className={rootClass}>
-      <div className="w-full">
+      <div className="flex flex-row justify-between w-full">
         <h3 className="font-semibold text-white flex items-center gap-2">
           <Image src={chatIcon} alt={t('chatBox.title')} width={20} height={20} unoptimized />
           <span>{t('chatBox.title')}</span>
