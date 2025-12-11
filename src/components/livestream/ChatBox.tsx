@@ -18,9 +18,11 @@ interface ChatBoxProps {
   onSendMessage: (message: string) => void;
   currentUserName: string;
   viewerCount: number;
+  className?: string;
+  transparent?: boolean;
 }
 
-export const ChatBox: React.FC<ChatBoxProps> = ({ messages, onSendMessage, currentUserName, viewerCount }) => {
+export const ChatBox: React.FC<ChatBoxProps> = ({ messages, onSendMessage, currentUserName, viewerCount, className, transparent }) => {
   const [inputMessage, setInputMessage] = useState('');
   const messagesStartRef = useRef<HTMLDivElement>(null);
 
@@ -33,13 +35,13 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ messages, onSendMessage, curre
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-800 rounded-xl">
-      <ChatHeader viewerCount={viewerCount} />
+    <div className={`flex flex-col h-full ${transparent ? 'bg-transparent' : 'bg-gray-800'} rounded-xl ${className || ''}`}>
+      <ChatHeader viewerCount={viewerCount} hideOnMobile={!!transparent} />
       <div className="flex-1">
         <div ref={messagesStartRef} />
-        <ChatMessages messages={messages} currentUserName={currentUserName} />
+        <ChatMessages messages={messages} currentUserName={currentUserName} transparent={transparent} />
       </div>
-      <ChatInput value={inputMessage} onChange={setInputMessage} onSend={handleSend} maxLength={200} />
+      <ChatInput value={inputMessage} onChange={setInputMessage} onSend={handleSend} maxLength={200} transparent={transparent} />
     </div>
   );
 };

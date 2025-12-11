@@ -8,9 +8,10 @@ import { useTranslations } from 'next-intl';
 interface ChatMessagesProps {
   messages: ChatMessage[];
   currentUserName: string;
+  transparent?: boolean;
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, currentUserName }) => {
+const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, currentUserName, transparent }) => {
   const t = useTranslations('livestream');
 
   const formatTime = (timestamp: string) => {
@@ -33,14 +34,16 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, currentUserName }
     );
   }
 
+  const containerStyle = transparent ? { maxHeight: 'calc(54vh - 6rem)' } : { maxHeight: '400px' };
+
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide" style={{ maxHeight: '400px' }}>
+    <div className={`flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide ${transparent ? 'pt-20 sm:pt-4' : ''}`} style={containerStyle}>
       <div />
       {normalizedMessages.map((msg) => {
         const isOwnMessage = msg.userName === currentUserName;
         return (
           <div key={msg.id} className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'}`}>
-            <div className={`max-w-[80%] rounded-lg px-3 py-2 ${isOwnMessage ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-100'}`}>
+            <div className={`max-w-[80%] rounded-lg px-3 py-2 ${isOwnMessage ? 'bg-blue-600/85 text-white' : 'bg-gray-700/40 text-white'}`}>
               {!isOwnMessage && (
                 <div className="text-xs font-semibold mb-1 text-blue-300">
                   {msg.userName}
