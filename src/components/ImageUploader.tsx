@@ -228,6 +228,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
             <p className="text-sm font-medium text-gray-700">
               {t('selectedImages', { count: urls.length, max: maxFiles })}
             </p>
+            
             {remainingSlots > 0 && (
               <button
                 type="button"
@@ -235,10 +236,10 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ initialUrls = [], 
                   e.stopPropagation();
                   fileInputRef.current?.click();
                 }}
-                className="text-xs px-3 py-1.5 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                className="flex flex-row items-center text-xs px-2 py-1.5 bg-green-100 text-black rounded-lg hover:bg-green-200 transition-colors"
               >
                 {ICONS.PLUS ? (
-                  <Image src={ICONS.PLUS} alt={t('add')} width={14} height={14} />
+                  <Image src={ICONS.PLUS} alt={t('add')} width={12} height={12} />
                 ) : (
                   <span className="font-bold">{t('add')}</span>
                 )}
