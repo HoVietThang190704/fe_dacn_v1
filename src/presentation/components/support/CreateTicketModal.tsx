@@ -73,7 +73,7 @@ export const CreateTicketModal: React.FC<Props> = ({ open, onClose, onSubmit, is
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="max-h-[90vh] w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+      <div className="max-h-[100vh] w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl">
         <header className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">{t('form.title')}</h2>
