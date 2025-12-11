@@ -1,6 +1,11 @@
 import { ShareInfo, ShareResourceType } from '@/domain/entities/ShareInfo';
 import { API_ENDPOINTS } from '@/shared/constants/api';
 
+const normalizeBaseUrl = (value?: string | null) => {
+  if (!value) return '';
+  return value.replace(/\/$/, '');
+};
+
 interface ShareInfoPayload {
   resourceId: string;
   resourceType: ShareResourceType;
@@ -78,12 +83,48 @@ export class ShareApiDataSource {
   }
 
   private transformShareInfo(payload: ShareInfoPayload): ShareInfo {
+    const normalizedShareUrl = this.normalizeShareUrl(payload.shareUrl);
     return {
       resourceId: payload.resourceId,
       resourceType: payload.resourceType,
-      shareUrl: payload.shareUrl,
-      qrCodeDataUrl: payload.qrCodeDataUrl,
+      shareUrl: normalizedShareUrl,
+      qrCodeDataUrl: this.normalizeQrCode(payload.qrCodeDataUrl, normalizedShareUrl),
       meta: payload.meta,
     };
+  }
+
+  private normalizeShareUrl(url: string): string {
+    const envBase = normalizeBaseUrl(process.env.NEXT_PUBLIC_WEB_URL || (process.env as Record<string, string | undefined>).NEXT_PUBLIC_FRONTEND_URL);
+    const runtimeBase = typeof window !== 'undefined' ? normalizeBaseUrl(window.location.origin) : '';
+    const targetBase = envBase || runtimeBase;
+    if (!targetBase) return url;
+
+    try {
+      const parsed = new URL(url);
+      const target = new URL(targetBase.startsWith('http') ? targetBase : `https://${targetBase}`);
+      parsed.protocol = target.protocol;
+      parsed.host = target.host;
+      return parsed.toString();
+    } catch {
+      return url;
+    }
+  }
+
+  private normalizeQrCode(qrCodeDataUrl: string, shareUrl: string): string {
+    try {
+      const qrUrl = new URL(shareUrl);
+      // If QR was generated for localhost, rebuild it using the normalized share URL.
+      if (qrCodeDataUrl.includes('localhost')) {
+        return this.buildQrImageUrl(qrUrl.toString());
+      }
+      return qrCodeDataUrl;
+    } catch {
+      return qrCodeDataUrl;
+    }
+  }
+
+  private buildQrImageUrl(data: string): string {
+    const encoded = encodeURIComponent(data);
+    return `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encoded}`;
   }
 }

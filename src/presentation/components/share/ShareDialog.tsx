@@ -24,7 +24,6 @@ export function ShareDialog({
   resourceType,
   resourceId,
   locale,
-  // onInternalShare (internal sharing) is not currently active in the UI
 }: ShareDialogProps) {
   const t = useTranslations('shareDialog');
   const { shareInfo, isLoading, error, refresh } = useShareInfo({
@@ -74,9 +73,6 @@ export function ShareDialog({
       window.setTimeout(() => setCopyStatus('idle'), 3000);
     }
   }, [shareInfo]);
-
-  // NOTE: internal share UI is not currently active (no textarea/button), so we don't
-  // include the transient sharing state here to avoid unused variable warnings.
 
   if (!open) {
     return null;

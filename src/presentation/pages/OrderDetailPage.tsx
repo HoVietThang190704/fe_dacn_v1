@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useOrderDetailViewModel } from '../viewmodels/useOrderDetailViewModel';
 import { container } from '../di/container';
@@ -9,6 +10,8 @@ import { ORDER_STATUS, OrderStatus } from '@/domain/entities/Order';
 import { ORDER_CONFIG } from '@/presentation/config/orderConfig';
 import useCurrency from '@/presentation/hooks/useCurrency';
 import useOrderStatus from '@/presentation/hooks/useOrderStatus';
+import { useCancelOrder } from '../hooks/useCancelOrder';
+import { CancelOrderDialog } from '../components/CancelOrderDialog';
 import LoadingState from '@/presentation/components/ui/LoadingState';
 import ErrorState from '@/presentation/components/ui/ErrorState';
 import NotFoundState from '@/presentation/components/ui/NotFoundState';
@@ -19,10 +22,13 @@ interface OrderDetailPageProps {
 
 export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => {
   const t = useTranslations('order');
+  const ordersT = useTranslations('orders');
   
   const { formatCurrency } = useCurrency();
   const locale = useLocale();
+  const router = useRouter();
   const { getStatusColor } = useOrderStatus();
+  const { cancelOrder, isLoading: isCancelling, error: cancelError } = useCancelOrder();
   const paymentMethodLabels = useMemo(
     () => ({
       cod: t('payment.methods.cod'),
@@ -44,6 +50,14 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
   const currentOrderId = viewModel.order?.id;
   const [isPaying, setIsPaying] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!successMessage) return;
+    const timer = setTimeout(() => setSuccessMessage(null), ORDER_CONFIG.SUCCESS_MESSAGE_DURATION);
+    return () => clearTimeout(timer);
+  }, [successMessage]);
 
   const handlePayOrder = useCallback(async () => {
     if (!currentOrderId) return;
@@ -71,6 +85,11 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
     }
   }, [currentOrderId, locale, t]);
 
+  const handleContactSupport = useCallback(() => {
+    const supportPath = locale ? `/${locale}/main/support` : '/main/support';
+    router.push(supportPath);
+  }, [locale, router]);
+
   if (viewModel.isLoading) {
     return <LoadingState message={t('loading')} />;
   }
@@ -84,6 +103,17 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
   }
 
   const order = viewModel.order;
+
+  const handleConfirmCancel = async (reason: string) => {
+    if (!order?.id) return;
+
+    try {
+      await cancelOrder(order.id, reason);
+      setSuccessMessage(ordersT('success.cancelledSuccessfully'));
+      setCancelDialogOpen(false);
+      await viewModel.refresh();
+    } catch {}
+  };
 
   const getStatusText = (status: OrderStatus) => {
     switch (status) {
@@ -269,17 +299,33 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ orderId }) => 
                 {isPaying ? t('actions.payProcessing') : t('actions.payNow')}
               </button>
             )}
-            <button className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
+            <button
+              onClick={handleContactSupport}
+              className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+            >
               {t('actions.contactSupport')}
             </button>
             {order.canBeCancelled && (
-              <button className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium">
+              <button
+                onClick={() => setCancelDialogOpen(true)}
+                disabled={isCancelling}
+                className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+              >
                 {t('actions.cancelOrder')}
               </button>
             )}
           </div>
+          {successMessage && <div className="mt-3 text-sm text-green-600">{successMessage}</div>}
           {paymentError && <div className="mt-3 text-sm text-red-600">{paymentError}</div>}
         </div>
+        <CancelOrderDialog
+          isOpen={cancelDialogOpen}
+          orderNumber={order.orderNumber}
+          isLoading={isCancelling}
+          onConfirm={handleConfirmCancel}
+          onClose={() => setCancelDialogOpen(false)}
+          error={cancelError}
+        />
       </div>
     </div>
   );
