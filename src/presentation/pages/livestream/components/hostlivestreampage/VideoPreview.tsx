@@ -15,12 +15,12 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ localVideoRef, isStr
   const t = useTranslations('livestream');
 
   return (
-    <div className="bg-black rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl">
-      <div className="aspect-video relative">
-        <div ref={localVideoRef} className="w-full h-full" />
+    <div className="bg-black w-full rounded-xl sm:rounded-2xl overflow-hidden shadow-2xl">
+      <div className="relative h-[70vh] w-full sm:h-auto aspect-[9/16] sm:aspect-video">
+        <div ref={localVideoRef} className="absolute inset-0 w-full h-full" />
         {!isStreaming && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
-            <div className="text-center px-4">
+            <div className="text-center px-4 z-30">
               <div className="mb-4 flex justify-center">
                 <Icon name={('VIDEO_CAMERA_ALT' as const)} alt={t('livestream.playAlt') as string} width={64} height={64} className="w-12 h-12 sm:w-16 sm:h-16 mb-2" />
               </div>

@@ -429,15 +429,15 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
       </div>
 
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col lg:flex-row lg:gap-6">
+        <div className="flex -mt-2 flex-col lg:flex-row lg:gap-6">
           <div className="flex-1 lg:max-w-4xl lg:ml-3">
             <div className="bg-gray-800 border-b border-gray-700 lg:rounded-t-xl lg:mt-4 px-4 sm:px-6 py-4">
               <LivestreamHeader livestream={livestream} viewerCount={viewerCount} hostAvatar={hostAvatar} onLeave={leaveLivestream} />
             </div>
 
-            <div className="bg-black lg:rounded-b-xl overflow-hidden aspect-video relative -mt-3">
+            <div className="bg-black lg:rounded-b-xl overflow-hidden relative -mt-5 h-[70vh] w-full lg:h-auto aspect-[9/16] lg:aspect-video">
               {livestream.status === LivestreamStatus.LIVE && isJoined ? (
-                <div ref={remoteVideoRef} className="w-full h-full"></div>
+                <div ref={remoteVideoRef} className="absolute inset-0 w-full h-full"></div>
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
                   <div className="text-center px-4">
@@ -445,12 +445,17 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
                   </div>
                 </div>
               )}
-
-              {needsAudioPermission && (
-                <div className="absolute left-4 bottom-4 z-20">
-                  <button onClick={enableAudio} className="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md text-sm">{t('watch.enableAudio') || 'Enable audio'}</button>
-                </div>
-              )}
+              
+              <div className="lg:hidden absolute inset-x-4 bottom-2 z-20">
+                <ChatBox 
+                  messages={chatMessages}
+                  onSendMessage={handleSendMessage}
+                  currentUserName={user?.userName || user?.email || ''}
+                  viewerCount={viewerCount}
+                  className="bg-transparent rounded-xl max-h-[54vh] h-[54vh] overflow-hidden text-white"
+                  transparent={true}
+                />
+              </div>  
             </div>
 
             {shouldShowProductPanel && (
@@ -472,7 +477,7 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
             )}
           </div>
 
-          <div className="lg:w-96 lg:sticky lg:top-16 lg:h-full lg:mt-4">
+          <div className="hidden lg:block lg:w-96 lg:sticky lg:top-16 lg:h-full lg:mt-4">
             <div className="flex flex-col h-full">
               <div className="flex-1 min-h-[400px] lg:min-h-0">
                 <ChatBox 

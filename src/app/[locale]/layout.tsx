@@ -3,7 +3,7 @@ import {getMessages} from 'next-intl/server';
 import { LanguageSwitcher } from '@/components/ui';
 import EmotionProvider from '@/shared/providers/EmotionProvider';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { AiAssistantWidget } from '@/presentation/components/ai-assistant/AiAssistantWidget';
+import AiAssistantMount from '@/presentation/components/ai-assistant/AiAssistantMount';
 
 export default async function LocaleLayout({
   children,
@@ -19,7 +19,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           {/* <LanguageSwitcher /> */}
           {children}
-          <AiAssistantWidget />
+          <AiAssistantMount />
         </NextIntlClientProvider>
       </GoogleOAuthProvider>
     </EmotionProvider>
