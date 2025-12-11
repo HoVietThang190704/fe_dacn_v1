@@ -418,6 +418,7 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
               <Image src={ICONS.ARROW_LEFT} alt={t('back')} width={20} height={20} className="w-5 h-5 mr-2" unoptimized />
               <span className="hidden sm:inline">{t('back')}</span>
             </button>
+            
           </div>
           {livestream.status === LivestreamStatus.LIVE && (
             <span className="px-3 py-1 bg-red-500 text-white rounded-full text-sm font-semibold flex items-center gap-2 animate-pulse">
@@ -431,9 +432,7 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
       <div className="max-w-7xl mx-auto">
         <div className="flex -mt-2 flex-col lg:flex-row lg:gap-6">
           <div className="flex-1 lg:max-w-4xl lg:ml-3">
-            <div className="bg-gray-800 border-b border-gray-700 lg:rounded-t-xl lg:mt-4 px-4 sm:px-6 py-4">
-              <LivestreamHeader livestream={livestream} viewerCount={viewerCount} hostAvatar={hostAvatar} onLeave={leaveLivestream} />
-            </div>
+            
 
             <div className="bg-black lg:rounded-b-xl overflow-hidden relative -mt-5 h-[70vh] w-full lg:h-auto aspect-[9/16] lg:aspect-video">
               {livestream.status === LivestreamStatus.LIVE && isJoined ? (
@@ -456,6 +455,9 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
                   transparent={true}
                 />
               </div>  
+            </div>
+            <div className="bg-gray-800 border-b border-gray-700 lg:rounded-t-xl lg:mt-4 px-4 sm:px-6 py-4">
+              <LivestreamHeader livestream={livestream} viewerCount={viewerCount} hostAvatar={hostAvatar} onLeave={leaveLivestream} />
             </div>
 
             {shouldShowProductPanel && (
