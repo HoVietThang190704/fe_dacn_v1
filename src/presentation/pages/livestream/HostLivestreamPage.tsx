@@ -530,7 +530,7 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
 
           <div className="xl:col-span-3 space-y-4">
             <VideoPreview localVideoRef={localVideoRef} isStreaming={isStreaming} isInitializing={isInitializing} error={error} onStart={initializeAgora} />
-            <div className="lg:hidden absolute inset-x-4 bottom-2 z-20 mb-26">
+            <div className="lg:hidden absolute inset-x-4 bottom-2 z-20">
               <ChatBox
                 messages={chatMessages}
                 onSendMessage={handleSendMessage}
