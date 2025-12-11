@@ -446,7 +446,7 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
                 </div>
               )}
               
-              <div className="lg:hidden absolute inset-x-4 bottom-2 z-20">
+              <div className="lg:hidden absolute inset-x-4 mt-4 bottom-2 z-20">
                 <ChatBox 
                   messages={chatMessages}
                   onSendMessage={handleSendMessage}
