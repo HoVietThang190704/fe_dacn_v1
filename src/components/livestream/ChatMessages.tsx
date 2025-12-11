@@ -43,7 +43,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, currentUserName, 
         const isOwnMessage = msg.userName === currentUserName;
         return (
           <div key={msg.id} className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'}`}>
-            <div className={`max-w-[80%] rounded-lg px-3 py-2 ${isOwnMessage ? 'bg-blue-600/85 text-white' : 'bg-gray-700/40 text-white'}`}>
+            <div className={`max-w-[80%] rounded-lg px-3 py-2 ${isOwnMessage ? 'bg-blue-500/50 text-white' : 'bg-gray-700/40 text-white'}`}>
               {!isOwnMessage && (
                 <div className="text-xs font-semibold mb-1 text-blue-300">
                   {msg.userName}
