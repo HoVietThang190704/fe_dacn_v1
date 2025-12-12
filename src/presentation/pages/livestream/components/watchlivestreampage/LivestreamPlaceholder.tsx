@@ -31,9 +31,9 @@ export const LivestreamPlaceholder: React.FC<Props> = ({ status, startTime }) =>
 
   if (status === LivestreamStatus.ENDED) {
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
+      <div className="absolute inset-0 flex text-center items-center justify-center bg-gray-800">
         <div className="text-center px-4">
-          <Image src={ICONS.VIDEO_CAMERA_ALT} alt={t('watch.ended')} width={64} height={64} unoptimized />
+          <Image src={ICONS.VIDEO_CAMERA_ALT} alt={t('watch.ended')} width={64} height={64} unoptimized  className=" mx-auto"/>
           <p className="text-lg sm:text-xl mb-2">{t('watch.ended')}</p>
           <p className="text-sm sm:text-base text-gray-400">{t('watch.thankYou')}</p>
         </div>

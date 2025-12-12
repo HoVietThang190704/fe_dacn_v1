@@ -618,7 +618,10 @@
     "errors": {
       "loadOrders": "Failed to load orders",
       "updateStatus": "Failed to update order status"
-    }
+    },
+    "paginationInfo": "Page {page} / {totalPages}",
+    "prevPage": "Previous",
+    "nextPage": "Next"
   },
   "favorites": {
     "title": "Favorites ({count})",

@@ -96,7 +96,7 @@ export const LivestreamProductList: React.FC<Props> = ({ products, isLoading, er
   }
 
   return (
-    <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+    <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1 overflow-x-hidden scrollbar-hide">
       {products.map(product => (
         <button
           key={product.id}

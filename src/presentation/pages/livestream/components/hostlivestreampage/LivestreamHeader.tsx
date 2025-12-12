@@ -1,7 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { useRouter } from '@/i18n/routing';
 import { ICONS } from '@/shared/constants/images';
 import Icon from './Icon';
 
@@ -11,25 +10,21 @@ interface Props {
   hostName?: string;
   isStreaming?: boolean;
   viewerCount?: number;
+  overlay?: boolean;
 }
 
-export const LivestreamHeader: React.FC<Props> = ({ title, hostAvatar, hostName, isStreaming, viewerCount }) => {
+export const LivestreamHeader: React.FC<Props> = ({ title, hostAvatar, hostName, isStreaming, viewerCount, overlay }) => {
   const t = useTranslations('livestream');
-  const router = useRouter();
+
+  const outerClass = overlay ? 'absolute left-0 right-0 top-4 z-30 pointer-events-auto' : ' backdrop-blur-lg border-b border-gray-700/50 sticky top-0 z-10';
+  const innerClass = overlay ? 'max-w-[1200px] mx-auto px-4 sm:px-6 py-2 sm:py-3' : 'max-w-[1800px] mx-auto px-4 sm:px-6 py-3 sm:py-4';
 
   return (
-    <div className="bg-gray-800/80 backdrop-blur-lg border-b border-gray-700/50 sticky top-0 z-10">
-      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-3 sm:py-4">
+    <div className={outerClass}>
+      <div className={innerClass}>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-            <button
-              onClick={() => router.push('/main/livestream')}
-              className="flex items-center gap-2 text-gray-300 hover:text-white transition"
-              aria-label={t('back')}
-            >
-              <Icon name={('ARROW_LEFT' as const)} alt={t('livestream.back') as string} width={20} height={20} className="w-5 h-5" />
-              <span className="hidden sm:inline">{t('back')}</span>
-            </button>
+
 
             {hostAvatar && (
               <div className="hidden sm:flex items-center mr-3">
@@ -45,7 +40,7 @@ export const LivestreamHeader: React.FC<Props> = ({ title, hostAvatar, hostName,
             )}
           </div>
           <div className="flex items-center gap-3 sm:gap-4">
-            <div className="flex items-center gap-2 text-gray-300 bg-gray-700/50 px-3 py-1.5 rounded-full">
+            <div className="flex items-center gap-2 text-black bg-white/50 px-3 py-1.5 rounded-full">
               <Icon name={('EYES' as const)} alt={t('livestream.viewersAlt') as string} width={20} height={20} className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
               <span className="font-semibold text-sm sm:text-base">{viewerCount}</span>
               <span className="text-xs sm:text-sm hidden sm:inline">{t('host.viewers')}</span>
