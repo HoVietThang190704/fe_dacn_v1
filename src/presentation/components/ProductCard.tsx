@@ -17,15 +17,20 @@ const ProductCard: React.FC<{ product: MockProduct }> = ({ product }) => {
   const sellerName = product.owner?.userName || product.owner?.email || t('seller');
   const soldCount = product.sold || 0;
   const stockCount = product.stock || 0;
+  const isOutOfStock = stockCount <= 0;
 
   return (
     <div
-      className="bg-white hover:shadow-md transition-shadow cursor-pointer border border-gray-100 rounded-lg overflow-hidden"
-      onClick={handleClick}
+      className={`bg-white hover:shadow-md transition-shadow border border-gray-100 rounded-lg overflow-hidden ${isOutOfStock ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
+      onClick={() => {
+        if (!isOutOfStock) handleClick();
+      }}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') handleClick();
+        if (e.key === 'Enter' || e.key === ' ') {
+          if (!isOutOfStock) handleClick();
+        }
       }}
     >
       <div className="relative aspect-square">
@@ -36,6 +41,13 @@ const ProductCard: React.FC<{ product: MockProduct }> = ({ product }) => {
           height={400}
           className="w-full h-full object-cover"
         />
+        {isOutOfStock && (
+          <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
+            <span className="m-2 flex rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-md">
+              {t('outOfStock')}
+            </span>
+          </div>
+        )}
       </div>
       <div className="p-2.5">
         <h3 className="text-sm sm:text-base mb-2 line-clamp-2 font-semibold text-gray-800 leading-tight" style={{ minHeight: '1rem' }}>
@@ -55,7 +67,9 @@ const ProductCard: React.FC<{ product: MockProduct }> = ({ product }) => {
           <span className="font-semibold text-blue-700"></span> <span className="font-medium">{sellerName}</span>
         </div>
         <div className="flex items-center justify-between text-xs sm:text-sm text-gray-600">
-          <span>{t('available')}: <span className="font-semibold text-green-600">{stockCount}</span></span>
+          <span>
+            {t('available')}: <span className={`font-semibold ${isOutOfStock ? 'text-red-600' : 'text-green-600'}`}>{stockCount}</span>
+          </span>
           <span>{t('sold')}: <span className="font-semibold text-blue-600">{soldCount}</span></span>
         </div>
       </div>

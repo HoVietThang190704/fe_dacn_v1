@@ -83,7 +83,7 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({ favorite, onRemove, isMutat
             </div>
           )}
           {!isInStock && (
-            <div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/40 bg-opacity-60 flex items-center justify-center">
               <span className="text-white text-xs font-medium">{t('outOfStock')}</span>
             </div>
           )}

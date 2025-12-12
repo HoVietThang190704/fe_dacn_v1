@@ -42,7 +42,7 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
   const [isSavingPricing, setIsSavingPricing] = useState(false);
   const [pricingMessage, setPricingMessage] = useState('');
 
-  
+
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const socketRef = useRef<Socket | null>(null);
 
@@ -174,7 +174,7 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
     }
   };
 
-  
+
 
   const loadLivestream = useCallback(async () => {
     try {
@@ -188,8 +188,8 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
         setTimeout(() => router.push('/main/livestream'), LIVESTREAM_CONFIG.REDIRECT_DELAY_MS);
       }
     } catch {
-        setError(t('errors.loadFailed'));
-      } finally {
+      setError(t('errors.loadFailed'));
+    } finally {
       setIsLoading(false);
     }
   }, [livestreamId, user?.id, t, router]);
@@ -213,39 +213,39 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
 
     setIsInitializing(true);
     setError('');
-    
+
 
     try {
-      
+
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         setError(t('errors.browserNotSupported'));
         setIsInitializing(false);
         return;
       }
 
-      
+
       const AgoraRTC = (await import('agora-rtc-sdk-ng')).default;
-      
-      
+
+
       const getAgoraTokenUseCase = container.getAgoraTokenUseCase;
       const tokenData = await getAgoraTokenUseCase.execute(
         livestream.channelName,
         0,
         'publisher'
       );
-      
 
-      
+
+
       const client = AgoraRTC.createClient({ mode: 'live', codec: 'vp8' });
       clientRef.current = client;
 
-      
+
       await client.setClientRole('host');
 
-      
+
       await client.join(tokenData.appId, livestream.channelName, tokenData.token, tokenData.uid);
 
-      
+
       client.on('user-joined', () => {
         setViewerCount(client.remoteUsers.length);
       });
@@ -254,26 +254,26 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
         setViewerCount(client.remoteUsers.length);
       });
 
-      
+
       const videoTrack = await AgoraRTC.createCameraVideoTrack();
       const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
 
       videoTrackRef.current = videoTrack;
       audioTrackRef.current = audioTrack;
 
-      
+
       if (localVideoRef.current) {
         videoTrack.play(localVideoRef.current);
       }
 
-      
+
       await client.publish([videoTrack, audioTrack]);
 
-      
+
       const updateLivestreamStatusUseCase = container.updateLivestreamStatusUseCase;
       await updateLivestreamStatusUseCase.execute(livestreamId, LivestreamStatus.LIVE);
 
-      
+
       setIsStreaming(true);
       setIsInitializing(false);
     } catch (error) {
@@ -296,7 +296,7 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
         audioTrackRef.current = null;
       }
       if (clientRef.current) {
-        clientRef.current.leave().catch(() => {});
+        clientRef.current.leave().catch(() => { });
         clientRef.current = null;
       }
 
@@ -307,19 +307,19 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
   const toggleCamera = async () => {
     if (videoTrackRef.current && clientRef.current) {
       const newState = !isCameraOn;
-      
+
       try {
-        
-        
+
+
         await videoTrackRef.current.setEnabled(newState);
-        
-        
+
+
         if (newState) {
           await clientRef.current.publish([videoTrackRef.current]);
         } else {
           await clientRef.current.unpublish([videoTrackRef.current]);
         }
-        
+
         setIsCameraOn(newState);
       } catch {
         setError(t('errors.streamInitFailed'));
@@ -330,19 +330,19 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
   const toggleMic = async () => {
     if (audioTrackRef.current && clientRef.current) {
       const newState = !isMicOn;
-      
+
       try {
-        
-        
+
+
         await audioTrackRef.current.setEnabled(newState);
-        
-        
+
+
         if (newState) {
           await clientRef.current.publish([audioTrackRef.current]);
         } else {
           await clientRef.current.unpublish([audioTrackRef.current]);
         }
-        
+
         setIsMicOn(newState);
       } catch {
         setError(t('errors.streamInitFailed'));
@@ -350,7 +350,7 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
     }
   };
 
-  
+
   useEffect(() => {
     if (!user || !livestreamId) return;
 
@@ -397,7 +397,7 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
       });
     });
 
-    socket.on('user-joined', () => {});
+    socket.on('user-joined', () => { });
 
     return () => {
       socket.emit('leave-livestream', { livestreamId });
@@ -460,10 +460,10 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
             const tracksToUnpublish: (ICameraVideoTrack | IMicrophoneAudioTrack)[] = [];
             if (videoTrackRef.current) tracksToUnpublish.push(videoTrackRef.current);
             if (audioTrackRef.current) tracksToUnpublish.push(audioTrackRef.current);
-            if (tracksToUnpublish.length > 0) clientRef.current.unpublish(tracksToUnpublish).catch(() => {});
+            if (tracksToUnpublish.length > 0) clientRef.current.unpublish(tracksToUnpublish).catch(() => { });
           } catch {
           }
-          try { clientRef.current.leave().catch(() => {}); } catch {
+          try { clientRef.current.leave().catch(() => { }); } catch {
           }
         }
       } catch {
@@ -479,7 +479,7 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
         const tracksToUnpublish: (ICameraVideoTrack | IMicrophoneAudioTrack)[] = [];
         if (videoTrackRef.current) tracksToUnpublish.push(videoTrackRef.current);
         if (audioTrackRef.current) tracksToUnpublish.push(audioTrackRef.current);
-        if (tracksToUnpublish.length > 0) clientRef.current.unpublish(tracksToUnpublish).catch(() => {});
+        if (tracksToUnpublish.length > 0) clientRef.current.unpublish(tracksToUnpublish).catch(() => { });
       }
 
       if (videoTrackRef.current) {
@@ -493,7 +493,7 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
         audioTrackRef.current = null;
       }
       if (clientRef.current) {
-        clientRef.current.leave().catch(() => {});
+        clientRef.current.leave().catch(() => { });
         clientRef.current = null;
       }
     };
@@ -525,19 +525,25 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
       <LivestreamHeader title={livestream.title} hostAvatar={livestream.hostAvatar} hostName={livestream.hostName} isStreaming={isStreaming} viewerCount={viewerCount} />
 
-      
       <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-4 sm:py-6">
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-6">
-          
+
           <div className="xl:col-span-3 space-y-4">
             <VideoPreview localVideoRef={localVideoRef} isStreaming={isStreaming} isInitializing={isInitializing} error={error} onStart={initializeAgora} />
-
+            <div className="lg:hidden absolute inset-x-4 mb-6 bottom-2 z-20">
+              <ChatBox
+                messages={chatMessages}
+                onSendMessage={handleSendMessage}
+                currentUserName={user?.userName || user?.email || ''}
+                viewerCount={viewerCount}
+                className="bg-transparent rounded-xl max-h-[54vh] h-[54vh] overflow-hidden text-white"
+                transparent={true}
+              />
+            </div>
             {isStreaming && (
               <Controls isCameraOn={isCameraOn} isMicOn={isMicOn} onToggleCamera={toggleCamera} onToggleMic={toggleMic} onEndStream={endStream} />
             )}
 
-            
-            
             <div className="xl:hidden bg-gray-800/50 rounded-xl p-4">
               <h3 className="font-semibold mb-2">{t('host.streamInfo')}</h3>
               <p className="text-sm text-gray-300">{livestream.description || t('noDescription')}</p>
@@ -569,8 +575,8 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
             />
           </div>
           <div className="xl:col-span-1 space-y-4">
-            <div className="h-[400px] sm:h-[500px]">
-              <ChatBox 
+            <div className="hidden lg:block h-[400px] sm:h-[500px]">
+              <ChatBox
                 messages={chatMessages}
                 onSendMessage={handleSendMessage}
                 currentUserName={user?.userName || user?.email || ''}

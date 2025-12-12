@@ -31,7 +31,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({
       return (
         <button
           onClick={onManageOrdersClick}
-          className="inline-flex items-center justify-center gap-2 rounded-md bg-orange-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+          className="inline-flex items-center justify-center gap-2 rounded-md bg-green-100 px-4 py-2 text-sm font-medium text-black shadow-sm transition hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
         >
           <Image src={ICONS.TRUCK_SIDE || ICONS.SHOPPING_CART || ICONS.PLACEHOLDER} alt="orders" width={16} height={16} />
           <span>{t("manageOrders")}</span>

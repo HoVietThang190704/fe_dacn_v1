@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
@@ -13,6 +13,7 @@ export const AiAssistantWidget: React.FC = () => {
   const locale = useLocale();
   const t = useTranslations('aiAssistant');
   const askAiAssistantUseCase = container.askAiAssistantUseCase;
+
 
   const {
     messages,
@@ -36,6 +37,7 @@ export const AiAssistantWidget: React.FC = () => {
       greeting: t('panel.greeting'),
     }
   );
+
 
   const launcherLabel = useMemo(
     () => (isPanelOpen ? t('launcher.closeLabel') : t('launcher.openLabel')),
