@@ -167,7 +167,7 @@ export default function Navbar({ onMenuToggle, isSidebarOpen }: NavbarProps) {
   };
 
   return (
-    <nav className="bg-navbar text-navbar-foreground shadow-md sticky top-0 z-40">
+    <nav className="bg-navbar text-navbar-foreground shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-2 sm:px-4 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16 gap-1 sm:gap-2 md:gap-4">
           <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 min-w-fit">

@@ -542,7 +542,10 @@
     "errors": {
       "loadOrders": "Không thể tải danh sách đơn hàng",
       "updateStatus": "Không thể cập nhật trạng thái đơn hàng"
-    }
+    },
+    "paginationInfo": "Trang {page} / {totalPages}",
+    "prevPage": "Trước",
+    "nextPage": "Sau"
   },
   "favorites": {
     "title": "Đã Thích ({count})",

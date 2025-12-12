@@ -24,6 +24,7 @@ export const OrderRow = ({
   onViewDetail,
 }: OrderRowProps) => {
   const t = useTranslations('orders');
+  const tOrder = useTranslations('order');
   const locale = useLocale();
   const formatCurrency = useFormatCurrency();
 
@@ -48,7 +49,7 @@ export const OrderRow = ({
       <td className="px-4 py-4 text-sm text-gray-700">{formatCurrency(order.total)}</td>
       <td className="px-4 py-4 text-sm text-gray-600">
         <div className="font-medium capitalize text-gray-700">{translateSafely(t, `payment.${order.paymentMethod}`, order.paymentMethod)}</div>
-        <div className="text-xs uppercase text-gray-400">{translateSafely(t, `status.${(order.paymentStatus ?? '').toLowerCase()}`, order.paymentStatus ?? '')}</div>
+        <div className="text-xs uppercase text-gray-400">{translateSafely(tOrder, `payment.status.${(order.paymentStatus ?? '').toLowerCase()}`, order.paymentStatus ?? '')}</div>
       </td>
       <td className="px-4 py-4 text-sm text-gray-600">
         <select

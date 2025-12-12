@@ -105,21 +105,21 @@ export const OrderCard: React.FC<{ order: Order; onViewDetail: () => void; onCan
         {shippingAddress && (
           <div className="flex items-start gap-2">
             <div className="flex h-5 w-5 items-center justify-center">
-              <Image src={ICONS.LOCATION} alt={translateSafely(t, 'order.shippingAddress')} width={18} height={18} />
+                <Image src={ICONS.LOCATION} alt={translateSafely(tOrder, 'shippingAddress')} width={18} height={18} />
             </div>
             <span className="line-clamp-2 sm:line-clamp-1">{shippingAddress}</span>
           </div>
         )}
         <div className="flex items-center gap-2">
           <div className="flex h-5 w-5 items-center justify-center">
-            <Image src={ICONS.PAYMENT_METHOD} alt={translateSafely(t, 'order.paymentMethod')} width={18} height={18} />
+            <Image src={ICONS.PAYMENT_METHOD} alt={translateSafely(tOrder, 'paymentMethod')} width={18} height={18} />
           </div>
           <span>{paymentLabel}</span>
         </div>
         {estimatedLabel && (
           <div className="flex items-center gap-2">
             <div className="flex h-5 w-5 items-center justify-center">
-              <Image src={ICONS.CALENDAR} alt={translateSafely(t, 'labels.estimatedDelivery')} width={18} height={18} />
+              <Image src={ICONS.CALENDAR} alt={translateWithValues(t, 'labels.estimatedDelivery', { date: estimatedDelivery ?? '' })} width={18} height={18} />
             </div>
             <span>{estimatedLabel}</span>
           </div>

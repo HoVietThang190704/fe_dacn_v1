@@ -5,8 +5,7 @@ import Icon from './components/hostlivestreampage/Icon';
 import LivestreamHeader from './components/hostlivestreampage/LivestreamHeader';
 import VideoPreview from './components/hostlivestreampage/VideoPreview';
 import Controls from './components/hostlivestreampage/Controls';
-import LinkedProductsList from './components/hostlivestreampage/LinkedProductsList';
-import PricingEditor from './components/hostlivestreampage/PricingEditor';
+import LivePricingModal from './components/hostlivestreampage/LivePricingModal';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { useAuth } from '@/shared/hooks/useAuth';
@@ -41,6 +40,7 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
   const [pricingDraft, setPricingDraft] = useState<Record<string, { livePrice: string; maxQuantity: string }>>({});
   const [isSavingPricing, setIsSavingPricing] = useState(false);
   const [pricingMessage, setPricingMessage] = useState('');
+  const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
 
 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -68,8 +68,7 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
     []
   );
 
-  const shouldShowLinkedProducts =
-    (livestream?.products && livestream.products.length > 0) || isLoadingLinkedProducts || Boolean(linkedProductsError);
+  const formatPrice = React.useCallback((value: number) => priceFormatter.format(value), [priceFormatter]);
 
   const hostPricingMap = React.useMemo(() => {
     const map: Record<string, { livePrice?: number; remaining?: number | null }> = {};
@@ -82,10 +81,6 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
     });
     return map;
   }, [livestream?.productPricing]);
-
-  const renderLinkedProducts = () => (
-    <LinkedProductsList products={linkedProducts} isLoading={isLoadingLinkedProducts} error={linkedProductsError} formatter={priceFormatter} livePricing={hostPricingMap} />
-  );
 
   useEffect(() => {
     if (!linkedProducts.length) return;
@@ -522,57 +517,38 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
-      <LivestreamHeader title={livestream.title} hostAvatar={livestream.hostAvatar} hostName={livestream.hostName} isStreaming={isStreaming} viewerCount={viewerCount} />
-
+    <div className="min-h-[calc(100vh-56px)] bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
       <div className="max-w-[1800px] mx-auto px-4 sm:px-6 py-4 sm:py-6">
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 sm:gap-6">
-
           <div className="xl:col-span-3 space-y-4">
-            <VideoPreview localVideoRef={localVideoRef} isStreaming={isStreaming} isInitializing={isInitializing} error={error} onStart={initializeAgora} />
-            <div className="lg:hidden absolute inset-x-4 mb-6 bottom-2 z-20">
-              <ChatBox
-                messages={chatMessages}
-                onSendMessage={handleSendMessage}
-                currentUserName={user?.userName || user?.email || ''}
-                viewerCount={viewerCount}
-                className="bg-transparent rounded-xl max-h-[54vh] h-[54vh] overflow-hidden text-white"
-                transparent={true}
-              />
+            <div className="relative space-y-3">
+              <div className="absolute left-4 top-4 z-40 flex items-center gap-2 pointer-events-auto">
+                <button
+                  type="button"
+                  onClick={() => setIsPricingModalOpen(true)}
+                  disabled={isLoadingLinkedProducts && !linkedProducts.length}
+                  className="px-4 py-2 rounded-lg text-black bg-green-300 hover:bg-green-400 disabled:opacity-60 disabled:cursor-not-allowed text-sm font-medium transition shadow-lg"
+                >
+                  {t('host.livePricingTitle')}
+                </button>
+                {linkedProductsError && <span className="text-xs text-red-300 bg-gray-900/80 rounded px-2 py-1">{t('host.productsError')}</span>}
+              </div>
+              <LivestreamHeader viewerCount={viewerCount} overlay />
+              <VideoPreview localVideoRef={localVideoRef} isStreaming={isStreaming} isInitializing={isInitializing} error={error} onStart={initializeAgora} />
+              <div className="lg:hidden absolute inset-x-4 mb-6 bottom-2 z-20">
+                <ChatBox
+                  messages={chatMessages}
+                  onSendMessage={handleSendMessage}
+                  currentUserName={user?.userName || user?.email || ''}
+                  viewerCount={viewerCount}
+                  className="bg-transparent rounded-xl max-h-[54vh] h-[54vh] overflow-hidden text-white"
+                  transparent={true}
+                />
+              </div>
             </div>
             {isStreaming && (
               <Controls isCameraOn={isCameraOn} isMicOn={isMicOn} onToggleCamera={toggleCamera} onToggleMic={toggleMic} onEndStream={endStream} />
             )}
-
-            <div className="xl:hidden bg-gray-800/50 rounded-xl p-4">
-              <h3 className="font-semibold mb-2">{t('host.streamInfo')}</h3>
-              <p className="text-sm text-gray-300">{livestream.description || t('noDescription')}</p>
-            </div>
-
-            {shouldShowLinkedProducts && (
-              <div className="bg-gray-800/50 rounded-xl p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h3 className="font-semibold">{t('host.linkedProducts')}</h3>
-                    <p className="text-xs text-gray-400">{t('host.linkedProductsHelper')}</p>
-                  </div>
-                  <span className="text-sm text-gray-300 font-medium">{linkedProducts.length}</span>
-                </div>
-                {renderLinkedProducts()}
-              </div>
-            )}
-
-            <PricingEditor
-              livestream={livestream}
-              linkedProducts={linkedProducts}
-              pricingDraft={pricingDraft}
-              handlePricingChange={handlePricingChange}
-              handleSavePricing={handleSavePricing}
-              isSavingPricing={isSavingPricing}
-              pricingMessage={pricingMessage}
-              priceFormatter={(n) => priceFormatter.format(n)}
-              t={t}
-            />
           </div>
           <div className="xl:col-span-1 space-y-4">
             <div className="hidden lg:block h-[400px] sm:h-[500px]">
@@ -586,6 +562,24 @@ export const HostLivestreamPage: React.FC<HostLivestreamPageProps> = ({ livestre
           </div>
         </div>
       </div>
+
+      <LivePricingModal
+        open={isPricingModalOpen}
+        onClose={() => setIsPricingModalOpen(false)}
+        linkedProducts={linkedProducts}
+        isLoadingLinkedProducts={isLoadingLinkedProducts}
+        linkedProductsError={linkedProductsError}
+        livePricing={hostPricingMap}
+        pricingDraft={pricingDraft}
+        handlePricingChange={handlePricingChange}
+        handleSavePricing={handleSavePricing}
+        isSavingPricing={isSavingPricing}
+        pricingMessage={pricingMessage}
+        priceFormatter={formatPrice}
+        priceDisplayFormatter={priceFormatter}
+        livestream={livestream}
+        t={t}
+      />
     </div>
   );
 };

@@ -13,9 +13,9 @@ import { API_CONFIG } from '@/shared/constants/api';
 import { cleanupAgoraConnection } from '@/shared/utils/livestream';
 import { ICONS } from '@/shared/constants/images';
 import LivestreamHeader from './components/watchlivestreampage/LivestreamHeader';
-import LivestreamProductList from './components/watchlivestreampage/LivestreamProductList';
 import LivestreamPlaceholder from './components/watchlivestreampage/LivestreamPlaceholder';
 import ProductModal from './components/watchlivestreampage/ProductModal';
+import ProductListModal from './components/watchlivestreampage/ProductListModal';
 import { useLivestreamProducts } from '@/shared/hooks/useLivestreamProducts';
 import { useRouter } from '@/i18n/routing';
  
@@ -43,6 +43,7 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
   const [needsAudioPermission, setNeedsAudioPermission] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<LivestreamProductSummary | null>(null);
   const [selectedQuantity, setSelectedQuantity] = useState<number>(1);
+  const [isProductListOpen, setIsProductListOpen] = useState(false);
   const currencyFormatter = React.useMemo(() => {
     const intlLocale = locale === 'en' ? 'en-US' : 'vi-VN';
     return new Intl.NumberFormat(intlLocale, {
@@ -104,6 +105,9 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
     setSelectedProduct(product);
     setSelectedQuantity(initialQty);
   };
+
+  const openProductListModal = () => setIsProductListOpen(true);
+  const closeProductListModal = () => setIsProductListOpen(false);
 
   const closeProductModal = () => {
     setSelectedProduct(null);
@@ -410,13 +414,13 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
   const hostAvatar = livestream.hostAvatar || ICONS.PLACEHOLDER;
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <div className="bg-gray-800 border-b border-gray-700 px-4 sm:px-6 py-3 sticky top-0 z-10">
+    <div className="min-h-[calc(100vh-56px)] bg-gray-900 text-white overflow-hidden pb-4" style={{ paddingBottom: 'env(safe-area-inset-bottom, 16px)' }}>
+      <div className="hidden lg:block bg-gray-800 border-b border-gray-700 px-4 sm:px-6 py-3 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div>
             <button onClick={leaveLivestream} className="flex items-center text-gray-300 hover:text-white transition">
-              <Image src={ICONS.ARROW_LEFT} alt={t('back')} width={20} height={20} className="w-5 h-5 mr-2" unoptimized />
-              <span className="hidden sm:inline">{t('back')}</span>
+              <Image src={ICONS.ARROW_LEFT} alt={t('back')} width={20} height={20} className="w-5 h-5 mr-2 " unoptimized />
+              <span className="hidden sm:inline ">{t('back')}</span>
             </button>
             
           </div>
@@ -445,6 +449,23 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
                 </div>
               )}
               
+              <div className="lg:hidden absolute inset-x-4 top-10 z-30">
+                <div className=" rounded-md px-1 py-2 flex items-center justify-between">
+                  <div>
+                    <button onClick={leaveLivestream} className="flex items-center text-gray-300 hover:text-white transition">
+                      <Image src={ICONS.ARROW_LEFT} alt={t('back')} width={20} height={20} className="w-5 h-5 mr-2" unoptimized />
+                      <span className="hidden sm:inline">{t('back')}</span>
+                    </button>
+                  </div>
+                  {livestream.status === LivestreamStatus.LIVE && (
+                    <span className="px-3 py-1 bg-red-500 text-white rounded-full text-sm font-semibold flex items-center gap-2 animate-pulse">
+                      <span className="w-2 h-2 bg-white rounded-full" />
+                      {t('liveBadge')}
+                    </span>
+                  )}
+                </div>
+              </div>
+
               <div className="lg:hidden absolute inset-x-4 mt-4 bottom-2 z-20">
                 <ChatBox 
                   messages={chatMessages}
@@ -457,26 +478,15 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
               </div>  
             </div>
             <div className="bg-gray-800 border-b border-gray-700 lg:rounded-t-xl lg:mt-4 px-4 sm:px-6 py-4">
-              <LivestreamHeader livestream={livestream} viewerCount={viewerCount} hostAvatar={hostAvatar} onLeave={leaveLivestream} />
+              <LivestreamHeader
+                livestream={livestream}
+                viewerCount={viewerCount}
+                hostAvatar={hostAvatar}
+                onLeave={leaveLivestream}
+                hasProducts={shouldShowProductPanel}
+                onOpenProducts={shouldShowProductPanel ? openProductListModal : undefined}
+              />
             </div>
-
-            {shouldShowProductPanel && (
-              <div className="lg:hidden bg-gray-800 border-t border-gray-700 px-4 py-4">
-                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <Image src={ICONS.GOODS} alt={t('productsAlt')} width={22} height={22} className="w-5 h-5" unoptimized />
-                  <span>{t('watch.products')}</span>
-                </h3>
-                <LivestreamProductList
-                  products={linkedProducts}
-                  isLoading={isLoadingLinkedProducts}
-                  error={linkedProductsError}
-                  variant="grid"
-                  formatPrice={(n) => currencyFormatter.format(n ?? 0)}
-                  livePricing={pricingMap}
-                  onSelect={openProductModal}
-                />
-              </div>
-            )}
           </div>
 
           <div className="hidden lg:block lg:w-96 lg:sticky lg:top-16 lg:h-full lg:mt-4">
@@ -489,28 +499,27 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
                   viewerCount={viewerCount}
                 />
               </div>
-
-              {shouldShowProductPanel && (
-                <div className="hidden lg:block bg-gray-800 rounded-xl p-4 mt-4">
-                  <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <Image src={ICONS.GOODS} alt={t('productsAlt')} width={20} height={20} className="w-5 h-5" unoptimized />
-                    <span>{t('watch.products')}</span>
-                  </h3>
-                  <LivestreamProductList
-                    products={linkedProducts}
-                    isLoading={isLoadingLinkedProducts}
-                    error={linkedProductsError}
-                    variant="list"
-                    formatPrice={(n) => currencyFormatter.format(n ?? 0)}
-                    livePricing={pricingMap}
-                    onSelect={openProductModal}
-                  />
-                </div>
-              )}
             </div>
           </div>
         </div>
       </div>
+
+      {shouldShowProductPanel && (
+        <ProductListModal
+          open={isProductListOpen}
+          onClose={closeProductListModal}
+          products={linkedProducts}
+          isLoading={isLoadingLinkedProducts}
+          error={linkedProductsError}
+          formatPrice={(n) => currencyFormatter.format(n ?? 0)}
+          livePricing={pricingMap}
+          onSelect={(product) => {
+            closeProductListModal();
+            openProductModal(product);
+          }}
+          t={t}
+        />
+      )}
 
       {selectedProduct && (
         <ProductModal

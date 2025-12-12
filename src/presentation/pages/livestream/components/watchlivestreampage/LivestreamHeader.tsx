@@ -9,14 +9,17 @@ interface Props {
   viewerCount: number;
   hostAvatar?: string | null;
   onLeave: () => void;
+  onOpenProducts?: () => void;
+  hasProducts?: boolean;
 }
 
-export const LivestreamHeader: React.FC<Props> = ({ livestream, viewerCount, hostAvatar, onLeave }) => {
+export const LivestreamHeader: React.FC<Props> = ({ livestream, viewerCount, hostAvatar, onLeave, onOpenProducts, hasProducts }) => {
   const t = useTranslations('livestream');
   const avatarSrc = hostAvatar || ICONS.PLACEHOLDER;
 
   if (!ICONS.USERS) throw new Error('Missing icon: ICONS.USERS');
   if (!ICONS.ARROW_LEFT) throw new Error('Missing icon: ICONS.ARROW_LEFT');
+  if (!ICONS.GOODS) throw new Error('Missing icon: ICONS.GOODS');
 
   return (
     <div className="bg-gray-800 border-b border-gray-700 lg:rounded-t-xl -mt-4 px-4 sm:px-6 py-4">
@@ -39,6 +42,18 @@ export const LivestreamHeader: React.FC<Props> = ({ livestream, viewerCount, hos
             </div>
           </div>
         </div>
+
+        {hasProducts && onOpenProducts ? (
+          <button
+            type="button"
+            onClick={onOpenProducts}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-green-300 hover:bg-green-400 text-sm font-semibold text-black"
+          >
+            <Image src={ICONS.GOODS} alt={t('productsAlt')} width={18} height={18} className="w-4 h-4" unoptimized />
+            <span className="hidden sm:inline">{t('watch.products')}</span>
+            <span className="sm:hidden">{t('watch.products')}</span>
+          </button>
+        ) : null}
       </div>
 
       <h2 className="text-lg sm:text-xl font-bold mb-2">{livestream.title}</h2>
