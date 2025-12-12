@@ -156,6 +156,80 @@
     "brandName": "Nông Trại Tươi",
     "brandSlogan": "Tươi ngon mỗi ngày"
   },
+  "footer": {
+    "sections": {
+      "customerService": {
+        "title": "Dịch vụ khách hàng",
+        "helpCenter": "Trung tâm trợ giúp",
+        "blog": "Blog Fresh Market",
+        "mall": "Fresh Market Mall",
+        "buyingGuide": "Hướng dẫn mua hàng",
+        "sellingGuide": "Hướng dẫn bán hàng",
+        "wallet": "Ví FreshPay",
+        "points": "Fresh Points",
+        "orders": "Đơn hàng",
+        "returns": "Trả hàng/Hoàn tiền",
+        "contact": "Liên hệ Fresh Market",
+        "warranty": "Chính sách bảo hành"
+      },
+      "vietnam": {
+        "title": "Fresh Market Việt Nam",
+        "about": "Về Fresh Market",
+        "careers": "Tuyển dụng",
+        "terms": "Điều khoản dịch vụ",
+        "privacy": "Chính sách bảo mật",
+        "mall": "Fresh Market Mall",
+        "sellerChannel": "Kênh người bán",
+        "flashSale": "Flash sale",
+        "affiliates": "Tiếp thị liên kết",
+        "media": "Liên hệ truyền thông"
+      }
+    },
+    "payment": {
+      "title": "Thanh toán",
+      "visa": "VISA",
+      "mastercard": "Mastercard",
+      "jcb": "JCB",
+      "amex": "AMEX",
+      "cod": "Thanh toán khi nhận",
+      "installment": "Trả góp",
+      "spay": "FreshPay"
+    },
+    "shipping": {
+      "title": "Đơn vị vận chuyển",
+      "spx": "FMX Express",
+      "ghn": "Giaohangnhanh",
+      "viettel": "Viettel Post",
+      "vnpost": "VNPost",
+      "jt": "J&T Express",
+      "grab": "GrabExpress",
+      "ninja": "Ninja Van",
+      "best": "Best Express",
+      "ahamove": "Ahamove"
+    },
+    "follow": {
+      "title": "Theo dõi Fresh Market",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn"
+    },
+    "download": {
+      "title": "Tải ứng dụng Fresh Market",
+      "qrHint": "Quét mã",
+      "appStore": "App Store",
+      "googlePlay": "Google Play",
+      "appGallery": "AppGallery"
+    },
+    "regions": {
+      "title": "Quốc gia & Khu vực",
+      "countries": "Argentina|Singapore|Indonesia|Thái Lan|Malaysia|Việt Nam|Philippines|Brazil|Mexico|Đài Loan"
+    },
+    "policiesLine": "Chính sách bảo mật|Quy chế hoạt động|Chính sách vận chuyển|Chính sách trả hàng & hoàn tiền",
+    "licenses": "Đã đăng ký Bộ Công Thương|Đã thông báo Bộ Công Thương|Hiệp hội TMĐT Việt Nam",
+    "company": {
+      "details": "Công ty TNHH Fresh Market\nĐịa chỉ: \nChăm sóc khách hàng: 0862846967 (miễn phí) hoặc trò chuyện tại Trung tâm trợ giúp\nMã số doanh nghiệp: \n© 2015 - Bản quyền thuộc về Công ty TNHH Fresh Market"
+    }
+  },
   "heroSide": {
     "title": "Thực phẩm tươi sạch từ nông trại đến bàn ăn",
     "description": "Cung cấp thực phẩm tươi ngon, an toàn và chất lượng cao trực tiếp từ nông trại đến tay bạn.",
