@@ -77,3 +77,25 @@ export const ICONS = {
     MONITOR: '/icons/monitor.png',
     POST: '/icons/post.png',
 }
+
+export const PAYMENT_ICONS = {
+    VISA: '/img/visa.png',
+    MASTERCARD: '/img/mastercart.png',
+    JCB: '/img/jcb.png',
+    AMEX: '/img/americanexpress.png',
+    COD: '/img/cod.png',
+    INSTALLMENT: '/img/tragop.png',
+    SPAY: '/img/Logo-VNPAY-QR.png',
+} as const
+
+export const SHIPPING_ICONS = {
+    SPX: '/img/spx.png',
+    GHN: '/img/giaohangnhanh.png',
+    VIETTEL: '/img/viettelpost.png',
+    VNPOST: '/img/vietnampost.png',
+    JT_EXPRESS: '/img/j&texpress.png',
+    GRAB: '/img/grapexpress.png',
+    NINJA: '/img/ninjavan.png',
+    BEST: '/img/be.png',
+    AHAMOVE: '/img/ahamove.png',
+} as const
