@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
+import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
 import type { ReactElement, SVGProps } from 'react';
 import { PAYMENT_ICONS, SHIPPING_ICONS } from '@/shared/constants/images';
@@ -55,6 +56,8 @@ const IconLinkedIn = (props: SVGProps<SVGSVGElement>) => (
 export function SiteFooter() {
   const t = useTranslations('footer');
   const locale = useLocale();
+  const pathname = usePathname();
+  const shouldHideFooter = pathname?.includes('/livestream');
 
   const customerServiceLinks: LinkItem[] = useMemo(
     () => [
@@ -140,6 +143,10 @@ export function SiteFooter() {
   const companyLines = useMemo(() => t('company.details').split('\n').map((line) => line.trim()).filter(Boolean), [t]);
 
   const linkClass = 'text-sm text-gray-600 hover:text-orange-500 transition-colors';
+
+  if (shouldHideFooter) {
+    return null;
+  }
 
   const renderLink = (item: LinkItem) => {
     if (item.external) {
