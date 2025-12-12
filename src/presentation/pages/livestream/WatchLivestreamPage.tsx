@@ -313,6 +313,26 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
       });
     });
 
+    const handleStatusUpdated = (payload: Livestream) => {
+      if (!payload?.id || payload.id !== livestreamId) return;
+
+      setLivestream((prev) => (prev ? { ...prev, ...payload } : payload));
+
+      if (typeof payload.viewerCount === 'number') {
+        setViewerCount(payload.viewerCount);
+      }
+
+      if (payload.status === LivestreamStatus.ENDED) {
+        setIsJoined(false);
+        void cleanupAgoraConnection(clientRef, remoteVideoRef);
+        return;
+      }
+
+      if (payload.status === LivestreamStatus.LIVE && !clientRef.current) {
+        void joinLivestream(payload);
+      }
+    };
+
     socket.on('chat-history', (messages: ChatMessage[]) => {
       setChatMessages(messages);
     });
@@ -324,6 +344,8 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
     socket.on('viewer-count', ({ viewerCount: count }: { viewerCount: number }) => {
       setViewerCount(count);
     });
+
+    socket.on('livestream:status-updated', handleStatusUpdated);
 
     socket.on('livestream:pricing-updated', (payload: { productPricing: Livestream['productPricing'] }) => {
       setLivestream((prev) => (prev ? { ...prev, productPricing: payload.productPricing } : prev));
@@ -347,9 +369,10 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
 
     return () => {
       socket.emit('leave-livestream', { livestreamId });
+      socket.off('livestream:status-updated', handleStatusUpdated);
       socket.disconnect();
     };
-  }, [user, livestreamId]);
+  }, [user, livestreamId, joinLivestream]);
 
   const handleSendMessage = (message: string) => {
     if (!socketRef.current || !user) return;
@@ -443,7 +466,7 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
                 <div ref={remoteVideoRef} className="absolute inset-0 w-full h-full"></div>
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
-                  <div className="text-center px-4">
+                  <div className="text-center px-4 ">
                     <LivestreamPlaceholder status={livestream.status} startTime={livestream.startTime} />
                   </div>
                 </div>
