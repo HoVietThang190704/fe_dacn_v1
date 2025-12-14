@@ -5,7 +5,7 @@ import Skeleton from '@/components/ui/skeleton';
 import CmsAdBannerClient, { CmsAdBannerData } from './CmsAdBannerClient';
 
 const CmsAdBanner: React.FC = () => {
-  const [banner, setBanner] = useState<CmsAdBannerData | null>(null);
+  const [banners, setBanners] = useState<CmsAdBannerData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,7 +23,8 @@ const CmsAdBanner: React.FC = () => {
       })
       .then((json) => {
         if (!ignore) {
-          setBanner(json?.data ?? null);
+          const data = json?.data;
+          setBanners(Array.isArray(data) ? data : data ? [data] : []);
           setLoading(false);
         }
       })
@@ -47,9 +48,9 @@ const CmsAdBanner: React.FC = () => {
     );
 
   if (error) return null;
-  if (!banner) return null;
+  if (!banners.length) return null;
 
-  return <CmsAdBannerClient banner={banner} />;
+  return <CmsAdBannerClient banners={banners} />;
 };
 
 export default CmsAdBanner;
