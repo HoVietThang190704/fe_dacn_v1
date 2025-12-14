@@ -20,15 +20,9 @@ export function initFirebaseClient() {
     return;
   }
   
-  // Hardcoded config as fallback (temporary fix for env loading issues)
-  const hardcodedConfig: FirebaseOptions = {
-    apiKey: "AIzaSyAoQ3YwnG3OfNNj6M4LGvX3MgsxkhSgW0E",
-    authDomain: "nong-san-so-mot-vn.firebaseapp.com",
-    projectId: "nong-san-so-mot-vn",
-    storageBucket: "nong-san-so-mot-vn.firebasestorage.app",
-    messagingSenderId: "730746636570",
-    appId: "1:730746636570:web:67fe7d4d60bb6318cc84a3"
-  };
+  // Note: do NOT hardcode API keys or credentials in source. Use `NEXT_PUBLIC_FIREBASE_CONFIG`
+  // (stringified JSON) in `.env.local` or inject a safe runtime config. If no config is
+  // available the SDK will NOT be initialized.
   
   // Try environment variable first (replaced at build time)
   let raw = process.env.NEXT_PUBLIC_FIREBASE_CONFIG;
@@ -64,10 +58,10 @@ export function initFirebaseClient() {
     }
   }
   
-  // Use hardcoded config if env config not available
+  // If we couldn't parse a config, do not initialize Firebase here.
   if (!cfg) {
-    console.warn('Using hardcoded Firebase config (env var not loaded)');
-    cfg = hardcodedConfig;
+    console.warn('Firebase config not found. Skipping Firebase initialization. Set NEXT_PUBLIC_FIREBASE_CONFIG in .env.local with your Firebase options JSON.');
+    return;
   }
 
   console.debug('Initializing Firebase app (partial config shown):', { projectId: cfg.projectId, authDomain: cfg.authDomain });

@@ -156,6 +156,80 @@
     "brandName": "Fresh Farm",
     "brandSlogan": "Fresh every day"
   },
+  "footer": {
+    "sections": {
+      "customerService": {
+        "title": "Customer Service",
+        "helpCenter": "Help Center",
+        "blog": "Fresh Market Blog",
+        "mall": "Fresh Market Mall",
+        "buyingGuide": "Buying guide",
+        "sellingGuide": "Selling guide",
+        "wallet": "FreshPay wallet",
+        "points": "Fresh Points",
+        "orders": "Orders",
+        "returns": "Returns & Refunds",
+        "contact": "Contact Fresh Market",
+        "warranty": "Warranty policy"
+      },
+      "vietnam": {
+        "title": "Fresh Market Việt Nam",
+        "about": "About Fresh Market",
+        "careers": "Careers",
+        "terms": "Terms of service",
+        "privacy": "Privacy policy",
+        "mall": "Fresh Market Mall",
+        "sellerChannel": "Seller channel",
+        "flashSale": "Flash sale",
+        "affiliates": "Affiliate marketing",
+        "media": "Media contact"
+      }
+    },
+    "payment": {
+      "title": "Payment",
+      "visa": "VISA",
+      "mastercard": "Mastercard",
+      "jcb": "JCB",
+      "amex": "AMEX",
+      "cod": "Cash on Delivery",
+      "installment": "Installment",
+      "spay": "FreshPay"
+    },
+    "shipping": {
+      "title": "Logistics Partners",
+      "spx": "FMX Express",
+      "ghn": "Giaohangnhanh",
+      "viettel": "Viettel Post",
+      "vnpost": "VNPost",
+      "jt": "J&T Express",
+      "grab": "GrabExpress",
+      "ninja": "Ninja Van",
+      "best": "Best Express",
+      "ahamove": "Ahamove"
+    },
+    "follow": {
+      "title": "Follow Fresh Market",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn"
+    },
+    "download": {
+      "title": "Download the Fresh Market app",
+      "qrHint": "Scan QR",
+      "appStore": "App Store",
+      "googlePlay": "Google Play",
+      "appGallery": "AppGallery"
+    },
+    "regions": {
+      "title": "Countries & Regions",
+      "countries": "Argentina|Singapore|Indonesia|Thailand|Malaysia|Vietnam|Philippines|Brazil|Mexico|Taiwan"
+    },
+    "policiesLine": "Security policy|Operational regulations|Shipping policy|Return & refund policy",
+    "licenses": "MOIT certified|Registered with MOIT|Vietnam E-commerce Association",
+    "company": {
+      "details": "Fresh Market Co., Ltd.\nAddress: \nCustomer care: 1900 9999 (toll-free) or chat with us in the Help Center\nBusiness code: \n© 2015 - All rights reserved"
+    }
+  },
   "heroSide": {
     "title": "We bring the store to your door",
     "description": "Get organic produce and sustainably sourced groceries delivery at up to 4% off grocery.",
