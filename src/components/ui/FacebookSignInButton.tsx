@@ -55,6 +55,12 @@ export function FacebookSignInButton({
   useEffect(() => {
     // Load Facebook SDK
     const loadFacebookSDK = () => {
+      const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || '';
+      if (!appId) {
+        onError?.('Thiếu NEXT_PUBLIC_FACEBOOK_APP_ID (Facebook App ID)');
+        return;
+      }
+
       // Check if already loaded
       if (window.FB) {
         setIsFBReady(true);
@@ -64,7 +70,7 @@ export function FacebookSignInButton({
       // Initialize Facebook SDK
       window.fbAsyncInit = function() {
         window.FB?.init({
-          appId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || '',
+          appId,
           cookie: true,
           xfbml: true,
           version: 'v18.0',
@@ -87,6 +93,14 @@ export function FacebookSignInButton({
   }, []);
 
   const handleFacebookLogin = () => {
+    if (typeof window !== 'undefined') {
+      const isHttps = window.location.protocol === 'https:';
+      if (!isHttps) {
+        onError?.('Facebook Login yêu cầu HTTPS. Hãy chạy bằng `npm run dev:https` hoặc dùng domain HTTPS.');
+        return;
+      }
+    }
+
     if (!isFBReady || !window.FB) {
       onError?.('Facebook SDK chưa sẵn sàng');
       return;

@@ -7,6 +7,14 @@
     images: {
       // Allow Contentful and Cloudinary image domains so `next/image` can load remote images.
       domains: ['images.ctfassets.net', 'images.contentful.com', 'res.cloudinary.com', 'lh3.googleusercontent.com'],
+      remotePatterns: [
+        { protocol: 'https', hostname: 'images.ctfassets.net' },
+        { protocol: 'https', hostname: 'images.contentful.com' },
+        { protocol: 'https', hostname: 'res.cloudinary.com' },
+        { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+        { protocol: 'https', hostname: 'platform-lookaside.fbsbx.com' },
+        { protocol: 'https', hostname: 'graph.facebook.com' },
+      ],
       // Set `unoptimized` to false so Next can optimize images locally in dev/prod.
       unoptimized: false,
     },
