@@ -120,8 +120,8 @@ export function useCartViewModel(deps: CartViewModelDependencies): CartViewModel
         setError('Bạn cần đăng nhập để sử dụng giỏ hàng');
         return;
       }
-
       setIsMutating(true);
+      setPendingItemId(payload.productId);
       setError(null);
       try {
         const updated = await deps.addCartItemUseCase.execute(payload);
@@ -133,6 +133,7 @@ export function useCartViewModel(deps: CartViewModelDependencies): CartViewModel
         setLastActionMessage(null);
       } finally {
         setIsMutating(false);
+        setPendingItemId(null);
       }
     },
     [deps]
