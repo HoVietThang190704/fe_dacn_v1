@@ -3,7 +3,8 @@ import { API_ENDPOINTS } from '@/shared/constants/api';
 
 const normalizeBaseUrl = (value?: string | null) => {
   if (!value) return '';
-  return value.replace(/\/$/, '');
+  // remove trailing slash and common dev port 3000 if accidentally included
+  return value.replace(/\/$/, '').replace(/:3000$/, '');
 };
 
 interface ShareInfoPayload {
@@ -103,7 +104,7 @@ export class ShareApiDataSource {
       const parsed = new URL(url);
       const target = new URL(targetBase.startsWith('http') ? targetBase : `https://${targetBase}`);
       parsed.protocol = target.protocol;
-      parsed.host = target.host;
+      parsed.hostname = target.hostname;
       return parsed.toString();
     } catch {
       return url;
@@ -113,7 +114,6 @@ export class ShareApiDataSource {
   private normalizeQrCode(qrCodeDataUrl: string, shareUrl: string): string {
     try {
       const qrUrl = new URL(shareUrl);
-      // If QR was generated for localhost, rebuild it using the normalized share URL.
       if (qrCodeDataUrl.includes('localhost')) {
         return this.buildQrImageUrl(qrUrl.toString());
       }

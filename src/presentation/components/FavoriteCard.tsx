@@ -9,9 +9,11 @@ type FavoriteCardProps = {
   favorite: Favorite;
   onRemove?: () => void;
   isMutating?: boolean;
+  onAddToCart?: (productId: string) => void;
+  isAdding?: boolean;
 };
 
-const FavoriteCard: React.FC<FavoriteCardProps> = ({ favorite, onRemove, isMutating }) => {
+const FavoriteCard: React.FC<FavoriteCardProps> = ({ favorite, onRemove, isMutating, onAddToCart, isAdding }) => {
   const t = useTranslations('favorites');
   const tProductCard = useTranslations('productCard');
   const product = favorite.product;
@@ -122,12 +124,14 @@ const FavoriteCard: React.FC<FavoriteCardProps> = ({ favorite, onRemove, isMutat
           onClick={(event) => {
             event.stopPropagation();
             event.preventDefault();
-            // remove from favorites or add to cart behavior to be implemented by parent
+            if (!isInStock) return;
+            if (isAdding) return;
+            if (onAddToCart) onAddToCart(productId);
           }}
-          disabled={!isInStock}
+          disabled={!isInStock || isAdding}
           className={`w-full mt-2 py-1.5 text-xs rounded transition-colors ${isInStock ? 'bg-orange-500 text-white hover:bg-orange-600' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
         >
-          {isInStock ? t('addToCart') : t('outOfStock')}
+          {isAdding ? t('adding') : isInStock ? t('addToCart') : t('outOfStock')}
         </button>
       </div>
     </div>

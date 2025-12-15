@@ -625,6 +625,7 @@
   "favorites": {
     "title": "Đã Thích ({count})",
     "addToCart": "Thêm vào giỏ",
+    "adding": "Đang thêm...",
     "outOfStock": "Hết hàng",
     "discover": "Khám phá sản phẩm",
     "loginToFavorite": "Đăng nhập để yêu thích",
