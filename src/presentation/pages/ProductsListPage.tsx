@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import SortDropdown from '../components/SortDropdown';
@@ -37,6 +37,14 @@ export const ProductsListPage: React.FC<ProductsListPageProps> = ({ categories }
 
   const products = useMemo(() => viewModel.data?.products ?? [], [viewModel.data]);
   const totalProducts = viewModel.data?.total ?? products.length;
+
+  useEffect(() => {
+    if (!viewModel.isLoading) {
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  }, [viewModel.params.page, viewModel.isLoading]);
 
   const handleSortChange = (value: string) => {
     const mapping = SortMapping[value] ?? SortMapping.default;

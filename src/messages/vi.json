@@ -383,6 +383,7 @@
     "available": "Còn lại",
     "discountLabel": "Giảm {discount}%",
     "sold": "Đã bán",
+    "bestSeller": "Bán chạy",
     "outOfStock": "Hết hàng",
     "inStock": "{count} có sẵn",
     "soldCount": "Đã bán {count}"
