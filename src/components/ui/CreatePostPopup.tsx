@@ -100,6 +100,29 @@ export const CreatePostPopup: React.FC<CreatePostPopupProps> = ({
     onClose();
   };
 
+  // Prevent background scroll and interactions when popup is open
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    const prevPosition = document.body.style.position;
+    const prevTop = document.body.style.top;
+    const prevWidth = document.body.style.width;
+    const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+
+    return () => {
+      document.body.style.overflow = prevOverflow || '';
+      document.body.style.position = prevPosition || '';
+      document.body.style.top = prevTop || '';
+      document.body.style.width = prevWidth || '';
+      window.scrollTo(0, scrollY);
+    };
+  }, [isOpen]);
+
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -296,6 +319,16 @@ export const CreatePostPopup: React.FC<CreatePostPopupProps> = ({
               </div>
             )}
 
+            {/* Hidden file input - always present so + Thêm ảnh works even when previews exist */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFileInput}
+              className="hidden"
+            />
+
             {/* Image Upload Area - Only show when no images */}
             {imagePreviews.length === 0 && (
               <div
@@ -307,14 +340,6 @@ export const CreatePostPopup: React.FC<CreatePostPopupProps> = ({
                   isDragging ? 'border-orange-500 bg-orange-50' : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
                 }`}
               >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={handleFileInput}
-                  className="hidden"
-                />
                 <div className="flex flex-col items-center gap-2">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
                     isDragging ? 'bg-orange-100' : 'bg-gray-100'

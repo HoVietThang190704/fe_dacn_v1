@@ -93,14 +93,18 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/60 "
-      ref={overlayRef}
-      onMouseDown={(e) => {
-        if (e.target === overlayRef.current) {
-          onClose();
-        }
-      }}
+        ref={overlayRef}
+        onMouseDown={(e) => {
+          if (e.target === overlayRef.current) {
+            onClose();
+          }
+        }}
+        style={{ touchAction: 'none' }}
     >
-  <div className="bg-white w-full h-full sm:h-auto max-h-full sm:max-h-[100vh] sm:max-w-4xl overflow-auto rounded-t-lg sm:rounded-lg shadow-xl relative scrollbar-hide">
+  <div
+    className="bg-white w-full h-[100dvh] sm:h-auto max-h-[100dvh] sm:max-h-[100vh] sm:max-w-4xl overflow-y-auto rounded-t-lg sm:rounded-lg shadow-xl relative scrollbar-hide"
+    style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}
+  >
         <button ref={closeBtnRef} onClick={onClose} className="absolute top-3 right-3 rounded-full p-2 hover:bg-gray-100 " aria-label={tPost('close') ?? tCommunity('closeAlt') ?? 'Close'}>
           <Image src={ICONS.CROSS ?? ICONS.PLACEHOLDER} alt={tPost('close') ?? tCommunity('closeAlt') ?? 'Close'} width={20} height={20} />
         </button>
@@ -232,7 +236,7 @@ export default function PostDetailModal({ postId, isOpen, onClose }: Props) {
               </div>
             )}
 
-            <div className="border-t pt-4 flex-1 overflow-auto">
+            <div className="border-t pt-4">
               <CommentSection postId={postId} />
             </div>
           </div>
