@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
@@ -15,6 +15,7 @@ import { container } from '../di/container';
 import { Promotion } from '@/domain/entities/Banner';
 import { Product } from '@/domain/entities/Product';
 import { Banner } from '@/domain/entities/Banner';
+import { ProductCategory } from '@/domain/entities/Product';
 
 interface StatCard {
   key: string;
@@ -27,6 +28,9 @@ export const HomePage: React.FC = () => {
   const t = useTranslations('home');
   const locale = useLocale();
   const { data, isLoading, error, refresh } = useHomeViewModel(container.getHomeDataUseCase);
+
+  const [categoryShelves, setCategoryShelves] = useState<Record<string, Product[]>>({});
+  const [isCategoryShelvesLoading, setIsCategoryShelvesLoading] = useState(false);
 
   const stats = useMemo<StatCard[]>(() => {
     if (!data) return [];
@@ -61,7 +65,7 @@ export const HomePage: React.FC = () => {
   const displayedBestSellers = useMemo(
     () => {
       const list = data?.bestSellingProducts ?? [];
-      return [...list].sort((a, b) => (b.sold ?? 0) - (a.sold ?? 0)).slice(0, 5);
+      return [...list].sort((a, b) => (b.sold ?? 0) - (a.sold ?? 0)).slice(0, 6);
     },
     [data?.bestSellingProducts]
   );
@@ -77,7 +81,7 @@ export const HomePage: React.FC = () => {
         return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
       };
 
-  return list.filter((p) => isToday((p as Product & { harvestDate?: string }).harvestDate ?? (p as Product).createdAt));
+      return list.filter((p) => isToday((p as Product & { harvestDate?: string }).harvestDate ?? (p as Product).createdAt));
     },
     [data?.newProducts]
   );
@@ -87,54 +91,161 @@ export const HomePage: React.FC = () => {
     [data?.banners]
   );
 
-  const aggregatedProducts = useMemo(() => {
-    if (!data) return [] as Product[];
-    const unique = new Map<string, Product>();
-    [...(data.bestSellingProducts ?? []), ...(data.newProducts ?? [])].forEach((product) => {
-      if (product && !unique.has(product.id)) {
-        unique.set(product.id, product);
-      }
-    });
-    return Array.from(unique.values());
-  }, [data]);
+  const normalizeSlug = (value?: string) => (value ?? '').trim().toLowerCase().replace(/_/g, '-');
 
-  const shelfLifeGroups = useMemo(() => {
-    const groups = {
-      week: [] as Product[],
-      twoWeeks: [] as Product[],
-      month: [] as Product[],
-      longTerm: [] as Product[],
-    };
-
-    const sortAndTrim = (items: Product[]) =>
-      items
-        .slice()
-        .sort((a, b) => (a.shelfLife ?? Number.MAX_SAFE_INTEGER) - (b.shelfLife ?? Number.MAX_SAFE_INTEGER))
-        .slice(0, 8);
-
-    aggregatedProducts.forEach((product) => {
-      const shelfLife = product.shelfLife;
-      if (typeof shelfLife !== 'number') {
-        return;
-      }
-      if (shelfLife <= 7) {
-        groups.week.push(product);
-      } else if (shelfLife <= 14) {
-        groups.twoWeeks.push(product);
-      } else if (shelfLife <= 30) {
-        groups.month.push(product);
-      } else {
-        groups.longTerm.push(product);
-      }
+  const collectDescendants = (categories: ProductCategory[], rootIds: string[]) => {
+    const byParent = new Map<string | null | undefined, ProductCategory[]>();
+    categories.forEach((c) => {
+      const list = byParent.get(c.parentId) ?? [];
+      list.push(c);
+      byParent.set(c.parentId, list);
     });
 
-    return {
-      week: sortAndTrim(groups.week),
-      twoWeeks: sortAndTrim(groups.twoWeeks),
-      month: sortAndTrim(groups.month),
-      longTerm: sortAndTrim(groups.longTerm),
+    const visited = new Set<string>();
+    const queue = [...rootIds];
+    while (queue.length) {
+      const current = queue.shift();
+      if (!current || visited.has(current)) continue;
+      visited.add(current);
+      const children = byParent.get(current) ?? [];
+      children.forEach((child) => queue.push(child.id));
+    }
+
+    return Array.from(visited);
+  };
+
+  const findCategoryBySlugOrName = (
+    categories: ProductCategory[],
+    options: { slugs?: string[]; nameIncludes?: string[] }
+  ) => {
+    const slugSet = new Set((options.slugs ?? []).map((s) => normalizeSlug(s)));
+    const nameNeedles = (options.nameIncludes ?? []).map((s) => s.toLowerCase());
+    return categories.find((c) => {
+      const slug = normalizeSlug(c.slug);
+      const name = (c.name ?? '').toLowerCase();
+      const matchesSlug = slug && slugSet.size > 0 ? slugSet.has(slug) : false;
+      const matchesName = nameNeedles.length > 0 ? nameNeedles.some((n) => name.includes(n)) : false;
+      return matchesSlug || matchesName;
+    });
+  };
+
+  useEffect(() => {
+    if (!data?.categories?.length) return;
+
+    const loadCategoryShelves = async () => {
+      setIsCategoryShelvesLoading(true);
+      try {
+        const categories = data.categories;
+
+        const shelves: Array<{
+          key: string;
+          title: string;
+          subtitle: string;
+          categoryIds: string[];
+        }> = [];
+
+        const isVi = locale?.toLowerCase().startsWith('vi');
+
+        const seafood = findCategoryBySlugOrName(categories, { slugs: ['hai-san'], nameIncludes: ['hải sản'] });
+        if (seafood?.id) {
+          shelves.push({
+            key: 'seafood',
+            title: isVi ? 'Hải sản' : 'Seafood',
+            subtitle: isVi ? 'Tươi sống mỗi ngày' : 'Fresh seafood daily',
+            categoryIds: [seafood.id],
+          });
+        }
+
+        const meat = findCategoryBySlugOrName(categories, { slugs: ['thit'], nameIncludes: ['thịt'] });
+        if (meat?.id) {
+          shelves.push({
+            key: 'meat',
+            title: isVi ? 'Thịt' : 'Meat',
+            subtitle: isVi ? 'Chọn lọc nguồn gốc rõ ràng' : 'Carefully selected cuts',
+            categoryIds: [meat.id],
+          });
+        }
+
+        const vegetableRoots = categories.filter((c) => {
+          const slug = normalizeSlug(c.slug);
+          const name = (c.name ?? '').toLowerCase();
+          return slug.includes('rau') || name.includes('rau');
+        });
+
+        const vegetableIds = collectDescendants(categories, vegetableRoots.map((c) => c.id));
+
+        if (vegetableIds.length) {
+          shelves.push({
+            key: 'vegetables',
+            title: isVi ? 'Rau' : 'Vegetables',
+            subtitle: isVi ? 'Rau củ tươi ngon' : 'Fresh vegetables',
+            categoryIds: vegetableIds,
+          });
+        }
+
+        const eggs = findCategoryBySlugOrName(categories, { slugs: ['eggs', 'trung'], nameIncludes: ['trứng'] });
+        const milk = findCategoryBySlugOrName(categories, { slugs: ['sua', 'milk'], nameIncludes: ['sữa'] });
+        const eggsMilkIds = [eggs?.id, milk?.id].filter(Boolean) as string[];
+        if (eggsMilkIds.length) {
+          shelves.push({
+            key: 'eggsMilk',
+            title: isVi ? 'Trứng & Sữa' : 'Eggs & Milk',
+            subtitle: isVi ? 'Bữa sáng dinh dưỡng' : 'Daily essentials',
+            categoryIds: eggsMilkIds,
+          });
+        }
+
+        const fruits = findCategoryBySlugOrName(categories, { slugs: ['trai-cay'], nameIncludes: ['trái cây'] });
+        if (fruits?.id) {
+          shelves.push({
+            key: 'fruits',
+            title: isVi ? 'Trái cây' : 'Fruits',
+            subtitle: isVi ? 'Giàu vitamin, tươi ngon' : 'Fresh & full of vitamins',
+            categoryIds: [fruits.id],
+          });
+        }
+
+        const fetchForShelf = async (categoryIds: string[]) => {
+          const results = await Promise.allSettled(
+            categoryIds.map((categoryId) =>
+              container.getProductsUseCase.execute({ category: categoryId, limit: 12, sortBy: 'createdAt', order: 'desc' })
+            )
+          );
+          const unique = new Map<string, Product>();
+          results.forEach((r) => {
+            if (r.status !== 'fulfilled') return;
+            (r.value.products ?? []).forEach((p) => {
+              if (p && !unique.has(p.id)) unique.set(p.id, p);
+            });
+          });
+          return Array.from(unique.values()).slice(0, 6);
+        };
+
+        const shelfResults = await Promise.all(
+          shelves.map(async (s) => ({
+            key: s.key,
+            title: s.title,
+            subtitle: s.subtitle,
+            products: await fetchForShelf(s.categoryIds),
+          }))
+        );
+
+        setCategoryShelves((prev) => {
+          const next = { ...prev };
+          shelfResults.forEach((r) => {
+            next[r.key] = r.products;
+          });
+          return next;
+        });
+      } catch (e) {
+        console.error('Error loading category shelves:', e);
+      } finally {
+        setIsCategoryShelvesLoading(false);
+      }
     };
-  }, [aggregatedProducts]);
+
+    loadCategoryShelves();
+  }, [data?.categories, locale]);
 
   if (isLoading) {
     return <LoadingState t={t} />;
@@ -180,47 +291,60 @@ export const HomePage: React.FC = () => {
           products={displayedBestSellers}
           href="/main/products"
           seeAllLabel={t('seeAll')}
+          variant="bestSeller"
         />
 
         <ProductShelf
-          title={t('sections.newArrivals.title')}
-          subtitle={t('sections.newArrivals.subtitle')}
+          title={locale?.toLowerCase().startsWith('vi') ? 'Sản phẩm thu hoạch hôm nay' : 'Harvested Today'}
+          subtitle={locale?.toLowerCase().startsWith('vi') ? 'Tươi mới trong ngày' : 'Freshly harvested today'}
           products={displayedNewProducts}
           href="/main/products"
           seeAllLabel={t('seeAll')}
         />
 
-        <ProductShelf
-          title={t('sections.shelfLife.week.title')}
-          subtitle={t('sections.shelfLife.week.subtitle')}
-          products={shelfLifeGroups.week}
-          href="/main/products"
-          seeAllLabel={t('seeAll')}
-        />
+        {!isCategoryShelvesLoading && (
+          <>
+            <ProductShelf
+              title={locale?.toLowerCase().startsWith('vi') ? 'Hải sản' : 'Seafood'}
+              subtitle={locale?.toLowerCase().startsWith('vi') ? 'Tươi sống mỗi ngày' : 'Fresh seafood daily'}
+              products={categoryShelves.seafood ?? []}
+              href="/main/products"
+              seeAllLabel={t('seeAll')}
+            />
 
-        <ProductShelf
-          title={t('sections.shelfLife.twoWeeks.title')}
-          subtitle={t('sections.shelfLife.twoWeeks.subtitle')}
-          products={shelfLifeGroups.twoWeeks}
-          href="/main/products"
-          seeAllLabel={t('seeAll')}
-        />
+            <ProductShelf
+              title={locale?.toLowerCase().startsWith('vi') ? 'Thịt' : 'Meat'}
+              subtitle={locale?.toLowerCase().startsWith('vi') ? 'Chọn lọc nguồn gốc rõ ràng' : 'Carefully selected cuts'}
+              products={categoryShelves.meat ?? []}
+              href="/main/products"
+              seeAllLabel={t('seeAll')}
+            />
 
-        <ProductShelf
-          title={t('sections.shelfLife.month.title')}
-          subtitle={t('sections.shelfLife.month.subtitle')}
-          products={shelfLifeGroups.month}
-          href="/main/products"
-          seeAllLabel={t('seeAll')}
-        />
+            <ProductShelf
+              title={locale?.toLowerCase().startsWith('vi') ? 'Rau' : 'Vegetables'}
+              subtitle={locale?.toLowerCase().startsWith('vi') ? 'Rau củ tươi ngon' : 'Fresh vegetables'}
+              products={categoryShelves.vegetables ?? []}
+              href="/main/products"
+              seeAllLabel={t('seeAll')}
+            />
 
-        <ProductShelf
-          title={t('sections.shelfLife.longTerm.title')}
-          subtitle={t('sections.shelfLife.longTerm.subtitle')}
-          products={shelfLifeGroups.longTerm}
-          href="/main/products"
-          seeAllLabel={t('seeAll')}
-        />
+            <ProductShelf
+              title={locale?.toLowerCase().startsWith('vi') ? 'Trứng & Sữa' : 'Eggs & Milk'}
+              subtitle={locale?.toLowerCase().startsWith('vi') ? 'Bữa sáng dinh dưỡng' : 'Daily essentials'}
+              products={categoryShelves.eggsMilk ?? []}
+              href="/main/products"
+              seeAllLabel={t('seeAll')}
+            />
+
+            <ProductShelf
+              title={locale?.toLowerCase().startsWith('vi') ? 'Trái cây' : 'Fruits'}
+              subtitle={locale?.toLowerCase().startsWith('vi') ? 'Giàu vitamin, tươi ngon' : 'Fresh & full of vitamins'}
+              products={categoryShelves.fruits ?? []}
+              href="/main/products"
+              seeAllLabel={t('seeAll')}
+            />
+          </>
+        )}
       </div>
     </div>
   );
@@ -351,12 +475,20 @@ const ProductShelf: React.FC<{
   products: Product[];
   href: string;
   seeAllLabel: string;
-}> = ({ title, subtitle, products, href, seeAllLabel }) => {
+  variant?: 'bestSeller';
+}> = ({ title, subtitle, products, href, seeAllLabel, variant }) => {
   if (!products.length) return null;
 
+  const isBestSeller = variant === 'bestSeller';
+
   return (
-    <section className="space-y-3 sm:space-y-4">
+    <section className={`space-y-3 sm:space-y-4 ${isBestSeller ? 'rounded-2xl border border-orange-100 bg-gradient-to-r from-orange-50 via-white to-amber-50 p-3 sm:p-5 shadow-sm' : ''}`}>
       <SectionHeader title={title} subtitle={subtitle} href={href} ctaLabel={seeAllLabel} />
+      {isBestSeller && (
+        <p className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-orange-700">
+          <span aria-hidden>🔥</span> {subtitle}
+        </p>
+      )}
       {/* Responsive grid - 2 cột mobile, 3 tablet, 4-5 desktop, 6 màn lớn */}
       <div className="grid grid-cols-2 gap-2.5 sm:gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6">
         {products.map((product) => (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { ORDER_STATUS, OrderStatus } from '@/domain/entities/Order';
@@ -53,6 +53,7 @@ export const OrdersPage = () => {
 
   const {
     orders,
+    pagination,
     orderStats,
     isLoading,
     isStatsLoading,
@@ -60,6 +61,7 @@ export const OrdersPage = () => {
     statsError,
     filterStatus,
     setFilterStatus,
+    handlePageChange,
     refresh,
   } = useOrdersViewModel({
     getOrdersUseCase,
@@ -95,6 +97,19 @@ export const OrdersPage = () => {
     },
     [setFilterStatus]
   );
+
+  const handlePaginationChange = useCallback(
+    (page: number) => {
+      handlePageChange(page);
+    },
+    [handlePageChange]
+  );
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [pagination?.page]);
 
   const handleOpenCancelDialog = (orderId: string, orderNumber: string) => {
     setCancelDialogState({
@@ -161,6 +176,36 @@ export const OrdersPage = () => {
           <OrdersEmptyState filterStatus={filterStatus} />
         )}
       </div>
+
+      {pagination && pagination.totalPages > 1 && (
+        <div className="mt-8 flex flex-col items-center justify-between gap-3 text-sm text-gray-600 sm:flex-row">
+          <div>
+            {t('paginationInfo', {
+              page: pagination.page,
+              totalPages: pagination.totalPages,
+              total: pagination.total,
+            })}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handlePaginationChange(pagination.page - 1)}
+              disabled={pagination.page <= 1 || isLoading}
+              className="inline-flex items-center rounded-md border border-gray-300 px-3 py-1.5 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {t('prevPage', { defaultValue: 'Trước' })}
+            </button>
+            <button
+              type="button"
+              onClick={() => handlePaginationChange(pagination.page + 1)}
+              disabled={pagination.page >= pagination.totalPages || isLoading}
+              className="inline-flex items-center rounded-md border border-gray-300 px-3 py-1.5 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {t('nextPage', { defaultValue: 'Sau' })}
+            </button>
+          </div>
+        </div>
+      )}
 
       <CancelOrderDialog
         isOpen={cancelDialogState.isOpen}

@@ -57,7 +57,8 @@ export function SiteFooter() {
   const t = useTranslations('footer');
   const locale = useLocale();
   const pathname = usePathname();
-  const shouldHideFooter = pathname?.includes('/livestream');
+  const hiddenSegments = ['/livestream', '/auth/login', '/auth/register'];
+  const shouldHideFooter = hiddenSegments.some((segment) => pathname?.includes(segment));
 
   const customerServiceLinks: LinkItem[] = useMemo(
     () => [

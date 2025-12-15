@@ -17,11 +17,12 @@ const ProductCard: React.FC<{ product: MockProduct }> = ({ product }) => {
   const sellerName = product.owner?.userName || product.owner?.email || t('seller');
   const soldCount = product.sold || 0;
   const stockCount = product.stock || 0;
+  const isBestSeller = product.isBestSeller || soldCount >= 50;
   const isOutOfStock = stockCount <= 0;
 
   return (
     <div
-      className={`bg-white hover:shadow-md transition-shadow border border-gray-100 rounded-lg overflow-hidden ${isOutOfStock ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
+      className={`relative bg-white hover:shadow-md transition-shadow border border-gray-100 rounded-lg overflow-hidden ${isOutOfStock ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
       onClick={() => {
         if (!isOutOfStock) handleClick();
       }}
@@ -41,6 +42,11 @@ const ProductCard: React.FC<{ product: MockProduct }> = ({ product }) => {
           height={400}
           className="w-full h-full object-cover"
         />
+        {isBestSeller && (
+          <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-orange-500/90 px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow-sm">
+            🔥 {t('bestSeller')}
+          </span>
+        )}
         {isOutOfStock && (
           <div className="absolute inset-0 bg-black/35 flex items-center justify-center">
             <span className="m-2 flex rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white shadow-md">

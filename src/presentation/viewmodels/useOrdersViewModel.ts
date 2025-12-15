@@ -26,14 +26,9 @@ export const useOrdersViewModel = ({
   const [isStatsLoading, setIsStatsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statsError, setStatsError] = useState<string | null>(null);
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>('ALL');
-
-  const baseFilters = useMemo(() => {
-    return {
-      page: initialFilters?.page ?? 1,
-      limit: initialFilters?.limit ?? 10,
-    } satisfies Partial<OrderListFilters>;
-  }, [initialFilters?.limit, initialFilters?.page]);
+  const [filterStatus, setFilterStatusState] = useState<FilterStatus>('ALL');
+  const [page, setPage] = useState(initialFilters?.page ?? 1);
+  const [limit] = useState(initialFilters?.limit ?? 10);
 
   const loadOrders = useCallback(async () => {
     try {
@@ -41,7 +36,8 @@ export const useOrdersViewModel = ({
       setError(null);
 
       const filters: OrderListFilters = {
-        ...baseFilters,
+        page,
+        limit,
       };
 
       if (filterStatus !== 'ALL') {
@@ -57,7 +53,7 @@ export const useOrdersViewModel = ({
     } finally {
       setIsLoading(false);
     }
-  }, [baseFilters, filterStatus, getOrdersUseCase]);
+  }, [filterStatus, getOrdersUseCase, limit, page]);
 
   const loadStatistics = useCallback(async () => {
     try {
@@ -81,6 +77,20 @@ export const useOrdersViewModel = ({
     loadOrders();
   }, [loadOrders]);
 
+  const setFilterStatus = useCallback((status: FilterStatus) => {
+    setFilterStatusState(status);
+    setPage(1);
+  }, []);
+
+  const handlePageChange = useCallback(
+    (nextPage: number) => {
+      if (nextPage < 1) return;
+      if (pagination?.totalPages && nextPage > pagination.totalPages) return;
+      setPage(nextPage);
+    },
+    [pagination?.totalPages]
+  );
+
   const refresh = useCallback(async () => {
     await Promise.allSettled([loadOrders(), loadStatistics()]);
   }, [loadOrders, loadStatistics]);
@@ -95,6 +105,8 @@ export const useOrdersViewModel = ({
     statsError,
     filterStatus,
     setFilterStatus,
+    pagination,
+    handlePageChange,
     refresh,
   };
 };

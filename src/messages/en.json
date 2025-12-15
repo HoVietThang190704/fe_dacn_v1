@@ -382,6 +382,7 @@
     "available": "Available",
     "discountLabel": "{discount}% OFF",
     "sold": "Sold",
+    "bestSeller": "Best seller",
     "outOfStock": "Out of stock",
     "inStock": "{count} in stock",
     "soldCount": "{count} sold"
