@@ -105,7 +105,6 @@ export const useOrdersViewModel = ({
     statsError,
     filterStatus,
     setFilterStatus,
-    pagination,
     handlePageChange,
     refresh,
   };
