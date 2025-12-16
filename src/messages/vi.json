@@ -1496,5 +1496,11 @@
     "selectedImages": "Ảnh đã chọn ({count}/{max})",
     "add": "Thêm ảnh",
     "remove": "Xóa ảnh"
+  },
+  "accountLocked": {
+    "title": "Tài khoản đã bị khóa",
+    "message": "Tài khoản của bạn đã bị khóa do vi phạm chính sách của chúng tôi hoặc theo yêu cầu của quản trị viên.",
+    "contactSupport": "Nếu bạn cho rằng đây là lỗi, vui lòng liên hệ bộ phận hỗ trợ để được giải quyết.",
+    "logoutButton": "Đăng xuất"
   }
 }

@@ -1498,5 +1498,11 @@
     "selectedImages": "Selected images ({count}/{max})",
     "add": "Add images",
     "remove": "Remove image"
+  },
+  "accountLocked": {
+    "title": "Account Locked",
+    "message": "Your account has been locked due to a violation of our policies or by administrator request.",
+    "contactSupport": "If you believe this is an error, please contact support for assistance.",
+    "logoutButton": "Logout"
   }
 }

@@ -18,6 +18,7 @@ export interface User {
   dateOfBirth?: string | null;
   createdAt?: string | null;
   updatedAt?: string | null;
+  locked?: boolean;
 }
 
 export interface UpdateUserDto {

@@ -5,6 +5,7 @@ import EmotionProvider from '@/shared/providers/EmotionProvider';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { SiteFooter } from '@/components/layout/SiteFooter';
 import AiAssistantMount from '@/presentation/components/ai-assistant/AiAssistantMount';
+import AccountLockedProvider from '@/shared/providers/AccountLockedProvider';
 
 export default async function LocaleLayout({
   children,
@@ -18,10 +19,12 @@ export default async function LocaleLayout({
     <EmotionProvider>
       <GoogleOAuthProvider clientId={googleClientId}>
         <NextIntlClientProvider messages={messages}>
-          {/* <LanguageSwitcher /> */}
-          {children}
-          <SiteFooter />
-          <AiAssistantMount />
+          <AccountLockedProvider>
+            {/* <LanguageSwitcher /> */}
+            {children}
+            <SiteFooter />
+            <AiAssistantMount />
+          </AccountLockedProvider>
         </NextIntlClientProvider>
       </GoogleOAuthProvider>
     </EmotionProvider>
