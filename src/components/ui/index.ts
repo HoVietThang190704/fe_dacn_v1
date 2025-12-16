@@ -6,6 +6,7 @@ export { default as LanguageSwitcher } from './LanguageSwitcher';
 export { PageLoader } from './PageLoader';
 export { MenuButton } from './MenuButton';
 export { UserDropdown } from './UserDropdown';
+export { AccountLockedPopup } from './AccountLockedPopup';
 
 // Auth-specific Components
 export { GoogleSignInButton } from './GoogleSignInButton';

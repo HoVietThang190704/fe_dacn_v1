@@ -14,6 +14,7 @@ export interface User {
   isVerified: boolean;
   avatar?: string;
   address?: UserAddress | null;
+  locked?: boolean;
 }
 
 export function useAuth() {
@@ -52,10 +53,11 @@ export function useAuth() {
     if ('avatar' in candidate && candidate.avatar) out.avatar = String(candidate.avatar);
     else if ('image' in candidate && candidate.image) out.avatar = String(candidate.image);
     else if ('avatarUrl' in candidate && candidate.avatarUrl) out.avatar = String(candidate.avatarUrl);
-    // phone, role, isVerified
+    // phone, role, isVerified, locked
     if ('phone' in candidate && candidate.phone) out.phone = String(candidate.phone);
     if ('role' in candidate && candidate.role) out.role = String(candidate.role);
     if ('isVerified' in candidate) out.isVerified = Boolean(candidate.isVerified);
+    if ('locked' in candidate) out.locked = Boolean(candidate.locked);
 
     return out;
   };
@@ -122,33 +124,68 @@ export function useAuth() {
           // Set token to container immediately after login
           postCommentContainer.setAuthToken(result.data.accessToken);
           
-          // Fetch full profile to get avatar
+          // Fetch full profile to get avatar and locked status
           try {
             const profileResult = await usersAPI.getMyProfile(result.data.accessToken);
             console.log('Profile result after login:', profileResult);
             if (profileResult && profileResult.success && profileResult.data) {
               console.log('Profile data:', profileResult.data);
               const normalized = extractProfileFromPayload(profileResult.data);
-              const fullUser = { ...result.data.user, ...(normalized || {}) };
+              const fullUser = { ...result.data.user, ...(normalized || {}) } as User;
               console.log('Full user after merge:', fullUser);
+
+              if (fullUser.locked) {
+                console.warn('Login blocked: account locked');
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
+                setUser(null);
+                setIsAuthenticated(false);
+                setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.');
+                return false;
+              }
+
               localStorage.setItem('user', JSON.stringify(fullUser));
               setUser(fullUser);
             } else {
               console.log('Profile fetch failed, using login user data');
               // Fallback to login user data
-              localStorage.setItem('user', JSON.stringify(result.data.user));
-              setUser(result.data.user);
+              const fallbackUser = result.data.user as User;
+              if ((fallbackUser as any)?.locked) {
+                console.warn('Login blocked: account locked (fallback user)');
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
+                setUser(null);
+                setIsAuthenticated(false);
+                setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.');
+                return false;
+              }
+              localStorage.setItem('user', JSON.stringify(fallbackUser));
+              setUser(fallbackUser);
             }
           } catch (profileError) {
             console.error('Failed to fetch profile after login:', profileError);
             // Fallback to login user data
-            localStorage.setItem('user', JSON.stringify(result.data.user));
-            setUser(result.data.user);
+            const fallbackUser = result.data.user as User;
+            if ((fallbackUser as any)?.locked) {
+              console.warn('Login blocked: account locked (fallback user)');
+              localStorage.removeItem('authToken');
+              localStorage.removeItem('refreshToken');
+              localStorage.removeItem('user');
+              setUser(null);
+              setIsAuthenticated(false);
+              setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.');
+              return false;
+            }
+            localStorage.setItem('user', JSON.stringify(fallbackUser));
+            setUser(fallbackUser);
           }
           
           setIsAuthenticated(true);
         }
 
+        // Only redirect if not locked
         router.push('/main');
         return true;
       } else {
@@ -243,16 +280,48 @@ export function useAuth() {
             if (profileResult && profileResult.success && profileResult.data) {
               const normalized = extractProfileFromPayload(profileResult.data);
               const fullUser = { ...result.data.user, ...(normalized || {}) } as User;
+              if (fullUser.locked) {
+                console.warn('Google login blocked: account locked');
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
+                setUser(null);
+                setIsAuthenticated(false);
+                setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.');
+                return false;
+              }
               localStorage.setItem('user', JSON.stringify(fullUser));
               setUser(fullUser);
             } else {
-              localStorage.setItem('user', JSON.stringify(result.data.user));
-              setUser(result.data.user as User);
+              const fallbackUser = result.data.user as User;
+              if ((fallbackUser as any)?.locked) {
+                console.warn('Google login blocked: account locked (fallback user)');
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
+                setUser(null);
+                setIsAuthenticated(false);
+                setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.');
+                return false;
+              }
+              localStorage.setItem('user', JSON.stringify(fallbackUser));
+              setUser(fallbackUser);
             }
           } catch (profileError) {
             console.error('Failed to fetch profile after google login:', profileError);
-            localStorage.setItem('user', JSON.stringify(result.data.user));
-            setUser(result.data.user as User);
+            const fallbackUser = result.data.user as User;
+            if ((fallbackUser as any)?.locked) {
+              console.warn('Google login blocked: account locked (fallback user)');
+              localStorage.removeItem('authToken');
+              localStorage.removeItem('refreshToken');
+              localStorage.removeItem('user');
+              setUser(null);
+              setIsAuthenticated(false);
+              setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.');
+              return false;
+            }
+            localStorage.setItem('user', JSON.stringify(fallbackUser));
+            setUser(fallbackUser);
           }
 
           setIsAuthenticated(true);
@@ -302,16 +371,48 @@ export function useAuth() {
             if (profileResult && profileResult.success && profileResult.data) {
               const normalized = extractProfileFromPayload(profileResult.data);
               const fullUser = { ...result.data.user, ...(normalized || {}) } as User;
+              if (fullUser.locked) {
+                console.warn('Facebook login blocked: account locked');
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
+                setUser(null);
+                setIsAuthenticated(false);
+                setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.');
+                return false;
+              }
               localStorage.setItem('user', JSON.stringify(fullUser));
               setUser(fullUser);
             } else {
-              localStorage.setItem('user', JSON.stringify(result.data.user));
-              setUser(result.data.user as User);
+              const fallbackUser = result.data.user as User;
+              if ((fallbackUser as any)?.locked) {
+                console.warn('Facebook login blocked: account locked (fallback user)');
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
+                setUser(null);
+                setIsAuthenticated(false);
+                setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.');
+                return false;
+              }
+              localStorage.setItem('user', JSON.stringify(fallbackUser));
+              setUser(fallbackUser);
             }
           } catch (profileError) {
             console.error('Failed to fetch profile after facebook login:', profileError);
-            localStorage.setItem('user', JSON.stringify(result.data.user));
-            setUser(result.data.user as User);
+            const fallbackUser = result.data.user as User;
+            if ((fallbackUser as any)?.locked) {
+              console.warn('Facebook login blocked: account locked (fallback user)');
+              localStorage.removeItem('authToken');
+              localStorage.removeItem('refreshToken');
+              localStorage.removeItem('user');
+              setUser(null);
+              setIsAuthenticated(false);
+              setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.');
+              return false;
+            }
+            localStorage.setItem('user', JSON.stringify(fallbackUser));
+            setUser(fallbackUser);
           }
 
           setIsAuthenticated(true);
@@ -358,16 +459,48 @@ export function useAuth() {
             if (profileResult && profileResult.success && profileResult.data) {
               const normalized = extractProfileFromPayload(profileResult.data);
               const fullUser = { ...result.data.user, ...(normalized || {}) } as User;
+              if (fullUser.locked) {
+                console.warn('Firebase login blocked: account locked');
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
+                setUser(null);
+                setIsAuthenticated(false);
+                setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.');
+                return false;
+              }
               localStorage.setItem('user', JSON.stringify(fullUser));
               setUser(fullUser);
             } else {
-              localStorage.setItem('user', JSON.stringify(result.data.user));
-              setUser(result.data.user as User);
+              const fallbackUser = result.data.user as User;
+              if ((fallbackUser as any)?.locked) {
+                console.warn('Firebase login blocked: account locked (fallback user)');
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
+                setUser(null);
+                setIsAuthenticated(false);
+                setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.');
+                return false;
+              }
+              localStorage.setItem('user', JSON.stringify(fallbackUser));
+              setUser(fallbackUser);
             }
           } catch (profileError) {
             console.error('Failed to fetch profile after firebase login:', profileError);
-            localStorage.setItem('user', JSON.stringify(result.data.user));
-            setUser(result.data.user as User);
+            const fallbackUser = result.data.user as User;
+            if ((fallbackUser as any)?.locked) {
+              console.warn('Firebase login blocked: account locked (fallback user)');
+              localStorage.removeItem('authToken');
+              localStorage.removeItem('refreshToken');
+              localStorage.removeItem('user');
+              setUser(null);
+              setIsAuthenticated(false);
+              setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.');
+              return false;
+            }
+            localStorage.setItem('user', JSON.stringify(fallbackUser));
+            setUser(fallbackUser);
           }
 
           setIsAuthenticated(true);
@@ -428,16 +561,48 @@ export function useAuth() {
             if (profileResult && profileResult.success && profileResult.data) {
               const normalized = extractProfileFromPayload(profileResult.data);
               const fullUser = { ...result.data.user, ...(normalized || {}) } as User;
+              if (fullUser.locked) {
+                console.warn('Phone login blocked: account locked');
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
+                setUser(null);
+                setIsAuthenticated(false);
+                setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.');
+                return false;
+              }
               localStorage.setItem('user', JSON.stringify(fullUser));
               setUser(fullUser);
             } else {
-              localStorage.setItem('user', JSON.stringify(result.data.user));
-              setUser(result.data.user as User);
+              const fallbackUser = result.data.user as User;
+              if ((fallbackUser as any)?.locked) {
+                console.warn('Phone login blocked: account locked (fallback user)');
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
+                setUser(null);
+                setIsAuthenticated(false);
+                setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.');
+                return false;
+              }
+              localStorage.setItem('user', JSON.stringify(fallbackUser));
+              setUser(fallbackUser);
             }
           } catch (profileError) {
             console.error('Failed to fetch profile after phone login:', profileError);
-            localStorage.setItem('user', JSON.stringify(result.data.user));
-            setUser(result.data.user as User);
+            const fallbackUser = result.data.user as User;
+            if ((fallbackUser as any)?.locked) {
+              console.warn('Phone login blocked: account locked (fallback user)');
+              localStorage.removeItem('authToken');
+              localStorage.removeItem('refreshToken');
+              localStorage.removeItem('user');
+              setUser(null);
+              setIsAuthenticated(false);
+              setError('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.');
+              return false;
+            }
+            localStorage.setItem('user', JSON.stringify(fallbackUser));
+            setUser(fallbackUser);
           }
 
           setIsAuthenticated(true);
