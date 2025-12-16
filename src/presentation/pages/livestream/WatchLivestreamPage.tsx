@@ -27,8 +27,9 @@ interface WatchLivestreamPageProps {
 export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livestreamId }) => {
   const t = useTranslations('livestream');
   const locale = useLocale();
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const router = useRouter();
+  const shouldRedirectToLogin = !authLoading && !isAuthenticated;
 
   const [livestream, setLivestream] = useState<Livestream | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -254,7 +255,11 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
   }, [livestreamId, joinLivestream, t]);
 
   useEffect(() => {
-    loadLivestream();
+    if (authLoading) return;
+    if (!isAuthenticated) {
+      router.push('/auth/login');
+      return;
+    }
 
     const handleBeforeUnload = () => {
       try {
@@ -273,6 +278,8 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
       } catch {
       }
     };
+
+    loadLivestream();
 
     window.addEventListener('beforeunload', handleBeforeUnload);
 
@@ -294,7 +301,7 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
         clientRef.current = null;
       }
     };
-  }, [loadLivestream]);
+  }, [authLoading, isAuthenticated, loadLivestream, router]);
 
   useEffect(() => {
     if (!user || !livestreamId) return;
@@ -406,6 +413,10 @@ export const WatchLivestreamPage: React.FC<WatchLivestreamPageProps> = ({ livest
       setNeedsAudioPermission(false);
     } catch {}
   };
+
+  if (shouldRedirectToLogin) {
+    return null;
+  }
 
   if (isLoading) {
     return (
