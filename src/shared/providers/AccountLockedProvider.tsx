@@ -162,7 +162,7 @@ export function AccountLockedProvider({ children }: { children: React.ReactNode 
       checkAccountStatus();
     };
 
-    document.addEventListener('storage', handleStorageChange);
+    window.addEventListener('storage', handleStorageChange);
     document.addEventListener('visibilitychange', handleVisibility);
     window.addEventListener('focus', handleFocus);
 
