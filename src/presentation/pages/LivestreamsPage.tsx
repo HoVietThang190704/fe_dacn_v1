@@ -13,7 +13,7 @@ import { ICONS } from '@/shared/constants/images';
 export const LivestreamsPage: React.FC = () => {
   const t = useTranslations('livestream');
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const {
     activeLivestreams,
     scheduledLivestreams,
@@ -22,6 +22,17 @@ export const LivestreamsPage: React.FC = () => {
   } = useLivestreams();
 
   const [activeTab, setActiveTab] = React.useState<'live' | 'scheduled'>('live');
+
+  React.useEffect(() => {
+    if (authLoading) return;
+    if (!isAuthenticated) {
+      router.push('/auth/login');
+    }
+  }, [authLoading, isAuthenticated, router]);
+
+  if (!authLoading && !isAuthenticated) {
+    return null;
+  }
 
   const handleStartStream = (livestreamId: string) => router.push(`/main/livestream/${livestreamId}/host`);
 
