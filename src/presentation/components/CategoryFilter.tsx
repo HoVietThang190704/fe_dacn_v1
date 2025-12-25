@@ -100,13 +100,15 @@ const CategoryFilter: React.FC<Props> = ({ categories, selectedCategory = '', on
                   : 'bg-gradient-to-br from-green-50 to-green-100 text-green-300 hover:from-green-100 hover:to-green-200'
               }`}
             >
-              {CATEGORY_ICONS[category.slug ?? ''] ? (
-                <Image src={CATEGORY_ICONS[category.slug ?? '']} alt={category.name} width={32} height={32} className={`w-7 h-7 sm:w-8 sm:h-8 transition-transform ${selectedCategory === category.id ? 'group-hover:scale-110' : 'group-hover:scale-110'}`} unoptimized/>
-              ) : category.icon ? (
-                <Image src={category.icon} alt={category.name} width={32} height={32} className={`w-7 h-7 sm:w-8 sm:h-8 transition-transform ${selectedCategory === category.id ? 'group-hover:scale-110' : 'group-hover:scale-110'}`} unoptimized/>
-              ) : (
-                <Image src={ICONS.GOODS} alt={category.name} width={32} height={32} className={`w-7 h-7 sm:w-8 sm:h-8 transition-transform ${selectedCategory === category.id ? 'group-hover:scale-110' : 'group-hover:scale-110'}`} unoptimized/>
-              )}
+              {(() => {
+                const candidate = CATEGORY_ICONS[category.slug ?? ''] ?? category.icon ?? ICONS.GOODS
+                const isImage = typeof candidate === 'string' && (candidate.startsWith('/') || candidate.startsWith('http') || candidate.startsWith('data:') || /\.(png|jpe?g|svg|gif|webp)(\?.*)?$/.test(candidate))
+                return isImage ? (
+                  <Image src={candidate as string} alt={category.name} width={32} height={32} className={`w-7 h-7 sm:w-8 sm:h-8 transition-transform ${selectedCategory === category.id ? 'group-hover:scale-110' : 'group-hover:scale-110'}`} unoptimized/>
+                ) : (
+                  <span className="text-2xl">{candidate}</span>
+                )
+              })()} 
             </div>
             <span className={`text-xs sm:text-sm text-center transition-colors w-full px-1 ${selectedCategory === category.id ? 'text-gray-700 font-semibold' : 'text-gray-700'} line-clamp-2`}>{category.name}</span>
           </button>

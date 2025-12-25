@@ -11,11 +11,15 @@ import ProductGallery from '@/presentation/components/product-detail/ProductGall
 import PurchaseCard from '@/presentation/components/product-detail/PurchaseCard';
 import ReviewSection from '@/presentation/components/product-detail/ReviewSection';
 import LoadingState from '@/presentation/components/ui/LoadingState';
+import ProductCard from '@/presentation/components/ProductCard';
 import ErrorState from '@/presentation/components/ui/ErrorState';
 import NotFoundState from '@/presentation/components/ui/NotFoundState';
 import Icon from '@/presentation/components/ui/Icon';
 import { ShareDialog } from '@/presentation/components/share/ShareDialog';
 import { container } from '@/presentation/di/container';
+import { API_CONFIG, API_ENDPOINTS } from '@/shared/constants/api';
+import { mapProductDtoToDomain } from '@/data/datasources/ProductApiDataSource';
+import { Product } from '@/domain/entities/Product';
 import { useProductDetailViewModel } from '@/presentation/viewmodels/useProductDetailViewModel';
 import { useAuth } from '@/shared/hooks/useAuth';
 import { ProductReview } from '@/domain/entities/ProductReview';
@@ -78,6 +82,45 @@ export const ProductDetailPage: React.FC = () => {
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState('');
   const [isProductShareOpen, setProductShareOpen] = useState(false);
+  const [recommendations, setRecommendations] = useState<Product[]>([]);
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
+  const [recommendationsError, setRecommendationsError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Fetch recommendations when product is available
+    if (!product || !product.id) {
+      setRecommendations([]);
+      return;
+    }
+
+    let cancelled = false;
+    const fetchRecommendations = async () => {
+      try {
+        setIsLoadingRecommendations(true);
+        setRecommendationsError(null);
+        const url = `${API_CONFIG.BASE_URL}${API_ENDPOINTS.PRODUCT_RECOMMENDATIONS(product.id)}?k=6`;
+        const resp = await fetch(url, { credentials: 'include' });
+        const payload = await resp.json();
+        if (!resp.ok) {
+          const msg = payload?.message || resp.statusText || 'Failed to fetch recommendations';
+          throw new Error(msg);
+        }
+        const hits = Array.isArray(payload?.data?.recommendations) ? payload.data.recommendations : [];
+        const mapped = hits
+          .map((h: any) => h.product)
+          .filter(Boolean)
+          .map((dto: any) => mapProductDtoToDomain(dto));
+        if (!cancelled) setRecommendations(mapped.slice(0, 6));
+      } catch (err: any) {
+        if (!cancelled) setRecommendationsError(err?.message || String(err));
+      } finally {
+        if (!cancelled) setIsLoadingRecommendations(false);
+      }
+    };
+
+    fetchRecommendations();
+    return () => { cancelled = true; };
+  }, [product]);
   const cartActionMessage = cartMessage ? translateCart(`messages.${cartMessage}`) : null;
   const {
     isFavorite: isFavoriteHook,
@@ -358,6 +401,42 @@ export const ProductDetailPage: React.FC = () => {
           handleSubmitReview={handleSubmitReview}
           reviewFormError={reviewFormError}
         />
+
+        {/* Recommendations */}
+        <section className="bg-white rounded-3xl shadow-sm p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">{t('youMayAlsoLike') || 'Có thể bạn quan tâm'}</h2>
+            <div className="text-sm text-gray-500">{isLoadingRecommendations ? 'Đang tải…' : recommendations.length ? `${recommendations.length} gợi ý` : ''}</div>
+          </div>
+
+          {recommendationsError && (
+            <div className="text-sm text-red-500">{recommendationsError}</div>
+          )}
+
+          {!isLoadingRecommendations && recommendations.length === 0 && !recommendationsError && (
+            <div className="text-sm text-gray-500">Không có gợi ý phù hợp</div>
+          )}
+
+          {recommendations.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              {recommendations.map((rec) => (
+                <div key={rec.id}>
+                  <ProductCard product={{
+                    id: rec.id,
+                    name: rec.name,
+                    price: rec.price,
+                    image: rec.image,
+                    images: rec.images || [],
+                    category: rec.category as any || { id: rec.category?.id || '' },
+                    owner: rec.owner as any || { id: rec.owner?.id || '' },
+                    unit: rec.unit || '',
+                    stock: rec.stock || rec.stockQuantity || 0,
+                  }} />
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         <ShareDialog
           open={isProductShareOpen}

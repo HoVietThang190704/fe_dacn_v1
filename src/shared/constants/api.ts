@@ -50,6 +50,8 @@ export const API_ENDPOINTS = {
   PRODUCT_REVIEWS_BY_PRODUCT: (productId: string) => `/api/product-reviews/product/${productId}`,
   PRODUCT_REVIEW_DETAIL: (reviewId: string) => `/api/product-reviews/${reviewId}`,
   PRODUCT_SHARE_INFO: (productId: string) => `/api/products/${productId}/share-info`,
+  PRODUCT_RECOMMENDATIONS: (productId: string) => `/api/products/${productId}/recommendations`,
+  PRODUCT_RECOMMENDATIONS_BY_TEXT: '/api/products/recommendations/by-text',
   
   // Orders (user-specific endpoints under /api/users/me/... as per docs)
   ORDERS: '/api/users/me/orders',

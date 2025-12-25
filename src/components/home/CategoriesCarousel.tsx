@@ -59,13 +59,18 @@ export default function CategoriesCarousel({ categories }: { categories: Categor
                 className="flex flex-col items-center group"
               >
               <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl flex items-center justify-center mb-2 transition-all duration-200 group-hover:shadow-md group-hover:scale-105 group-hover:from-orange-100 group-hover:to-orange-200">
-                <Image 
-                  src={src} 
-                  alt={category.name} 
-                  width={32} 
-                  height={32} 
-                  className="w-7 h-7 sm:w-8 sm:h-8 transition-transform group-hover:scale-110" 
-                />
+                {typeof src === 'string' && (src.startsWith('/') || src.startsWith('http') || src.startsWith('data:') || /\.(png|jpe?g|svg|gif|webp)(\?.*)?$/.test(src)) ? (
+                  <Image
+                    src={src}
+                    alt={category.name}
+                    width={32}
+                    height={32}
+                    className="w-7 h-7 sm:w-8 sm:h-8 transition-transform group-hover:scale-110"
+                    unoptimized
+                  />
+                ) : (
+                  <span className="text-2xl">{src}</span>
+                )}
               </div>
               <span className="text-xs sm:text-sm text-center text-gray-700 group-hover:text-orange-600 transition-colors line-clamp-2 w-full px-1">
                   {category.name}

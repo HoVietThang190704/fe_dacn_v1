@@ -14,7 +14,15 @@ const CategoriesSection: React.FC<{ categories: ProductCategory[] }> = ({ catego
             className="flex flex-col items-center min-w-[100px] cursor-pointer hover:opacity-80"
           >
               <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-2 shadow-md">
-              <Image src={CATEGORY_ICONS[category.slug ?? ''] ?? category.icon ?? ICONS.GOODS} alt={category.name} width={40} height={40} className="w-10 h-10" />
+                {(() => {
+                  const candidate = CATEGORY_ICONS[category.slug ?? ''] ?? category.icon ?? ICONS.GOODS
+                  const isImage = typeof candidate === 'string' && (candidate.startsWith('/') || candidate.startsWith('http') || candidate.startsWith('data:') || /\.(png|jpe?g|svg|gif|webp)(\?.*)?$/.test(candidate))
+                  return isImage ? (
+                    <Image src={candidate as string} alt={category.name} width={40} height={40} className="w-10 h-10" />
+                  ) : (
+                    <span className="text-2xl">{candidate}</span>
+                  )
+                })()}
             </div>
             <span className="text-sm text-gray-700">{category.name}</span>
           </div>
