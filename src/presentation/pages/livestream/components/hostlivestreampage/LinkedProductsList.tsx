@@ -49,7 +49,7 @@ export const LinkedProductsList: React.FC<Props> = ({ products, isLoading, error
                 <Image src={product.thumbnail} alt={product.name} fill unoptimized className="object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-2xl">
-                  <Icon name={('GOODS' as const)} alt={t('livestream.productsAlt') as string} width={40} height={40} />
+                  <Icon name={('GOODS' as const)} alt={t('productsAlt') as string} width={40} height={40} />
                 </div>
               )}
             </div>
@@ -74,7 +74,7 @@ export const LinkedProductsList: React.FC<Props> = ({ products, isLoading, error
               )}
             </div>
 
-            <Icon name={('ARROW_RIGHT' as const)} alt={t('livestream.back') as string} width={16} height={16} />
+            <Icon name={('ARROW_RIGHT' as const)} alt={t('back') as string} width={16} height={16} />
           </div>
         );
       })}

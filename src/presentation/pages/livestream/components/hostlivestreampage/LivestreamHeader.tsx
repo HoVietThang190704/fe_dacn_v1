@@ -41,7 +41,7 @@ export const LivestreamHeader: React.FC<Props> = ({ title, hostAvatar, hostName,
           </div>
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="flex items-center gap-2 text-black bg-white/50 px-3 py-1.5 rounded-full">
-              <Icon name={('EYES' as const)} alt={t('livestream.viewersAlt') as string} width={20} height={20} className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
+              <Icon name={('EYES' as const)} alt={t('viewersAlt') as string} width={20} height={20} className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
               <span className="font-semibold text-sm sm:text-base">{viewerCount}</span>
               <span className="text-xs sm:text-sm hidden sm:inline">{t('host.viewers')}</span>
             </div>

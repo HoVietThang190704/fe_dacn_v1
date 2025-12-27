@@ -32,9 +32,9 @@ export const useLivestreamProducts = (
       return;
     }
 
-    if (initialProducts && initialProducts.length > 0) {
-      setProducts(initialProducts);
-    }
+    // If initial products already provided, rely on the separate effect below
+    // to update `products`. This prevents setting state twice in one render
+    // and avoids infinite re-renders when parent passes new array references.
 
     const shouldSkipFetch = Boolean(initialProducts && initialProducts.length === productIds.length);
     if (shouldSkipFetch) {
@@ -89,13 +89,15 @@ export const useLivestreamProducts = (
     return () => {
       cancelled = true;
     };
-  }, [idsKey, initialKey, initialProducts, productIds]);
+  }, [idsKey, initialKey]);
 
   // Also update products list when initialProducts change (e.g., stock updates from WS)
   useEffect(() => {
+    // Update products when the *content* of initialProducts changes (use key to avoid
+    // running on every render when parent passes a new array reference with same data).
     if (!initialProducts || initialProducts.length === 0) return;
     setProducts(initialProducts);
-  }, [initialProducts]);
+  }, [initialKey]);
 
   return {
     products,

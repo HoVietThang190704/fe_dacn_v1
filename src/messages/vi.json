@@ -589,7 +589,8 @@
       "confirmReceived": "Đã nhận hàng",
       "cancel": "Hủy đơn",
       "details": "Xem chi tiết",
-      "confirmed": "Đã xác nhận"  
+      "confirmed": "Đã xác nhận",
+      "close": "Đóng"
     },
     "validation": {
       "reasonRequired": "Vui lòng nhập lý do hủy đơn",
@@ -757,6 +758,7 @@
       "chatComingSoon": "Tính năng chat đang được phát triển",
       "products": "Sản phẩm",
       "product": "Sản phẩm",
+      "viewersAlt": "Biểu tượng lượt xem",
       "loadingProducts": "Đang tải sản phẩm...",
       "productsError": "Không thể tải sản phẩm đi kèm",
       "noProducts": "Chưa có sản phẩm nào được liên kết",

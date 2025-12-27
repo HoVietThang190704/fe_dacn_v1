@@ -22,7 +22,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({ localVideoRef, isStr
           <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
             <div className="text-center px-4 z-30">
               <div className="mb-4 flex justify-center">
-                <Icon name={('VIDEO_CAMERA_ALT' as const)} alt={t('livestream.playAlt') as string} width={64} height={64} className="w-12 h-12 sm:w-16 sm:h-16 mb-2" />
+                <Icon name={('VIDEO_CAMERA_ALT' as const)} alt={t('playAlt') as string} width={64} height={64} className="w-12 h-12 sm:w-16 sm:h-16 mb-2" />
               </div>
               <p className="text-lg sm:text-xl mb-6">{isInitializing ? t('initializing') : t('host.readyToStart')}</p>
               {error && (
