@@ -593,7 +593,9 @@
       "contactSeller": "Contact seller",
       "confirmReceived": "Confirm received",
       "cancel": "Cancel",
-      "details": "View details"
+      "details": "View details",
+      "confirmed": "Confirmed",
+      "close": "Close"
     },
     "validation": {
       "reasonRequired": "Please enter a reason for cancellation",

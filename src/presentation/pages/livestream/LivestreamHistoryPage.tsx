@@ -199,7 +199,7 @@ const LivestreamHistoryPage: React.FC = () => {
                     <div className="flex items-start justify-between">
                       <div>
                         <div className="text-sm font-medium text-gray-900">{livestream.title}</div>
-                        <div className="text-xs text-gray-500">{livestream.description || t('livestream.noDescription')}</div>
+                        <div className="text-sm text-gray-500">{livestream.description || t('noDescription')}</div>
                       </div>
                       <div className="text-right text-xs text-gray-500">{formatTime(livestream.endTime)}</div>
                     </div>
@@ -218,7 +218,7 @@ const LivestreamHistoryPage: React.FC = () => {
                       </div>
                     </div>
                     <div className="mt-2 flex items-center justify-between text-xs">
-                      <div className="text-gray-500">{(livestream.viewerCount || 0) + ' ' + t('livestream.viewers')}</div>
+                      <div className="text-gray-500">{(livestream.viewerCount || 0) + ' ' + t('viewers')}</div>
                       <div>
                         <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${livestream.status === 'ENDED' ? 'bg-green-100 text-green-700' : livestream.status === 'LIVE' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}`}> 
                           {livestream.status}
